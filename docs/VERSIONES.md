@@ -53,6 +53,5 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | `tsx` | 4.23.15 | desarrollo |
 | `tw-animate-css` | 1.4.0 | producción |
 | `typescript` | 5.9.3 | desarrollo |
-| `vite-tsconfig-paths` | 6.1.1 | desarrollo |
 | `vitest` | 5.0.3 | desarrollo |
 <!-- deps:end -->
