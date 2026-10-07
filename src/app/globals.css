@@ -1,0 +1,274 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Sin modo oscuro: la variante dark solo aplica bajo .dark, que nunca se usa. */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Tokens del sistema de diseño GRUFARCOL eBR (Prompt 0, exportado en docs/diseno/).
+ * Tema CLARO único: no hay modo oscuro.
+ * Tres familias de color que NO se mezclan:
+ *   A. Semáforo de calidad y vigencia (q-*): solo estado de calidad y vigencia.
+ *   B. Estado de trámite (tram-*): neutro y azul primario; nunca verde, ámbar ni rojo.
+ *   C. Severidad de desviación (sev-*): violeta; solo desviaciones y CAPA.
+ * Ningún estado se comunica solo con color: siempre ícono + texto.
+ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-inter);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Primario azul acero */
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-tint: var(--primary-tint);
+
+  /* Superficies y texto */
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-border-control: var(--border-control);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-strong: var(--text-strong);
+
+  /* A. Semáforo de calidad y vigencia */
+  --color-q-ok-bg: var(--q-ok-bg);
+  --color-q-ok-fg: var(--q-ok-fg);
+  --color-q-ok-bd: var(--q-ok-bd);
+  --color-q-ok-ic: var(--q-ok-ic);
+  --color-q-warn-bg: var(--q-warn-bg);
+  --color-q-warn-fg: var(--q-warn-fg);
+  --color-q-warn-bd: var(--q-warn-bd);
+  --color-q-warn-ic: var(--q-warn-ic);
+  --color-q-bad-bg: var(--q-bad-bg);
+  --color-q-bad-fg: var(--q-bad-fg);
+  --color-q-bad-bd: var(--q-bad-bd);
+  --color-q-bad-ic: var(--q-bad-ic);
+  --color-q-off-bg: var(--q-off-bg);
+  --color-q-off-fg: var(--q-off-fg);
+  --color-q-off-bd: var(--q-off-bd);
+  --color-q-off-ic: var(--q-off-ic);
+
+  /* B. Estado de trámite */
+  --color-tram-en-curso-bg: var(--tram-en-curso-bg);
+  --color-tram-en-curso-fg: var(--tram-en-curso-fg);
+  --color-tram-en-curso-bd: var(--tram-en-curso-bd);
+  --color-tram-pendiente-bg: var(--tram-pendiente-bg);
+  --color-tram-pendiente-fg: var(--tram-pendiente-fg);
+  --color-tram-pendiente-bd: var(--tram-pendiente-bd);
+  --color-tram-completada-bg: var(--tram-completada-bg);
+  --color-tram-completada-fg: var(--tram-completada-fg);
+  --color-tram-completada-bd: var(--tram-completada-bd);
+  --color-tram-bloqueada-bg: var(--tram-bloqueada-bg);
+  --color-tram-bloqueada-fg: var(--tram-bloqueada-fg);
+  --color-tram-bloqueada-bd: var(--tram-bloqueada-bd);
+  --color-tram-revision-bg: var(--tram-revision-bg);
+  --color-tram-revision-fg: var(--tram-revision-fg);
+  --color-tram-revision-bd: var(--tram-revision-bd);
+  --color-tram-firmada-bg: var(--tram-firmada-bg);
+  --color-tram-firmada-fg: var(--tram-firmada-fg);
+  --color-tram-firmada-bd: var(--tram-firmada-bd);
+
+  /* C. Severidad de desviación */
+  --color-sev-menor-bg: var(--sev-menor-bg);
+  --color-sev-menor-fg: var(--sev-menor-fg);
+  --color-sev-menor-bd: var(--sev-menor-bd);
+  --color-sev-mayor-bg: var(--sev-mayor-bg);
+  --color-sev-mayor-fg: var(--sev-mayor-fg);
+  --color-sev-mayor-bd: var(--sev-mayor-bd);
+  --color-sev-critica-bg: var(--sev-critica-bg);
+  --color-sev-critica-fg: var(--sev-critica-fg);
+  --color-sev-critica-bd: var(--sev-critica-bd);
+
+  /* Escala tipográfica (escritorio; tablet en la clase .tablet-type) */
+  --text-page-title: 28px;
+  --text-page-title--line-height: 36px;
+  --text-page-title--font-weight: 600;
+  --text-page-title--letter-spacing: -0.01em;
+  --text-section: 20px;
+  --text-section--line-height: 28px;
+  --text-section--font-weight: 600;
+  --text-card-title: 16px;
+  --text-card-title--line-height: 24px;
+  --text-card-title--font-weight: 600;
+  --text-figure: 36px;
+  --text-figure--line-height: 40px;
+  --text-figure--font-weight: 600;
+  --text-figure--letter-spacing: -0.01em;
+  --text-body: 14px;
+  --text-body--line-height: 22px;
+  --text-small: 13px;
+  --text-small--line-height: 20px;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-label--font-weight: 600;
+  --text-label--letter-spacing: 0.04em;
+  --text-code: 14px;
+  --text-code--line-height: 20px;
+  --text-code--font-weight: 500;
+}
+
+:root {
+  /* Mapeo shadcn → sistema de diseño */
+  --background: #f7f9fb;
+  --foreground: #161b23;
+  --card: #ffffff;
+  --card-foreground: #161b23;
+  --popover: #ffffff;
+  --popover-foreground: #161b23;
+  --primary: #1e4e8c;
+  --primary-foreground: #ffffff;
+  --secondary: #eef3fa;
+  --secondary-foreground: #173e70;
+  --muted: #f1f4f8;
+  --muted-foreground: #4d596b;
+  --accent: #eef3fa;
+  --accent-foreground: #173e70;
+  --destructive: #b3261e;
+  --border: #d3dbe4;
+  --input: #7c8a9d;
+  --ring: #1e4e8c;
+  --chart-1: #1e4e8c;
+  --chart-2: #5a86bc;
+  --chart-3: #8fb0d6;
+  --chart-4: #38424f;
+  --chart-5: #7c8a9d;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #161b23;
+  --sidebar-primary: #1e4e8c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef3fa;
+  --sidebar-accent-foreground: #173e70;
+  --sidebar-border: #d3dbe4;
+  --sidebar-ring: #1e4e8c;
+
+  /* Primario */
+  --primary-hover: #173e70;
+  --primary-strong: #112f55;
+  --primary-soft: #dce7f4;
+  --primary-tint: #eef3fa;
+
+  /* Superficies y texto */
+  --surface: #ffffff;
+  --surface-sunken: #f1f4f8;
+  --border-control: #7c8a9d;
+  --text-strong: #252d38;
+  --text-secondary: #4d596b;
+  --text-muted: #5e6c82;
+
+  /* A. Semáforo */
+  --q-ok-bg: #e6f4ea;
+  --q-ok-fg: #1b6b3a;
+  --q-ok-bd: #9fd0af;
+  --q-ok-ic: #1f7a43;
+  --q-warn-bg: #fff1d6;
+  --q-warn-fg: #7a4a00;
+  --q-warn-bd: #e3be7a;
+  --q-warn-ic: #8a5200;
+  --q-bad-bg: #fde8e8;
+  --q-bad-fg: #a4262c;
+  --q-bad-bd: #e9a7a9;
+  --q-bad-ic: #b3261e;
+  --q-off-bg: #eef1f5;
+  --q-off-fg: #4d596b;
+  --q-off-bd: #b6c1ce;
+  --q-off-ic: #5e6c82;
+
+  /* B. Trámite */
+  --tram-en-curso-bg: #dce7f4;
+  --tram-en-curso-fg: #173e70;
+  --tram-en-curso-bd: #8fb0d6;
+  --tram-pendiente-bg: #ffffff;
+  --tram-pendiente-fg: #38424f;
+  --tram-pendiente-bd: #7c8a9d;
+  --tram-completada-bg: #1e4e8c;
+  --tram-completada-fg: #ffffff;
+  --tram-completada-bd: #1e4e8c;
+  --tram-bloqueada-bg: #38424f;
+  --tram-bloqueada-fg: #ffffff;
+  --tram-bloqueada-bd: #38424f;
+  --tram-revision-bg: #eef3fa;
+  --tram-revision-fg: #173e70;
+  --tram-revision-bd: #5a86bc;
+  --tram-firmada-bg: #112f55;
+  --tram-firmada-fg: #ffffff;
+  --tram-firmada-bd: #112f55;
+
+  /* C. Severidad */
+  --sev-menor-bg: #f1ecfa;
+  --sev-menor-fg: #5b3a99;
+  --sev-menor-bd: #b9a3de;
+  --sev-mayor-bg: #dccff3;
+  --sev-mayor-fg: #46287f;
+  --sev-mayor-bd: #8e6cc8;
+  --sev-critica-bg: #4b2a8a;
+  --sev-critica-fg: #ffffff;
+  --sev-critica-bd: #4b2a8a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-body text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Foco visible: anillo 2 px con separación blanca 2 px */
+  :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px var(--ring);
+  }
+  a {
+    color: var(--primary);
+  }
+  a:hover {
+    color: var(--primary-hover);
+  }
+}
