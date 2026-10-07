@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><style>@keyframes dsPulse{0%,100%{opacity:1}50%{opacity:.45}}</style></helmet>
+<div style="background:#fff;border:1px solid #D3DBE4;border-radius:10px;padding:24px 20px;display:grid;gap:10px;justify-items:center;text-align:center;align-content:start;min-height:230px;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;color:#161B23" aria-busy="{{ busy }}">
+<sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}"><div style="width:100%;display:grid;gap:10px"><div style="font:600 12px/16px Inter;letter-spacing:.04em;text-transform:uppercase;color:#5E6C82">Cargando</div><div style="height:20px;width:55%;border-radius:6px;background:#E6EBF1;animation:dsPulse 1.6s ease-in-out infinite"></div><div style="height:14px;width:100%;border-radius:6px;background:#E6EBF1;animation:dsPulse 1.6s ease-in-out infinite"></div><div style="height:14px;width:85%;border-radius:6px;background:#E6EBF1;animation:dsPulse 1.6s ease-in-out infinite"></div><div style="height:36px;width:100%;border-radius:6px;background:#E6EBF1;animation:dsPulse 1.6s ease-in-out infinite"></div><div style="font:400 13px/20px Inter;color:#4D596B">{{ ttl }}</div></div></sc-if>
+<sc-if value="{{ notLoading }}" hint-placeholder-val="{{ true }}"><span style="width:56px;height:56px;border-radius:50%;background:{{ bg }};color:{{ fg }};display:flex;align-items:center;justify-content:center"><dc-import name="Icon" glyph="{{ icon }}" size="28" hint-size="28px,28px"></dc-import></span>
+<div style="font:600 12px/16px Inter;letter-spacing:.04em;text-transform:uppercase;color:#5E6C82">{{ label }}</div><div style="font:600 16px/22px Inter">{{ ttl }}</div><div style="font:400 13px/20px Inter;color:#4D596B">{{ txt }}</div>
+<sc-if value="{{ hasCode }}" hint-placeholder-val="{{ false }}"><span style="font:500 12px 'JetBrains Mono',monospace;color:#38424F;padding:3px 8px;border-radius:6px;background:#F1F4F8">{{ code }}</span></sc-if>
+<sc-if value="{{ hasAction }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:6px;background:{{ abg }};color:{{ afg }};border:1px solid #1E4E8C;font:600 14px/1 Inter;margin-top:4px">{{ action }}</span></sc-if></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:320,&quot;height&quot;:260},&quot;kind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;vacio&quot;,&quot;cargando&quot;,&quot;error&quot;,&quot;permiso&quot;],&quot;default&quot;:&quot;vacio&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;text&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;action&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;code&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p=this.props, k=p.kind||'vacio';
+    const M={vacio:{icon:'inbox',bg:'#F1F4F8',fg:'#4D596B',label:'Vacío'},error:{icon:'x-circle',bg:'#FDE8E8',fg:'#B3261E',label:'Error'},permiso:{icon:'lock',bg:'#38424F',fg:'#FFFFFF',label:'Sin permiso'},cargando:{icon:'clock',bg:'#F1F4F8',fg:'#4D596B',label:'Cargando'}}[k]||{};
+    const primary=k==='vacio';
+    return {isLoading:k==='cargando',notLoading:k!=='cargando',busy:k==='cargando'?'true':'false',...M,ttl:p.title||'',txt:p.text||'',action:p.action||'',hasAction:!!p.action,code:p.code||'',hasCode:!!p.code,abg:primary?'#1E4E8C':'#FFFFFF',afg:primary?'#FFFFFF':'#1E4E8C'};
+  }
+}
+</script>
+</body>
+</html>

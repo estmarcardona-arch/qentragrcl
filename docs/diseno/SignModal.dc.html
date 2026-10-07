@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="background:#fff;border-radius:12px;box-shadow:0 16px 40px rgba(22,27,35,.2);display:grid;gap:14px;padding:22px;font-family:Inter,system-ui,sans-serif;color:#161B23">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font:600 20px/28px Inter">Firmar registro</span><dc-import name="Icon" glyph="x" size="18" hint-size="18px,18px"></dc-import></div>
+<div style="background:#F1F4F8;border-radius:8px;padding:12px 14px;display:grid;gap:2px"><span style="font:600 12px/16px Inter;letter-spacing:.04em;text-transform:uppercase;color:#4D596B">Qué se firma</span><span style="font:600 15px/22px Inter">{{ m.what }}</span><span style="font:500 12px/18px 'JetBrains Mono',monospace;color:#252D38">{{ m.code }}</span></div>
+<div style="display:grid;gap:8px"><span style="font:600 13px/18px Inter">Significado de la firma</span><div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ m.chips }}" as="c" hint-placeholder-count="5"><span style="display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 12px;box-sizing:border-box;border-radius:16px;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }};font:{{ c.f }}"><sc-if value="{{ c.sel }}" hint-placeholder-val="{{ false }}"><dc-import name="Icon" glyph="check" size="14" sw="3" hint-size="14px,14px"></dc-import></sc-if>{{ c.label }}</span></sc-for></div></div>
+<div style="display:grid;gap:5px;font:400 13px/19px Inter;color:#252D38;border-top:1px solid #E6EBF1;border-bottom:1px solid #E6EBF1;padding:10px 0"><span style="font:600 13px/18px Inter">Resumen de lo que firma</span><sc-for list="{{ m.summary }}" as="s" hint-placeholder-count="4"><span style="display:flex;justify-content:space-between;gap:12px"><span style="color:#4D596B">{{ s.k }}</span><span style="text-align:right;font:{{ s.f }}">{{ s.v }}</span></span></sc-for></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:36px;height:36px;border-radius:50%;background:#DCE7F4;color:#173E70;display:flex;align-items:center;justify-content:center;font:600 13px/1 Inter">{{ m.ini }}</span><span><b style="display:block;font:600 14px/18px Inter">{{ m.name }}</b><span style="font:400 13px/18px Inter;color:#4D596B">{{ m.role }}</span></span></div>
+<sc-if value="{{ m.sod }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:32px 1fr;gap:10px;padding:12px;border-radius:8px;background:#F1F4F8;box-shadow:inset 0 0 0 1px #38424F;align-items:start"><span style="width:32px;height:32px;border-radius:8px;background:#38424F;color:#fff;display:flex;align-items:center;justify-content:center"><dc-import name="Icon" glyph="users" size="18" hint-size="18px,18px"></dc-import></span><span><b style="display:block;font:600 14px/20px Inter">{{ m.sodTitle }}</b><span style="font:400 13px/19px Inter;color:#38424F">{{ m.sodText }}</span></span></div></sc-if>
+<div style="display:grid;gap:6px"><label style="font:600 13px/18px Inter">Confirme su identidad</label><div style="height:40px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:6px;background:{{ m.pwBg }};border:1px solid {{ m.pwBd }};box-shadow:{{ m.pwRing }};font:500 16px/20px Inter;letter-spacing:.2em;color:#161B23"><span>{{ m.pwVal }}</span><span style="color:#4D596B;letter-spacing:0"><dc-import name="Icon" glyph="{{ m.pwIcon }}" size="16" hint-size="16px,16px"></dc-import></span></div>
+<sc-if value="{{ m.err }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:6px;font:500 13px/19px Inter;color:#A4262C"><dc-import name="Icon" glyph="x-circle" size="14" hint-size="14px,14px"></dc-import>Contraseña incorrecta. Le quedan 2 intentos.</div></sc-if></div>
+<div style="display:flex;align-items:center;justify-content:space-between;height:36px;padding:0 12px;border-radius:6px;background:#F1F4F8;box-shadow:inset 0 0 0 1px #D3DBE4;font:400 13px/18px Inter;color:#38424F"><span style="display:flex;align-items:center;gap:6px"><dc-import name="Icon" glyph="lock" size="14" hint-size="14px,14px"></dc-import>Fecha y hora del servidor</span><span style="font:500 13px 'JetBrains Mono',monospace;color:#161B23">{{ m.dt }}</span></div>
+<div style="display:flex;justify-content:flex-end;gap:10px"><span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:6px;border:1px solid #1E4E8C;color:#1E4E8C;font:600 14px/1 Inter">Cancelar</span><span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:6px;background:{{ m.fBg }};color:{{ m.fFg }};border:1px solid {{ m.fBg }};font:600 14px/1 Inter;cursor:{{ m.fCur }}"><dc-import name="Icon" glyph="sign" size="16" hint-size="16px,16px"></dc-import>Firmar</span></div>
+<sc-if value="{{ m.sod }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:16px 1fr;gap:8px;font:400 13px/19px Inter;color:#38424F;margin-top:-4px"><span style="margin-top:2px"><dc-import name="Icon" glyph="lock" size="14" hint-size="14px,14px"></dc-import></span><span>«Firmar» está deshabilitado: otra persona debe verificar.</span></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:720},&quot;m&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

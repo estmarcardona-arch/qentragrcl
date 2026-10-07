@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:100%;max-width:440px;background:#fff;border:1px solid #D3DBE4;border-radius:12px;box-shadow:0 8px 28px rgba(22,27,35,.08);padding:32px;display:grid;gap:18px;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;color:#161B23">
+<div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:8px;background:#1E4E8C;color:#fff;display:flex;align-items:center;justify-content:center"><dc-import name="Icon" glyph="shield" size="20" hint-size="20px,20px"></dc-import></span><span style="font:600 16px/20px Inter">GRUFARCOL eBR</span></div>
+<div><h1 style="margin:0 0 4px;font:600 28px/36px Inter;letter-spacing:-.01em">Iniciar sesión</h1><p style="margin:0;font:400 14px/21px Inter;color:#4D596B">Ingrese con su cuenta corporativa.</p></div>
+<sc-if value="{{ v.hasBanner }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;padding:12px 14px;border-radius:8px;background:{{ v.bBg }};box-shadow:inset 0 0 0 1px {{ v.bBd }}"><span style="color:{{ v.bIc }}"><dc-import name="Icon" glyph="{{ v.bIcon }}" size="22" hint-size="22px,22px"></dc-import></span><span><b style="display:block;font:600 14px/20px Inter;color:{{ v.bFg }}">{{ v.bTitle }}</b><span style="font:400 14px/21px Inter;color:#252D38">{{ v.bText }}</span></span></div></sc-if>
+<div style="display:grid;gap:6px"><label style="font:500 14px/20px Inter">Correo electrónico</label><div style="height:40px;box-sizing:border-box;display:flex;align-items:center;padding:0 12px;border-radius:6px;background:{{ v.fieldBg }};border:1px solid {{ v.emailBd }};box-shadow:{{ v.emailRing }};font:400 14px/20px Inter;color:{{ v.fieldFg }}">{{ v.email }}</div></div>
+<div style="display:grid;gap:6px"><label style="font:500 14px/20px Inter">Contraseña</label><div style="height:40px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:6px;background:{{ v.fieldBg }};border:1px solid {{ v.pwBd }};box-shadow:{{ v.pwRing }};font:500 16px/20px Inter;letter-spacing:.2em;color:{{ v.fieldFg }}"><span>{{ v.pwVal }}</span><span style="color:#4D596B"><dc-import name="Icon" glyph="eye" size="18" hint-size="18px,18px"></dc-import></span></div>
+<sc-if value="{{ v.pwErr }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:6px;font:500 13px/19px Inter;color:#A4262C"><dc-import name="Icon" glyph="x-circle" size="14" hint-size="14px,14px"></dc-import>{{ v.pwErr }}</div></sc-if></div>
+<div style="display:flex;justify-content:flex-end"><a href="#" style="font:500 14px/20px Inter;color:#1E4E8C">¿Olvidó su contraseña?</a></div>
+<div style="display:grid;gap:8px"><span style="display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:6px;background:{{ v.btnBg }};color:{{ v.btnFg }};border:1px solid {{ v.btnBd }};box-shadow:{{ v.btnRing }};font:600 15px/1 Inter;cursor:{{ v.btnCur }}">Ingresar</span>
+<sc-if value="{{ v.reason }}" hint-placeholder-val="{{ false }}"><span style="display:grid;grid-template-columns:16px 1fr;gap:8px;font:400 13px/19px Inter;color:#38424F"><span style="margin-top:2px"><dc-import name="Icon" glyph="lock" size="14" hint-size="14px,14px"></dc-import></span><span>{{ v.reason }}</span></span></sc-if></div>
+<div style="display:grid;grid-template-columns:18px 1fr;gap:8px;padding:10px 12px;border-radius:8px;background:#F1F4F8;font:400 13px/19px Inter;color:#38424F"><span style="color:#4D596B;margin-top:1px"><dc-import name="Icon" glyph="clock" size="16" hint-size="16px,16px"></dc-import></span><span>Por seguridad, su sesión se cierra tras <b style="font-weight:600;color:#161B23">15 minutos</b> de inactividad.</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:640},&quot;v&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
