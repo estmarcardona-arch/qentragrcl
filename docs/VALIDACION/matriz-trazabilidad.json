@@ -1,0 +1,598 @@
+{
+  "etapa_actual": "E0",
+  "orden_etapas": ["E0", "E1", "E2", "E2B", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11"],
+  "requisitos": [
+    {
+      "id": "RNF-01",
+      "etapa": "E0",
+      "descripcion": "Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base sin violaciones axe",
+      "pruebas": [
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/inicio.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "RNF-03",
+      "etapa": "E0",
+      "descripcion": "Idioma es-CO; formatos COP, dd/mm/aaaa, 24 h",
+      "pruebas": [
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/format.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "AG-05",
+      "etapa": "E0",
+      "descripcion": "AGENTS.md regla 5: la clave service_role nunca se usa en el código del navegador",
+      "pruebas": [
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/db/secrets.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "RF-01",
+      "etapa": "E1",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-02",
+      "etapa": "E1",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-01",
+      "etapa": "E1",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-02",
+      "etapa": "E1",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-08",
+      "etapa": "E1",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-03",
+      "etapa": "E2",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-04",
+      "etapa": "E2",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-06",
+      "etapa": "E2",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-11",
+      "etapa": "E2",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-05",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-92",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-93",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-94",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-95",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-96",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-97",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-98",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-99",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-100",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-101",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-102",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-103",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-19",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-20",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-23",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-25",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-26",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-28",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-29",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-30",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-31",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-32",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-33",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-34",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-35",
+      "etapa": "E2B",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-10",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-11",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-12",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-13",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-14",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-15",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-16",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-17",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-13",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-16",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-17",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-18",
+      "etapa": "E3",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-20",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-21",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-22",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-23",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-24",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-25",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-21",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-22",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-24",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-27",
+      "etapa": "E4",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-50",
+      "etapa": "E5",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-30",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-31",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-32",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-33",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-34",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-35",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-36",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-37",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-38",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-39",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-03",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-04",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-05",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-07",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-14",
+      "etapa": "E6",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-40",
+      "etapa": "E7",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-41",
+      "etapa": "E7",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-42",
+      "etapa": "E7",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-60",
+      "etapa": "E8",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-61",
+      "etapa": "E8",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-62",
+      "etapa": "E8",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-12",
+      "etapa": "E8",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-80",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-81",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-82",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-83",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-06",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-09",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-10",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "AC-15",
+      "etapa": "E9",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-70",
+      "etapa": "E10",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-71",
+      "etapa": "E10",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-72",
+      "etapa": "E10",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-90",
+      "etapa": "E10",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    },
+    {
+      "id": "RF-91",
+      "etapa": "E10",
+      "descripcion": "Ver PRD_GRUFARCOL.md",
+      "pruebas": []
+    }
+  ],
+  "nota": "Cada prueba debe mencionar el ID del requisito en su nombre o en un comentario. scripts/check-traceability.ts falla si un requisito de una etapa <= etapa_actual no tiene prueba."
+}
