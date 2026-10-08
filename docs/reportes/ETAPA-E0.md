@@ -1,74 +1,76 @@
 # Reporte de etapa E0 — Cimientos
 
 **Fase del PRD:** F0 · **Rama:** `etapa/E0` · **Fecha:** 07/10/2026
-**Estado:** construida y verificada en local. **No se puede cerrar todavía:** faltan tres verificaciones que dependen de credenciales y servicios externos (ver «Pendiente para cerrar»).
+**Estado:** construida; puertas 1, 2 y 5 cumplidas. **Pendientes:** puerta 3 (despliegue en pruebas, requiere confirmar D-02) y puerta 4 (revisión de `/_design` por el responsable).
+
+## Puerta de salida
+
+| #   | Condición                                                     | Estado        | Evidencia                                                                                                                                                        |
+| --- | ------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Clon limpio + 5 comandos = app corriendo en local             | Cumplida      | Clon de `etapa/E0` en carpeta temporal → `npm ci` → `.env.local` → `npm run dev`: `/` 200, `/_design` 200, `/api/health` 200 (`database: ok`), `/no-existe` 404  |
+| 2   | CI en verde                                                   | Cumplida      | [Ejecución 37708683176](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/37708683176), commit `8ad236c`: Calidad ✅ (48 s) · Integración ✅ (154 s) |
+| 3   | App vacía en el entorno de pruebas con `/api/health` en verde | **Pendiente** | Requiere confirmar D-02 antes de desplegar (Supabase en la nube + Vercel solo para pruebas)                                                                      |
+| 4   | Página `/_design` revisada por el responsable                 | **Pendiente** | Disponible en local (`npm run dev` → `/_design`) y, tras el despliegue, en pruebas                                                                               |
+| 5   | Reporte ETAPA-E0.md                                           | Cumplida      | Este documento                                                                                                                                                   |
 
 ## Qué se construyó
 
-| Área        | Entregable                                                                                                                                                                                                   |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Repositorio | git con `main` (documentos fuente) y `etapa/E0`; `docs/` reorganizado según PRD §5; exportaciones de diseño en `docs/diseno/`                                                                                |
-| Reglas      | `AGENTS.md` (PRD §15 + 14 reglas del proyecto + bloque de Next.js 16), `CLAUDE.md`                                                                                                                           |
-| App         | Next.js 16.4 (App Router, TS estricto, Turbopack), React 19.3, página base `/` en es-CO                                                                                                                      |
-| Diseño      | Tailwind 4 + shadcn/ui (Radix) + lucide-react; tokens del Prompt 0 en `src/app/globals.css` (primario, superficies, semáforo, trámite, severidad, tipografía, foco); Inter + JetBrains Mono; solo tema claro |
-| Formatos    | `src/lib/format.ts` (COP, números, %, DD/MM/AAAA, DD-MM-AAAA, 24 h, America/Bogota)                                                                                                                          |
-| Supabase    | Clientes navegador/servidor con clave pública; `supabase/config.toml`; `.env.example`                                                                                                                        |
-| Migraciones | `0001_extensions.sql` (pgcrypto, pgtap)                                                                                                                                                                      |
-| RPC         | Ninguna (no corresponde a E0)                                                                                                                                                                                |
-| Pantallas   | Ninguna del catálogo S-xx (empiezan en E1)                                                                                                                                                                   |
-| Pruebas     | Vitest, Playwright + axe (1440 y 1024 px), pgTAP con ejecutor propio sin Docker                                                                                                                              |
-| Calidad     | ESLint, Prettier (+ plugin Tailwind), husky + lint-staged, `tsc --noEmit` con `next typegen`                                                                                                                 |
-| Validación  | Matriz requisito→prueba con los 96 RF/AC/RNF por etapa (`docs/VALIDACION/`); el CI falla si un requisito de una etapa alcanzada no tiene prueba                                                              |
-| Versiones   | Todas exactas; `docs/VERSIONES.md` verificado en CI                                                                                                                                                          |
-| CI          | `.github/workflows/ci.yml`: Calidad → E2E/axe y Base de datos (migraciones + pgTAP)                                                                                                                          |
+| Punto del encargo    | Entregable                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Repositorio       | Estructura PRD §5 (`/supabase`, `/src`, `/docs`, `/e2e`, `AGENTS.md`); `.gitignore` con `.env*` excepto `.env.example`; `LICENSE` propietaria «Todos los derechos reservados»; README con arranque en 5 comandos                                                                                                                                                                                                                 |
+| 2. Aplicación        | Next.js 16.4 (App Router, Turbopack) + TS estricto + Tailwind 4 + shadcn/ui + lucide-react, versiones exactas; alias `@/`; ESLint, Prettier, husky (pre-commit: lint-staged + tsc + Vitest; commit-msg: commitlint)                                                                                                                                                                                                              |
+| 3. Sistema de diseño | Tokens del Prompt 0 en `src/app/globals.css` (colores, tres familias, tipografía Inter + JetBrains Mono, foco, objetivos táctiles de 44 px en tablet). Componentes: `StatusBadge`, `PageHeader`, `DataTable` (TanStack Table 9), `EmptyState`, `ErrorState`, `NoPermissionState`, `LoadingSkeleton`, `FormField`, `SodNotice`, `ControlledDocumentHeader` + `CopyStamp`, `DisabledReason`, variantes de botón. Página `/_design` |
+| 4. Supabase          | `supabase/config.toml`; migraciones `0001_extensions.sql` (pgcrypto, pgtap) y `0002_utilities.sql` (`set_updated_at`, `health_check`); `seed.sql`; convenciones en `docs/CONVENCIONES_BD.md`; scripts `db:start`, `db:reset`, `db:stop`, `db:types`, `db:types:local`, `db:push`, `test:db`, `test:db:local`                                                                                                                     |
+| 5. Cliente           | `src/lib/db` (navegador y servidor por separado, tipados con `Database`), tipos generados, `src/lib/rpc` (envoltorio tipado), `src/lib/format.ts` con pruebas                                                                                                                                                                                                                                                                    |
+| 6. Observabilidad    | `src/lib/errors.ts` (códigos del PRD → regla + qué hacer), `src/lib/log.ts` (JSON por línea, oculta secretos), `not-found.tsx`, `error.tsx`, `global-error.tsx` en español, `GET /api/health`                                                                                                                                                                                                                                    |
+| 7. CI                | GitHub Actions en cada push y PR: instalar, prettier, lint, tsc, Vitest, matriz requisito→prueba, versiones → Supabase local en el runner, migraciones, pgTAP, build, E2E + axe                                                                                                                                                                                                                                                  |
+| 8. Entornos          | `docs/ENTORNOS.md`: local, pruebas y producción; variables por entorno; promoción de migraciones                                                                                                                                                                                                                                                                                                                                 |
+| 9. Documentos        | `docs/VERSIONES.md` (generado y verificado en CI), `docs/CHANGELOG.md`, `docs/PREGUNTAS_ABIERTAS.md`                                                                                                                                                                                                                                                                                                                             |
+
+**Migraciones aplicadas al proyecto Supabase de desarrollo/pruebas:** 0001 y 0002 (con confirmación de la CLI). **RPC:** `health_check()`. **Pantallas del catálogo S-xx:** ninguna (empiezan en E1).
 
 ## Resultados de pruebas
 
-No hay AC del PRD asignados a F0. La salida verificable de F0 es «App vacía desplegada, CI en verde».
+No hay AC del PRD asignados a F0.
 
-| Prueba                                               | Requisito        | Resultado (local, 07/10/2026)                    |
-| ---------------------------------------------------- | ---------------- | ------------------------------------------------ |
-| `npm run format:check`                               | AGENTS 12        | Aprobado                                         |
-| `npm run lint` (0 advertencias)                      | AGENTS 12        | Aprobado                                         |
-| `npm run typecheck`                                  | AGENTS 12        | Aprobado                                         |
-| `src/lib/format.test.ts` (7 casos)                   | RNF-03           | Aprobado                                         |
-| `src/lib/db/secrets.test.ts` (2 casos)               | AG-05            | Aprobado                                         |
-| `e2e/inicio.spec.ts` (2 casos × escritorio y tablet) | RNF-01 (parcial) | Aprobado (4/4, sin violaciones axe WCAG 2.1 AA)  |
-| `npm run traceability`                               | PRD §14          | Aprobado (3 requisitos de E0 cubiertos)          |
-| `npm run versions`                                   | AGENTS 10        | Aprobado (36 dependencias exactas)               |
-| `npm run build`                                      | F0               | Aprobado                                         |
-| `npm run db:push` (0001)                             | F0               | **No ejecutado:** falta `.env.local`             |
-| `supabase/tests/0001_extensions.test.sql` (3 casos)  | F0               | **No ejecutado:** falta `SUPABASE_DB_URL`        |
-| CI en GitHub Actions                                 | F0               | **No ejecutado:** falta el remoto y los secretos |
-| Despliegue en Vercel                                 | F0               | **Pendiente:** acordado para el final, con guía  |
+| Prueba                                                                                                           | Requisito             | Local                                | CI                            |
+| ---------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------------ | ----------------------------- |
+| Prettier, lint (0 advertencias), `tsc --noEmit`                                                                  | AGENTS 12             | Aprobado                             | Aprobado                      |
+| Vitest: 7 archivos, 25 casos (formatos, catálogo de estados, errores, registro, RPC, `/_design`, AG-05)          | RNF-03, RNF-01, AG-05 | Aprobado                             | Aprobado                      |
+| Matriz requisito→prueba (3 requisitos de E0 cubiertos)                                                           | PRD §14               | Aprobado                             | Aprobado                      |
+| Versiones exactas (38 dependencias)                                                                              | AGENTS 10             | Aprobado                             | Aprobado                      |
+| pgTAP `0001_extensions` (3) y `0002_utilities` (7)                                                               | E0                    | Aprobado 10/10 (proyecto en la nube) | Aprobado (base local efímera) |
+| Build de producción                                                                                              | F0                    | Aprobado                             | Aprobado                      |
+| E2E escritorio 1440 + tablet 1024: inicio, `/_design` (estados, búsqueda, orden, axe AA), `/api/health` 200, 404 | RNF-01                | Aprobado 14/14                       | Aprobado                      |
 
-## Pendiente para cerrar E0
+## Decisiones tomadas en esta etapa
 
-1. Crear `.env.local` a partir de `.env.example` con el proyecto Supabase de desarrollo. Después: `npm run db:push` y `npm run test:db`.
-2. Conectar el remoto de GitHub, subir `main` y `etapa/E0`, y crear el secreto `SUPABASE_DB_URL` en el repositorio (Settings → Secrets and variables → Actions).
-3. CI en verde en GitHub, y luego aprobación para integrar `etapa/E0` → `main`.
-4. Despliegue en Vercel (diferido por decisión del responsable).
+- **CI con Supabase local en el runner**, como pide el encargo: no usa credenciales ni toca la nube. El secreto `SUPABASE_DB_URL` en GitHub **ya no es necesario**.
+- **En el equipo local no hay Docker** (decisión del 07/10/2026: Supabase en la nube vía `.env.local`). Los scripts de base local existen y son los que usa el CI; en el equipo se usan `db:push` y `test:db` contra el proyecto en la nube.
+- `gen_random_uuid()` es nativo: no se instala `uuid-ossp`. `pg_cron` no aplica en E0.
+- Íconos: el diseño usa trazos propios equivalentes a lucide; se usa lucide-react (PRD §4) con el equivalente más cercano (p. ej. severidad «Crítica» → `OctagonAlert`).
+- `/_design` está en `src/app/%5Fdesign` (en Next.js una carpeta con `_` es privada). Solo responde en desarrollo o con `ENABLE_DESIGN_PAGE=true`.
 
 ## Deuda técnica y notas
 
-- `npm run db:types` usa `--project-id` y necesita `SUPABASE_ACCESS_TOKEN`; con `--db-url` la CLI requeriría Docker. Hace falta desde E1.
-- El job «Base de datos» aplica migraciones al proyecto de desarrollo en cada push a `etapa/**` o `main` (en PR solo simula). Si más adelante hay un proyecto de producción, tendrá su propio flujo con confirmación explícita (AGENTS 14).
-- El parámetro de prueba que congela la fecha de referencia se implementa en la primera etapa que lo necesite (E1), junto con la bitácora, para cumplir la regla 3 de AGENTS.
-- El componente `button.tsx` de shadcn conserva su estilo base; se ajustará a las variantes del Prompt 0 (primario, secundario, peligro, fantasma; motivo de deshabilitado) cuando se construyan las pantallas en E1.
-- Next.js 16.4 es posterior al conocimiento del modelo: se siguió la documentación incluida en `node_modules/next/dist/docs/` (Turbopack por defecto, `proxy` en lugar de `middleware`, `cacheComponents`).
+- El parámetro de prueba que congela la fecha de referencia se implementa en E1, junto con la bitácora.
+- `DataTable` filtra y pagina en el cliente; las listas de 10.000 filas (PRD §1) requerirán paginación en servidor en la etapa que las use.
+- Next.js 16.4 y TanStack Table 9 son posteriores al conocimiento del modelo: se siguió la documentación incluida en sus paquetes.
+- El paquete opcional `fsevents` (solo macOS) queda sin aprobar en `allowScripts`; no afecta.
 
 ## Preguntas abiertas nuevas
 
-D-27 (estado de fórmulas en `document_versions`), D-28 (prefijo `SD-` duplicado), D-29 (segundo factor: TOTP propuesto), D-30 (pgTAP en producción). Detalle en `docs/PREGUNTAS_ABIERTAS.md`. D-02 queda parcial y D-09 resuelta.
+D-31 (proyecto Supabase de pruebas separado). D-02 actualizada: nube + Vercel solo para pruebas; producción pendiente. Detalle en `docs/PREGUNTAS_ABIERTAS.md`.
 
 ## Comandos para reproducir
 
 ```bash
-nvm use && npm ci
-npx playwright install chromium
-npm run ci            # prettier, lint, tsc, vitest, matriz, versiones, build
-npm run test:e2e      # Playwright + axe
-cp .env.example .env.local   # y completar
-npm run db:push       # aplica 0001_extensions.sql (pide confirmación)
-npm run test:db       # pgTAP
+git clone https://github.com/estmarcardona-arch/qentragrcl.git grufarcol-ebr && cd grufarcol-ebr
+git checkout etapa/E0
+npm ci
+cp .env.example .env.local      # completar
+npm run dev                     # /, /_design, /api/health
+npm run ci                      # prettier, lint, tsc, vitest, matriz, versiones, build
+npx playwright install chromium && npm run test:e2e
+npm run test:db                 # pgTAP contra el proyecto de .env.local
 ```
