@@ -73,7 +73,10 @@ test.describe("RF-03 · alta y baja de usuario", () => {
     // La persona invitada abre el enlace y crea su contraseña.
     const guest = await freshPage(browser);
     await guest.page.goto(link);
-    await expect(guest.page.getByRole("heading", { name: /cree su contraseña/ })).toBeVisible();
+    await expect(
+      guest.page.getByRole("heading", { name: /cree su contraseña/ }),
+      `después del enlace quedó en ${guest.page.url()}`,
+    ).toBeVisible();
     await guest.page.getByLabel("Nueva contraseña").fill("corta");
     await guest.page.getByLabel("Confirme la contraseña").fill("corta");
     await guest.page.getByRole("button", { name: "Guardar contraseña" }).click();
