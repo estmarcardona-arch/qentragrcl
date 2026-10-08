@@ -66,6 +66,8 @@ test.describe("RF-01 / RF-02 · sesión iniciada", () => {
   test("RF-01 · la sesión expira por inactividad", async ({ page }, info) => {
     await page.clock.install();
     await loginOk(page, info.project.name === "tablet" ? USERS.hernan : USERS.ricardo);
+    // Espera a que el marco (con el temporizador de inactividad) esté montado antes de adelantar el reloj.
+    await expect(page.getByTestId("dashboard-card").first()).toBeVisible();
     await page.clock.fastForward("14:30");
     await expect(page.getByRole("alertdialog", { name: /inactividad/ })).toBeVisible();
     await page.clock.fastForward("01:00");
