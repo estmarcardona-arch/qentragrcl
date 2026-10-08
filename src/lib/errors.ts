@@ -52,6 +52,30 @@ export const ERROR_MESSAGES = {
     rule: "La liberación está bloqueada.",
     action: "Resuelva las causas listadas antes de liberar.",
   },
+  REAUTH_LOCKED: {
+    rule: "La firma está bloqueada temporalmente por intentos fallidos de contraseña.",
+    action: "Espere unos minutos o solicite el desbloqueo a Administración.",
+  },
+  MFA_REQUIRED: {
+    rule: "Esta firma exige un segundo factor de autenticación.",
+    action: "Confirme su identidad con el segundo factor e intente de nuevo.",
+  },
+  RECORD_NOT_FOUND: {
+    rule: "El registro no existe o no admite esta operación.",
+    action: "Actualice la página y verifique el registro.",
+  },
+  REASON_REQUIRED: {
+    rule: "Toda corrección exige un motivo.",
+    action: "Escriba el motivo de la corrección.",
+  },
+  INVALID_FIELD: {
+    rule: "Este campo no se puede corregir.",
+    action: "Corrija solo los datos registrados del formato.",
+  },
+  NO_CHANGE: {
+    rule: "El nuevo valor es igual al vigente.",
+    action: "Escriba un valor distinto o cancele la corrección.",
+  },
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_MESSAGES;
