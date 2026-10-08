@@ -1,0 +1,17 @@
+node_modules
+.next
+coverage
+playwright-report
+test-results
+package-lock.json
+docs/diseno
+supabase/.temp
+next-env.d.ts
+# Documentos fuente entregados por el responsable del proyecto: no se reformatean
+docs/PRD_GRUFARCOL.md
+docs/DOCUMENTO_MAESTRO_GRUFARCOL.md
+docs/PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md
+# Generados
+docs/VALIDACION/MATRIZ.md
+docs/VERSIONES.md
+src/lib/db/database.types.ts
