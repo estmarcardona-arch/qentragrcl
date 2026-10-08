@@ -62,6 +62,11 @@ test.describe("RF-03 · alta y baja de usuario", () => {
     await page.getByLabel("Cargo").fill("Químico formulador (I+D)");
     await page.getByRole("checkbox", { name: /Químico formulador/ }).check();
     await page.getByRole("button", { name: "Crear invitación" }).click();
+    const outcome = page.getByTestId("invite-link").or(page.getByRole("alert"));
+    await outcome.first().waitFor();
+    if (!(await page.getByTestId("invite-link").isVisible())) {
+      throw new Error(`La invitación falló: ${await page.getByRole("alert").first().innerText()}`);
+    }
     const link = (await page.getByTestId("invite-link").innerText()).trim();
     expect(link).toContain("/auth/confirmar?token_hash=");
 

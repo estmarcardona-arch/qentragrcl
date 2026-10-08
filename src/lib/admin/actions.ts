@@ -145,7 +145,7 @@ export async function inviteUser(
       p_user: userId,
       p_full_name: data.fullName,
       p_job_title: data.jobTitle ?? "",
-      p_area_id: data.areaId as string,
+      p_area_id: (data.areaId ?? null) as string,
       p_document_id: "",
       p_must_change_password: true,
       p_reason: why,

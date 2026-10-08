@@ -2,6 +2,21 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E2] Administración — 07/10/2026
+
+### Agregado
+
+- Migración 0008: áreas con sigla de proceso, árbol sin ciclos y área dueña del SGD (GCA); catálogos versionados con bitácora (unidades, tipos de material y de equipo, clasificación de desviaciones, motivos de corrección), líneas de producto, perfiles regulatorios (PRD §10) con foto por lote, reglas de retención (RNF-05) y marcas detrás del interruptor de maquila (D-01); `admin_save_catalog` con lista blanca y motivo.
+- Migración 0009: gestión de usuarios (listado, datos, activación sin borrado, roles con vigencia, ampliación y revocación, firma corta), auditor con vencimiento obligatorio y AC-11, combinaciones de roles prohibidas (D-18, SOD-7, SOD-9), configuración del sistema validada y política de contraseñas (mínimo 12, historial, caducidad).
+- Migración 0010: matriz de permisos del PRD 2.2 generada desde el Markdown y `has_module_permission`.
+- Pantallas S-03 (usuarios y roles, alta por invitación con enlace de un solo uso, detalle con bitácora) y S-04 (áreas, líneas, perfiles lado a lado, catálogos, retención, marcas, matriz de solo lectura, configuración); crear y cambiar contraseña; restablecimiento por enlace.
+- Pruebas: pgTAP de RLS por catálogo, usuarios, AC-11 y matriz; E2E de administración, alta y baja, AC-11 y comparación de la matriz de S-04 con el PRD.
+
+### Corregido
+
+- Migración 0011: `sign_record` valida registro, rol, orden y SOD antes de la contraseña; un rechazo por regla ya no consume intentos ni revierte el reinicio del contador. `practice_reauth` para la prueba en vivo.
+- Lectura de sesión y cliente de servidor marcados como de tiempo de solicitud (`connection()`), sin errores de prerender con Cache Components.
+
 ## [E1] Núcleo GxP — 07/10/2026
 
 ### Agregado

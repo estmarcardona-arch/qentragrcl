@@ -46,3 +46,11 @@ Las ramas `etapa/*` generan despliegues de vista previa; `main` es el despliegue
 ## Usuarios de prueba en el entorno de pruebas
 
 Con autorización del responsable (07/10/2026) se cargaron en el proyecto de la nube los 15 usuarios ficticios del Prompt 0B (`npm run seed:remote -- --confirmar`), con correos `@grufarcol.test` y la contraseña de desarrollo de `supabase/seed.sql`. Sirven para revisar pantallas; **nunca** deben existir en producción. El bloqueo de cuenta tras intentos fallidos no está activo en la nube (D-32, opción A).
+
+## Ajustes de Supabase Auth en la nube (E2)
+
+En el panel de Supabase del proyecto (los valores locales están en `supabase/config.toml`):
+
+- Authentication → Providers → Email: **longitud mínima de contraseña 12**.
+- Authentication → Providers → Email: **vencimiento del enlace (OTP) 86400 s** (24 h) para invitaciones y restablecimientos.
+- Authentication → Sign In / Providers: **registro público desactivado**.
