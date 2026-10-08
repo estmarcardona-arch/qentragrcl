@@ -4,6 +4,10 @@ Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en
 
 ## [E0] Cimientos — 07/10/2026
 
+### Cambiado
+
+- El servidor de desarrollo usa el puerto 3020 (`npm run dev` → http://localhost:3020); `supabase/config.toml` (auth local) actualizado al mismo puerto.
+
 ### Agregado (alcance ampliado de E0)
 
 - Componentes base: `StatusBadge` (tres familias de color, catálogo con ícono + texto), `PageHeader`, `DataTable` (TanStack Table 9: búsqueda, orden, paginación, estados), `EmptyState`, `ErrorState`, `NoPermissionState`, `LoadingSkeleton`, `FormField`, `SodNotice`, `ControlledDocumentHeader` y `CopyStamp`, `DisabledReason`; variantes de botón del Prompt 0.

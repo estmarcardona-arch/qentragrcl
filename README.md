@@ -15,7 +15,7 @@ git clone https://github.com/estmarcardona-arch/qentragrcl.git grufarcol-ebr
 cd grufarcol-ebr
 npm ci
 cp .env.example .env.local   # complete las variables (ver tabla en docs/ENTORNOS.md)
-npm run dev                  # http://localhost:3000 · componentes: /_design · salud: /api/health
+npm run dev                  # http://localhost:3020 · componentes: /_design · salud: /api/health
 ```
 
 ## Otros comandos
