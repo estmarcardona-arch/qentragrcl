@@ -71,6 +71,10 @@
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
   --color-text-strong: var(--text-strong);
+  --color-neutral-strong: var(--neutral-strong);
+  --color-border-strong: var(--border-strong);
+  --color-divider: var(--divider);
+  --color-destructive-hover: var(--destructive-hover);
 
   /* A. Semáforo de calidad y vigencia */
   --color-q-ok-bg: var(--q-ok-bg);
@@ -197,6 +201,10 @@
   --text-strong: #252d38;
   --text-secondary: #4d596b;
   --text-muted: #5e6c82;
+  --neutral-strong: #38424f;
+  --border-strong: #b6c1ce;
+  --divider: #e6ebf1;
+  --destructive-hover: #8f1d17;
 
   /* A. Semáforo */
   --q-ok-bg: #e6f4ea;
