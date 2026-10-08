@@ -5,13 +5,13 @@
 
 ## Puerta de salida
 
-| #   | Condición                                                     | Estado        | Evidencia                                                                                                                                                        |
-| --- | ------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Clon limpio + 5 comandos = app corriendo en local             | Cumplida      | Clon de `etapa/E0` en carpeta temporal → `npm ci` → `.env.local` → `npm run dev`: `/` 200, `/_design` 200, `/api/health` 200 (`database: ok`), `/no-existe` 404  |
-| 2   | CI en verde                                                   | Cumplida      | [Ejecución 37708683176](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/37708683176), commit `8ad236c`: Calidad ✅ (48 s) · Integración ✅ (154 s) |
-| 3   | App vacía en el entorno de pruebas con `/api/health` en verde | **Pendiente** | Requiere confirmar D-02 antes de desplegar (Supabase en la nube + Vercel solo para pruebas)                                                                      |
-| 4   | Página `/_design` revisada por el responsable                 | **Pendiente** | Disponible en local (`npm run dev` → `/_design`) y, tras el despliegue, en pruebas                                                                               |
-| 5   | Reporte ETAPA-E0.md                                           | Cumplida      | Este documento                                                                                                                                                   |
+| #   | Condición                                                     | Estado        | Evidencia                                                                                                                                                                                    |
+| --- | ------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Clon limpio + 5 comandos = app corriendo en local             | Cumplida      | Clon de `etapa/E0` en carpeta temporal → `npm ci` → `.env.local` → `npm run dev`: `/` 200, `/_design` 200, `/api/health` 200 (`database: ok`), `/no-existe` 404                              |
+| 2   | CI en verde                                                   | Cumplida      | [Ejecución 37708683176](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/37708683176), commit `8ad236c`: Calidad ✅ (48 s) · Integración ✅ (154 s)                             |
+| 3   | App vacía en el entorno de pruebas con `/api/health` en verde | Cumplida      | Vercel, vista previa de `etapa/E0` (commit `0f836e0`): `/` 200, `/_design` 200, `/api/health` 200 (`database: ok`), `/no-existe` 404. Protegida con Vercel Authentication (sin secreto: 302) |
+| 4   | Página `/_design` revisada por el responsable                 | **Pendiente** | Disponible en local (`http://localhost:3020/_design`) y en la vista previa de Vercel                                                                                                         |
+| 5   | Reporte ETAPA-E0.md                                           | Cumplida      | Este documento                                                                                                                                                                               |
 
 ## Qué se construyó
 
