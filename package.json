@@ -27,7 +27,8 @@
     "db:reset": "supabase db reset",
     "db:types:local": "supabase gen types typescript --local --schema public > src/lib/db/database.types.ts",
     "test:db:local": "tsx scripts/db-test.ts --local",
-    "test:db:pending": "tsx scripts/db-test.ts --pending"
+    "test:db:pending": "tsx scripts/db-test.ts --pending",
+    "seed:remote": "tsx scripts/seed-remote.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
