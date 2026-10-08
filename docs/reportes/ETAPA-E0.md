@@ -1,7 +1,7 @@
 # Reporte de etapa E0 — Cimientos
 
 **Fase del PRD:** F0 · **Rama:** `etapa/E0` · **Fecha:** 07/10/2026
-**Estado:** construida; puertas 1, 2 y 5 cumplidas. **Pendientes:** puerta 3 (despliegue en pruebas, requiere confirmar D-02) y puerta 4 (revisión de `/_design` por el responsable).
+**Estado:** construida; puertas 1, 2, 3 y 5 cumplidas. **Pendiente:** puerta 4 (revisión de `/_design` por el responsable).
 
 ## Puerta de salida
 
@@ -50,6 +50,8 @@ No hay AC del PRD asignados a F0.
 - `gen_random_uuid()` es nativo: no se instala `uuid-ossp`. `pg_cron` no aplica en E0.
 - Íconos: el diseño usa trazos propios equivalentes a lucide; se usa lucide-react (PRD §4) con el equivalente más cercano (p. ej. severidad «Crítica» → `OctagonAlert`).
 - `/_design` está en `src/app/%5Fdesign` (en Next.js una carpeta con `_` es privada). Solo responde en desarrollo o con `ENABLE_DESIGN_PAGE=true`.
+
+- **Vercel:** el proyecto se importó cuando `main` solo tenía documentos y el primer despliegue de `etapa/E0` falló (preset distinto de Next.js, causa probable). Se agregó `vercel.json` con `"framework": "nextjs"` y `engines.node = 24.x`; el siguiente despliegue salió bien. D-02 confirmada para pruebas: Supabase en la nube + Vercel.
 
 ## Deuda técnica y notas
 
