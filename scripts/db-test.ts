@@ -6,9 +6,12 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Client } from "pg";
 
-if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+// --local: base de `supabase start` (Docker). Sin la bandera: SUPABASE_DB_URL (.env.local o CI).
+const LOCAL_DB_URL = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+const useLocal = process.argv.includes("--local");
+if (!useLocal && existsSync(".env.local")) process.loadEnvFile(".env.local");
 
-const dbUrl = process.env.SUPABASE_DB_URL;
+const dbUrl = useLocal ? LOCAL_DB_URL : process.env.SUPABASE_DB_URL;
 if (!dbUrl) {
   console.error("Falta SUPABASE_DB_URL (ver .env.example).");
   process.exit(1);
