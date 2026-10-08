@@ -60,9 +60,11 @@ jobs:
             const s = JSON.parse(require("fs").readFileSync("/tmp/sb-status.json", "utf8"));
             const url = s.API_URL;
             const key = s.PUBLISHABLE_KEY || s.ANON_KEY;
-            if (!url || !key) { console.error("Faltan API_URL o la clave pública en supabase status"); process.exit(1); }
+            const admin = s.SECRET_KEY || s.SERVICE_ROLE_KEY;
+            if (!url || !key || !admin) { console.error("Faltan API_URL o las claves en supabase status"); process.exit(1); }
             require("fs").appendFileSync(process.env.GITHUB_ENV,
-              `NEXT_PUBLIC_SUPABASE_URL=${url}\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${key}\n`);
+              `NEXT_PUBLIC_SUPABASE_URL=${url}\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${key}\nSUPABASE_SERVICE_ROLE_KEY=${admin}\n`);
+            console.log("::add-mask::" + admin);
           '
 
       - name: Verificar variables
@@ -85,6 +87,8 @@ jobs:
           # La base local tiene la semilla (usuarios del Prompt 0B) y el hook de bloqueo activo.
           E2E_SEED_USERS: "1"
           E2E_AUTH_HOOK: "1"
+          E2E_ADMIN_API: "1"
+          E2E_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
       - name: Diagnóstico de autenticación (solo si falla)
         if: failure()
