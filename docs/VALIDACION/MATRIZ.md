@@ -4,7 +4,7 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
-| RNF-01 | E0 | Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base sin violaciones axe | e2e: `e2e/inicio.spec.ts` | Cubierto |
+| RNF-01 | E0 | Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base y componentes base sin violaciones axe; catálogo de estados con ícono y texto | e2e: `e2e/inicio.spec.ts`<br>e2e: `e2e/design.spec.ts`<br>unitaria: `src/components/gxp/status.test.ts` | Cubierto |
 | RNF-03 | E0 | Idioma es-CO; formatos COP, dd/mm/aaaa, 24 h | unitaria: `src/lib/format.test.ts` | Cubierto |
 | AG-05 | E0 | AGENTS.md regla 5: la clave service_role nunca se usa en el código del navegador | unitaria: `src/lib/db/secrets.test.ts` | Cubierto |
 | RF-01 | E1 | Ver PRD_GRUFARCOL.md | — | Etapa futura |

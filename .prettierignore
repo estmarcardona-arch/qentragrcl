@@ -14,3 +14,4 @@ docs/PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md
 # Generados
 docs/VALIDACION/MATRIZ.md
 docs/VERSIONES.md
+src/lib/db/database.types.ts

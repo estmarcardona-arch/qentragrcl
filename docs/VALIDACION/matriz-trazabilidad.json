@@ -5,11 +5,19 @@
     {
       "id": "RNF-01",
       "etapa": "E0",
-      "descripcion": "Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base sin violaciones axe",
+      "descripcion": "Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base y componentes base sin violaciones axe; catálogo de estados con ícono y texto",
       "pruebas": [
         {
           "tipo": "e2e",
           "archivo": "e2e/inicio.spec.ts"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/design.spec.ts"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/components/gxp/status.test.ts"
         }
       ]
     },

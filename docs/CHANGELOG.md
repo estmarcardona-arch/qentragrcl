@@ -4,6 +4,16 @@ Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en
 
 ## [E0] Cimientos — 07/10/2026
 
+### Agregado (alcance ampliado de E0)
+
+- Componentes base: `StatusBadge` (tres familias de color, catálogo con ícono + texto), `PageHeader`, `DataTable` (TanStack Table 9: búsqueda, orden, paginación, estados), `EmptyState`, `ErrorState`, `NoPermissionState`, `LoadingSkeleton`, `FormField`, `SodNotice`, `ControlledDocumentHeader` y `CopyStamp`, `DisabledReason`; variantes de botón del Prompt 0.
+- Página `/_design` (solo desarrollo o con `ENABLE_DESIGN_PAGE=true`).
+- Migración `0002_utilities.sql`: `set_updated_at()` y `health_check()`, con prueba pgTAP.
+- Tipos generados (`src/lib/db/database.types.ts`) y envoltorio tipado de RPC (`src/lib/rpc`).
+- Observabilidad: errores centralizados (`src/lib/errors.ts`), registro estructurado en servidor (`src/lib/log.ts`), páginas 404/500 en español, `GET /api/health`.
+- CI: Supabase local en el runner, migraciones, pgTAP, build y E2E (sin credenciales).
+- Scripts de Supabase local (`db:start`, `db:reset`, `test:db:local`, `db:stop`), commitlint, licencia propietaria, `docs/ENTORNOS.md`, `docs/CONVENCIONES_BD.md`.
+
 ### Agregado
 
 - Repositorio git con `main` y rama `etapa/E0`; documentos fuente renombrados según PRD §5 (`docs/PRD_GRUFARCOL.md`, `docs/DOCUMENTO_MAESTRO_GRUFARCOL.md`) y exportaciones de diseño movidas a `docs/diseno/`.
