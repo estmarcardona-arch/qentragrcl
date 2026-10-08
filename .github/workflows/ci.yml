@@ -60,7 +60,7 @@ jobs:
             const s = JSON.parse(require("fs").readFileSync("/tmp/sb-status.json", "utf8"));
             const url = s.API_URL;
             const key = s.PUBLISHABLE_KEY || s.ANON_KEY;
-            const admin = s.SECRET_KEY || s.SERVICE_ROLE_KEY;
+            const admin = s.SERVICE_ROLE_KEY || s.SECRET_KEY;
             if (!url || !key || !admin) { console.error("Faltan API_URL o las claves en supabase status"); process.exit(1); }
             require("fs").appendFileSync(process.env.GITHUB_ENV,
               `NEXT_PUBLIC_SUPABASE_URL=${url}\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${key}\nSUPABASE_SERVICE_ROLE_KEY=${admin}\n`);

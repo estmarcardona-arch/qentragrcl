@@ -27,6 +27,7 @@ function fail(error: unknown): AdminResult<never> {
     };
   }
   const e = toAppError(error);
+  log.warn("admin.action_failed", { code: e.code, detail: e.details });
   return { ok: false, code: e.code, rule: e.rule, action: e.action, detail: e.details };
 }
 
