@@ -42,3 +42,7 @@ Vercel construye cada push. Los despliegues están protegidos con «Vercel Authe
 En el proyecto de Vercel actual, el entorno que Vercel llama «Production» (despliegue de `main`) es el **entorno de pruebas**; la producción real será otro proyecto (D-02).
 
 Las ramas `etapa/*` generan despliegues de vista previa; `main` es el despliegue de pruebas principal. Verificación después de cada despliegue: `GET /api/health` → `200 {"status":"ok","database":"ok"}`.
+
+## Usuarios de prueba en el entorno de pruebas
+
+Con autorización del responsable (07/10/2026) se cargaron en el proyecto de la nube los 15 usuarios ficticios del Prompt 0B (`npm run seed:remote -- --confirmar`), con correos `@grufarcol.test` y la contraseña de desarrollo de `supabase/seed.sql`. Sirven para revisar pantallas; **nunca** deben existir en producción. El bloqueo de cuenta tras intentos fallidos no está activo en la nube (D-32, opción A).

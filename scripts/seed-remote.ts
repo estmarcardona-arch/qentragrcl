@@ -15,13 +15,20 @@ if (!process.argv.includes("--confirmar")) {
   process.exit(1);
 }
 
-const client = new Client({ connectionString: url });
-await client.connect();
-await client.query("begin");
-await client.query(readFileSync("supabase/seed.sql", "utf8"));
-const { rows } = await client.query<{ n: string }>(
-  "select count(*) as n from public.profiles where email like '%@grufarcol.test'",
-);
-await client.query("commit");
-await client.end();
-console.log(`Semilla aplicada: ${rows[0].n} usuarios ficticios en el proyecto.`);
+async function main() {
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  await client.query("begin");
+  await client.query(readFileSync("supabase/seed.sql", "utf8"));
+  const { rows } = await client.query<{ n: string }>(
+    "select count(*) as n from public.profiles where email like '%@grufarcol.test'",
+  );
+  await client.query("commit");
+  await client.end();
+  console.log(`Semilla aplicada: ${rows[0].n} usuarios ficticios en el proyecto.`);
+}
+
+main().catch((e) => {
+  console.error(e instanceof Error ? e.message : e);
+  process.exit(1);
+});

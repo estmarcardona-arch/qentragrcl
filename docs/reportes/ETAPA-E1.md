@@ -1,7 +1,7 @@
 # Reporte de etapa E1 — Núcleo GxP
 
 **Fase del PRD:** F1 · **Rama:** `etapa/E1` · **Fecha:** 07/10/2026
-**Estado:** construida; AC-01, AC-02 y AC-08 aprobados; CI en verde. **Pendiente:** revisión de S-01 y S-02 por el responsable (requiere usuarios de prueba en el proyecto de la nube, ver «Pendiente para cerrar»).
+**Estado:** construida; AC-01, AC-02 y AC-08 aprobados; CI en verde. **Pendiente:** revisión de S-01 y S-02 por el responsable. Usuarios de prueba cargados en la nube con autorización (07/10/2026); E2E con usuarios contra la nube: 28 aprobadas, 2 omitidas (bloqueo por hook, D-32 opción A).
 
 ## Puerta de salida
 
@@ -105,9 +105,9 @@ D-32 (hook en el plan de la nube), D-33 (intentos de firma: 3 por defecto), D-34
 
 ## Pendiente para cerrar E1
 
-1. **Usuarios de prueba en la nube** para revisar S-01 y S-02 en Vercel o en local: la semilla es solo local. Requiere la autorización del responsable para cargar los 15 usuarios ficticios en el proyecto de desarrollo/pruebas.
+1. ~~Usuarios de prueba en la nube~~: cargados con autorización del responsable (`npm run seed:remote -- --confirmar`).
 2. **Revisión de S-01 y S-02** por el responsable.
-3. Activar el hook y desactivar el registro público en el panel de Supabase.
+3. Desactivar el registro público en el panel de Supabase. El hook no está disponible en el plan actual: se sigue sin él en pruebas (D-32, opción A).
 4. Aprobación para integrar `etapa/E1` a `main`.
 
 ## Comandos para reproducir
