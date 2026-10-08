@@ -1,16 +1,16 @@
 # Reporte de etapa E1 — Núcleo GxP
 
 **Fase del PRD:** F1 · **Rama:** `etapa/E1` · **Fecha:** 07/10/2026
-**Estado:** construida; AC-01, AC-02 y AC-08 aprobados; CI en verde. **Pendiente:** revisión de S-01 y S-02 por el responsable. Usuarios de prueba cargados en la nube con autorización (07/10/2026); E2E con usuarios contra la nube: 28 aprobadas, 2 omitidas (bloqueo por hook, D-32 opción A).
+**Estado:** cerrada. AC-01, AC-02 y AC-08 aprobados; CI en verde; S-01 y S-02 aprobadas por el responsable el 07/10/2026 (revisión en la vista previa de Vercel con los usuarios ficticios).
 
 ## Puerta de salida
 
-| #   | Condición                                           | Estado        | Evidencia                                                                                                                                                                                                                                                  |
-| --- | --------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | AC-01, AC-02 y AC-08 aprobados                      | Cumplida      | pgTAP `0005_signatures_sod` (AC-01, AC-02) y `0003_audit_log` (AC-08), en la nube y en la CI                                                                                                                                                               |
-| 2   | Ninguna tabla sin RLS; verificación que falla la CI | Cumplida      | `supabase/tests/0000_security_baseline.test.sql`: toda tabla de `public` y `app_private` con RLS, toda tabla de negocio con trigger de bitácora, ningún rol de la API con escritura sobre `audit_log`, toda tabla firmable con `locked_at`. Corre en la CI |
-| 3   | S-01 y S-02 revisadas por el responsable            | **Pendiente** | Ver «Pendiente para cerrar»                                                                                                                                                                                                                                |
-| 4   | Reporte ETAPA-E1.md                                 | Cumplida      | Este documento                                                                                                                                                                                                                                             |
+| #   | Condición                                           | Estado   | Evidencia                                                                                                                                                                                                                                                  |
+| --- | --------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | AC-01, AC-02 y AC-08 aprobados                      | Cumplida | pgTAP `0005_signatures_sod` (AC-01, AC-02) y `0003_audit_log` (AC-08), en la nube y en la CI                                                                                                                                                               |
+| 2   | Ninguna tabla sin RLS; verificación que falla la CI | Cumplida | `supabase/tests/0000_security_baseline.test.sql`: toda tabla de `public` y `app_private` con RLS, toda tabla de negocio con trigger de bitácora, ningún rol de la API con escritura sobre `audit_log`, toda tabla firmable con `locked_at`. Corre en la CI |
+| 3   | S-01 y S-02 revisadas por el responsable            | Cumplida | Aprobadas el 07/10/2026 en la vista previa de Vercel (`a9a207a`)                                                                                                                                                                                           |
+| 4   | Reporte ETAPA-E1.md                                 | Cumplida | Este documento                                                                                                                                                                                                                                             |
 
 CI: [ejecución 37717500440](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/37717500440), commit `d025c10`: Calidad ✅ · Integración (Supabase local, migraciones, semilla, pgTAP, build, E2E) ✅.
 
@@ -106,7 +106,7 @@ D-32 (hook en el plan de la nube), D-33 (intentos de firma: 3 por defecto), D-34
 ## Pendiente para cerrar E1
 
 1. ~~Usuarios de prueba en la nube~~: cargados con autorización del responsable (`npm run seed:remote -- --confirmar`).
-2. **Revisión de S-01 y S-02** por el responsable.
+2. ~~Revisión de S-01 y S-02~~: aprobadas el 07/10/2026.
 3. Desactivar el registro público en el panel de Supabase. El hook no está disponible en el plan actual: se sigue sin él en pruebas (D-32, opción A).
 4. Aprobación para integrar `etapa/E1` a `main`.
 
