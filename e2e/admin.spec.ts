@@ -80,7 +80,9 @@ test.describe("RF-03 · alta y baja de usuario", () => {
     await guest.page.getByLabel("Nueva contraseña").fill("corta");
     await guest.page.getByLabel("Confirme la contraseña").fill("corta");
     await guest.page.getByRole("button", { name: "Guardar contraseña" }).click();
-    await expect(guest.page.getByRole("alert")).toContainText("al menos 12 caracteres");
+    await expect(
+      guest.page.getByRole("alert").filter({ hasText: "al menos 12 caracteres" }),
+    ).toBeVisible();
     await guest.page.getByLabel("Nueva contraseña").fill("Invitacion.Segura.2026");
     await guest.page.getByLabel("Confirme la contraseña").fill("Invitacion.Segura.2026");
     await guest.page.getByRole("button", { name: "Guardar contraseña" }).click();
