@@ -1,24 +1,27 @@
 name: CI
 
+# En cada push y PR: instalar, prettier, lint, tsc, Vitest, matriz requisito→prueba, versiones;
+# luego Supabase local (Docker del runner), migraciones, pgTAP, build y E2E + axe.
+# No usa credenciales: la base es efímera y local al runner.
+
 on:
   push:
-    branches: [main, "etapa/**"]
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NEXT_TELEMETRY_DISABLED: "1"
-  # El build no se conecta a Supabase; valores públicos de relleno, no secretos.
-  NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
 
 jobs:
   calidad:
-    name: Calidad (prettier, lint, tsc, vitest, matriz, build)
+    name: Calidad (prettier, lint, tsc, vitest, matriz, versiones)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -33,10 +36,9 @@ jobs:
       - run: npm run test
       - run: npm run traceability
       - run: npm run versions
-      - run: npm run build
 
-  e2e:
-    name: E2E y accesibilidad (Playwright + axe)
+  integracion:
+    name: Integración (Supabase local, migraciones, pgTAP, build, E2E)
     runs-on: ubuntu-latest
     needs: calidad
     steps:
@@ -46,8 +48,40 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+
+      - name: Levantar Supabase local y aplicar migraciones
+        # `supabase start` aplica supabase/migrations y seed.sql sobre una base vacía.
+        run: npx supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,storage-api,postgres-meta
+
+      - name: Exportar variables públicas de la base local
+        run: |
+          npx supabase status -o json > /tmp/sb-status.json
+          node -e '
+            const s = JSON.parse(require("fs").readFileSync("/tmp/sb-status.json", "utf8"));
+            const url = s.API_URL;
+            const key = s.PUBLISHABLE_KEY || s.ANON_KEY;
+            if (!url || !key) { console.error("Faltan API_URL o la clave pública en supabase status"); process.exit(1); }
+            require("fs").appendFileSync(process.env.GITHUB_ENV,
+              `NEXT_PUBLIC_SUPABASE_URL=${url}\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${key}\n`);
+          '
+
+      - name: Verificar variables
+        run: |
+          test -n "$NEXT_PUBLIC_SUPABASE_URL" || { echo "::error::Falta NEXT_PUBLIC_SUPABASE_URL"; exit 1; }
+          test -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" || { echo "::error::Falta la clave pública local"; exit 1; }
+
+      - name: Pruebas pgTAP
+        run: npm run test:db:local
+
+      - name: Build
+        run: npm run build
+        env:
+          ENABLE_DESIGN_PAGE: "true"
+
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: E2E y accesibilidad
+        run: npm run test:e2e
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -55,36 +89,6 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  base-de-datos:
-    name: Base de datos (migraciones + pgTAP)
-    runs-on: ubuntu-latest
-    needs: calidad
-    # Un solo job a la vez contra el proyecto Supabase de desarrollo.
-    concurrency:
-      group: supabase-dev
-      cancel-in-progress: false
-    env:
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-    steps:
-      - name: Verificar secreto SUPABASE_DB_URL
-        run: |
-          if [ -z "$SUPABASE_DB_URL" ]; then
-            echo "::error::Falta el secreto SUPABASE_DB_URL en GitHub (Settings → Secrets and variables → Actions)."
-            exit 1
-          fi
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      # En PR solo se simula; las migraciones se aplican al hacer push a etapa/** o main.
-      - name: Migraciones (simulación)
-        if: github.event_name == 'pull_request'
-        run: npm run db:push -- --dry-run
-      - name: Migraciones
-        if: github.event_name != 'pull_request'
-        run: npm run db:push
-      - name: Pruebas pgTAP
-        if: github.event_name != 'pull_request'
-        run: npm run test:db
+      - name: Detener Supabase
+        if: always()
+        run: npx supabase stop --no-backup
