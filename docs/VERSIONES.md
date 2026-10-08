@@ -20,10 +20,13 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | Paquete | Versión | Tipo |
 |---|---|---|
 | `@axe-core/playwright` | 4.13.0 | desarrollo |
+| `@commitlint/cli` | 21.2.3 | desarrollo |
+| `@commitlint/config-conventional` | 21.2.3 | desarrollo |
 | `@playwright/test` | 1.64.0 | desarrollo |
 | `@supabase/ssr` | 0.12.7 | producción |
 | `@supabase/supabase-js` | 2.117.3 | producción |
 | `@tailwindcss/turbopack` | 4.3.3 | desarrollo |
+| `@tanstack/react-table` | 9.2.6 | producción |
 | `@testing-library/dom` | 10.4.2 | desarrollo |
 | `@testing-library/react` | 16.3.3 | desarrollo |
 | `@types/node` | 24.19.1 | desarrollo |
