@@ -25,7 +25,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run build && npm run start -- -p ${PORT}`,
+    // En CI el build ya se hizo en un paso previo (con ENABLE_DESIGN_PAGE=true).
+    command: process.env.CI
+      ? `npm run start -- -p ${PORT}`
+      : `ENABLE_DESIGN_PAGE=true npm run build && npm run start -- -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
