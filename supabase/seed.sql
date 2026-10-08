@@ -51,3 +51,28 @@ begin
     end if;
   end loop;
 end $$;
+
+-- Áreas de los usuarios ficticios (organigrama de ejemplo, D-06) y jefes de área del Prompt 0B.
+update public.profiles p
+set area_id = a.id
+from (values
+  ('camila.ortega@grufarcol.test', 'COM'), ('sebastian.rojas@grufarcol.test', 'IDI'),
+  ('marta.quintero@grufarcol.test', 'GLG'), ('hernan.salgado@grufarcol.test', 'GLG'),
+  ('diego.cardenas@grufarcol.test', 'PRD'), ('paola.mejia@grufarcol.test', 'PRD'),
+  ('natalia.ruiz@grufarcol.test', 'CC'), ('ricardo.pena@grufarcol.test', 'CC'),
+  ('lucia.barrera@grufarcol.test', 'GCA'), ('esteban.gaviria@grufarcol.test', 'DT'),
+  ('tomas.herrera@grufarcol.test', 'ADM'), ('gabriela.torres@grufarcol.test', 'DT'),
+  ('valentina.cruz@grufarcol.test', 'GCA'), ('marcela.duarte@grufarcol.test', 'DG')
+) as v(email, area_code)
+join public.organizational_areas a on a.code = v.area_code
+where p.email = v.email and p.area_id is distinct from a.id;
+
+update public.organizational_areas oa
+set head_user_id = p.id
+from (values
+  ('GCA', 'lucia.barrera@grufarcol.test'), ('DT', 'esteban.gaviria@grufarcol.test'),
+  ('CC', 'ricardo.pena@grufarcol.test'), ('GLG', 'hernan.salgado@grufarcol.test'),
+  ('DG', 'marcela.duarte@grufarcol.test')
+) as v(area_code, email)
+join public.profiles p on p.email = v.email
+where oa.code = v.area_code and oa.head_user_id is distinct from p.id;
