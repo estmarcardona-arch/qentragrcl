@@ -17,6 +17,11 @@ import { StatusBadge } from "@/components/gxp/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { isDesignPageEnabled } from "@/lib/design-page";
+import { AuditTrailPanel } from "@/components/gxp/audit-trail-panel";
+import { CorrectedValue } from "@/components/gxp/corrected-value";
+import { LockedBanner } from "@/components/gxp/locked-banner";
+import type { AuditEntry } from "@/lib/gxp/actions";
+import { DemoGxp } from "./demo-gxp";
 import { DemoTable } from "./demo-table";
 
 // Ruta /_design: catálogo de componentes base para revisión visual (E0).
@@ -55,6 +60,68 @@ function Section({ id, title, children }: { id: string; title: string; children:
     </section>
   );
 }
+
+// Datos ficticios del Prompt 0B para los componentes GxP estáticos.
+const STAMPS = [
+  {
+    meaning: "ejecuto" as const,
+    signerName: "Diego Cárdenas",
+    shortSignature: "D. Cárdenas",
+    signedAt: "2026-10-05T19:32:00Z",
+  },
+  {
+    meaning: "verifico" as const,
+    signerName: "Paola Mejía",
+    shortSignature: "P. Mejía",
+    signedAt: "2026-10-05T20:10:00Z",
+  },
+];
+const TRAIL: AuditEntry[] = [
+  {
+    id: 5,
+    at: "2026-10-05T20:10:00Z",
+    actorName: "Paola Mejía",
+    actorShortSignature: "P. Mejía",
+    action: "insert",
+    tableName: "signatures",
+    before: null,
+    after: { meaning: "verifico" },
+    reason: null,
+  },
+  {
+    id: 4,
+    at: "2026-10-05T19:32:00Z",
+    actorName: "Diego Cárdenas",
+    actorShortSignature: "D. Cárdenas",
+    action: "insert",
+    tableName: "signatures",
+    before: null,
+    after: { meaning: "ejecuto" },
+    reason: null,
+  },
+  {
+    id: 3,
+    at: "2026-10-05T19:29:00Z",
+    actorName: "Diego Cárdenas",
+    actorShortSignature: "D. Cárdenas",
+    action: "insert",
+    tableName: "corrections",
+    before: null,
+    after: { field: "peso_neto", old_value: "98,2 kg", new_value: "98,8 kg" },
+    reason: "Error de transcripción; la balanza imprimió 98,8 kg.",
+  },
+  {
+    id: 1,
+    at: "2026-10-05T19:12:00Z",
+    actorName: "Diego Cárdenas",
+    actorShortSignature: "D. Cárdenas",
+    action: "insert",
+    tableName: "dispensing_line_lots",
+    before: null,
+    after: {},
+    reason: null,
+  },
+];
 
 export default function DesignPage() {
   if (!isDesignPageEnabled()) notFound();
@@ -193,6 +260,34 @@ export default function DesignPage() {
             who="Pueden aprobar: Directora de aseguramiento de calidad o Director técnico."
             action={<Button variant="secondary">Notificar a Aseguramiento de la calidad</Button>}
           />
+        </div>
+      </Section>
+
+      <Section id="gxp" title="Componentes GxP: firma, bloqueo, corrección y bitácora">
+        <div className="grid grid-cols-[minmax(0,1fr)_380px] items-start gap-6 max-[1279px]:grid-cols-1">
+          <div className="grid gap-4">
+            <LockedBanner
+              signatures={STAMPS}
+              action={<Button variant="secondary">Registrar corrección</Button>}
+            />
+            <div className="grid gap-1 rounded-[10px] border border-border bg-surface p-4">
+              <span className="text-label text-text-secondary uppercase">Peso neto (kg)</span>
+              <CorrectedValue
+                value="98,2"
+                corrections={[
+                  {
+                    oldValue: "98,2",
+                    newValue: "98,8",
+                    reason: "Error de transcripción; la balanza imprimió 98,8 kg",
+                    shortSignature: "D. Cárdenas",
+                    correctedAt: "2026-10-05T19:29:00Z",
+                  },
+                ]}
+              />
+            </div>
+            <DemoGxp />
+          </div>
+          <AuditTrailPanel code="SD-2026-0042 · L-2610-018" entries={TRAIL} />
         </div>
       </Section>
 
