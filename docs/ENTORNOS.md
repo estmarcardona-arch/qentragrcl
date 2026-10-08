@@ -37,4 +37,8 @@ Nunca se edita una migración aplicada; nunca se usa `supabase db reset` contra 
 
 ## Despliegue de la app (pruebas)
 
-Vercel construye cada push. Las ramas `etapa/*` generan despliegues de vista previa; `main` es el despliegue de pruebas principal. Verificación después de cada despliegue: `GET /api/health` → `200 {"status":"ok","database":"ok"}`.
+Vercel construye cada push. Los despliegues están protegidos con «Vercel Authentication»; el agente los verifica con el encabezado `x-vercel-protection-bypass` y el secreto de `.env.local`.
+
+En el proyecto de Vercel actual, el entorno que Vercel llama «Production» (despliegue de `main`) es el **entorno de pruebas**; la producción real será otro proyecto (D-02).
+
+Las ramas `etapa/*` generan despliegues de vista previa; `main` es el despliegue de pruebas principal. Verificación después de cada despliegue: `GET /api/health` → `200 {"status":"ok","database":"ok"}`.
