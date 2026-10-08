@@ -138,6 +138,32 @@ export async function signRecord(input: {
   }
 }
 
+/** Práctica de reautenticación: mismo contador de intentos que la firma; no firma nada. */
+export async function practiceReauth(input: {
+  password: string;
+}): Promise<{ ok: true } | (ActionError & { remaining?: number; lockedUntil?: string })> {
+  const password = z.string().min(1).max(200).safeParse(input.password);
+  if (!password.success)
+    return { ok: false, code: "REAUTH_FAILED", ...ERROR_MESSAGES.REAUTH_FAILED };
+  const supabase = await createClient();
+  try {
+    const res = (await callRpc(supabase, "practice_reauth", {
+      p_password: password.data,
+    })) as Record<string, unknown>;
+    if (res.ok === true) return { ok: true };
+    const code = String(res.code) as keyof typeof ERROR_MESSAGES;
+    return {
+      ok: false,
+      code,
+      ...(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.REAUTH_FAILED),
+      remaining: typeof res.remaining === "number" ? res.remaining : undefined,
+      lockedUntil: typeof res.locked_until === "string" ? res.locked_until : undefined,
+    };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
 export type CorrectionResult =
   | {
       ok: true;

@@ -72,6 +72,18 @@ export const ERROR_MESSAGES = {
     rule: "Este campo no se puede corregir.",
     action: "Corrija solo los datos registrados del formato.",
   },
+  ROLE_INCOMPATIBLE: {
+    rule: "Esta combinación de roles no está permitida en una misma persona.",
+    action: "Asigne el rol a otro usuario o retire primero el rol incompatible.",
+  },
+  FEATURE_DISABLED: {
+    rule: "La función está desactivada en la configuración del sistema.",
+    action: "Actívela en Administración → Configuración si corresponde.",
+  },
+  CONFIG_MISSING: {
+    rule: "Falta una configuración del servidor para esta operación.",
+    action: "Pida a TI que configure la variable indicada.",
+  },
   NO_CHANGE: {
     rule: "El nuevo valor es igual al vigente.",
     action: "Escriba un valor distinto o cancele la corrección.",

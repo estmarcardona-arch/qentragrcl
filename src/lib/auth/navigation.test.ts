@@ -43,8 +43,16 @@ describe("RF-02 · menú por rol", () => {
     ]);
   });
 
-  it("en E1 solo Inicio está habilitado", () => {
-    const enabled = navForRoles(["dt"]).filter((n) => n.stage === null);
-    expect(enabled.map((n) => n.key)).toEqual(["inicio"]);
+  it("en E2 están habilitados Inicio y, para el administrador, Administración", () => {
+    expect(
+      navForRoles(["dt"])
+        .filter((n) => n.stage === null)
+        .map((n) => n.key),
+    ).toEqual(["inicio"]);
+    expect(
+      navForRoles(["admin"])
+        .filter((n) => n.stage === null)
+        .map((n) => n.key),
+    ).toEqual(["inicio", "administracion"]);
   });
 });

@@ -13,7 +13,12 @@ import { createClient } from "@/lib/db/server";
 import { log } from "@/lib/log";
 import { callRpc } from "@/lib/rpc";
 
-export type LoginState = { error?: "credentials" | "no_access" | "invalid"; email?: string };
+export type LoginState = {
+  error?: "credentials" | "no_access" | "expired" | "invalid";
+  email?: string;
+  /** Fecha de vencimiento del acceso (auditor vencido, AC-11). */
+  expiredAt?: string;
+};
 
 const schema = z.object({
   email: z.email().max(254),
@@ -50,10 +55,17 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
     roles?: string[];
     active?: boolean;
     session_idle_minutes?: number;
+    access_expired_at?: string | null;
+    must_change_password?: boolean;
+    password_expired?: boolean;
   } | null;
   if (!ctx || ctx.active === false || !ctx.roles?.length) {
     await supabase.auth.signOut();
-    log.warn("auth.login_no_access", {});
+    log.warn("auth.login_no_access", { expired: Boolean(ctx?.access_expired_at) });
+    // AC-11: auditor (u otro rol) vencido. Solo se informa tras una contraseña correcta.
+    if (ctx?.active !== false && ctx?.access_expired_at) {
+      return { error: "expired", email, expiredAt: ctx.access_expired_at };
+    }
     return { error: "no_access", email };
   }
 
@@ -66,6 +78,7 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
   });
   store.set(LAST_ACTIVITY_COOKIE, String(Date.now()), { path: "/", sameSite: "lax" });
   log.info("auth.login", {});
+  if (ctx.must_change_password || ctx.password_expired) redirect("/cuenta/contrasena");
   redirect(safeNextPath(next));
 }
 

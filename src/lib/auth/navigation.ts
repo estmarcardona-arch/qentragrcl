@@ -1,6 +1,6 @@
 import type { AppRole } from "./roles";
 
-// Menú lateral por rol (Prompt 0 y Prompt 1; diseño S-02). En E1 solo «Inicio» tiene pantalla;
+// Menú lateral por rol (Prompt 0 y Prompt 1; diseño S-02). Desde E2: «Inicio» y «Administración»;
 // las demás secciones se habilitan en la etapa que las construye.
 
 export type NavKey =
@@ -53,7 +53,7 @@ export const NAV_ITEMS: Record<NavKey, NavItem> = {
     key: "administracion",
     label: "Administración",
     href: "/admin/usuarios",
-    stage: "E2",
+    stage: null,
   },
 };
 

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 import { createClient } from "@/lib/db/server";
 import { callRpc } from "@/lib/rpc";
@@ -18,9 +19,15 @@ export type SessionContext = {
   roles: AppRole[];
   sessionIdleMinutes: number;
   reauthMethod: string;
+  area: string | null;
+  accessExpiredAt: string | null;
+  mustChangePassword: boolean;
+  passwordExpired: boolean;
 };
 
 export const getSessionContext = cache(async (): Promise<SessionContext | null> => {
+  // La sesión es un dato de la solicitud: nunca forma parte del prerender (Supabase Auth usa la hora).
+  await connection();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
@@ -37,13 +44,21 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
     roles: (ctx.roles as AppRole[]) ?? [],
     sessionIdleMinutes: Number(ctx.session_idle_minutes ?? 15),
     reauthMethod: String(ctx.reauth_method ?? "password"),
+    area: (ctx.area as string | null) ?? null,
+    accessExpiredAt: (ctx.access_expired_at as string | null) ?? null,
+    mustChangePassword: ctx.must_change_password === true,
+    passwordExpired: ctx.password_expired === true,
   };
 });
 
-/** Exige sesión con al menos un rol activo; si no, envía al inicio de sesión. */
+/**
+ * Exige sesión con al menos un rol activo; si no, envía al inicio de sesión. Si la contraseña debe
+ * cambiarse (invitación, restablecimiento o caducidad), envía primero a /cuenta/contrasena.
+ */
 export async function requireSession(): Promise<SessionContext> {
   const ctx = await getSessionContext();
   if (!ctx || ctx.roles.length === 0) redirect("/login");
+  if (ctx.mustChangePassword || ctx.passwordExpired) redirect("/cuenta/contrasena");
   return ctx;
 }
 

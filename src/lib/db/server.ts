@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import type { Database } from "./database.types";
 import { getPublicSupabaseEnv } from "./env";
 
@@ -11,6 +12,8 @@ import { getPublicSupabaseEnv } from "./env";
  * Se crea uno nuevo por solicitud.
  */
 export async function createClient() {
+  // Toda lectura con la sesión es de tiempo de solicitud (nunca entra al prerender).
+  await connection();
   const { url, key } = getPublicSupabaseEnv();
   const cookieStore = await cookies();
 

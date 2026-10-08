@@ -83,6 +83,87 @@ export type Database = {
         }
         Relationships: []
       }
+      brands: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      catalog_items: {
+        Row: {
+          active: boolean
+          attributes: Json
+          catalog: string
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          order_no: number
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          attributes?: Json
+          catalog: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          order_no?: number
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          attributes?: Json
+          catalog?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          order_no?: number
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       corrections: {
         Row: {
           corrected_at: string
@@ -190,6 +271,59 @@ export type Database = {
           },
         ]
       }
+      module_permissions: {
+        Row: {
+          can_approve: boolean
+          can_create: boolean
+          can_read: boolean
+          can_sign: boolean
+          cell_text: string
+          created_at: string
+          created_by: string | null
+          id: string
+          module_code: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          can_approve: boolean
+          can_create: boolean
+          can_read: boolean
+          can_sign: boolean
+          cell_text: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_code: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          can_approve?: boolean
+          can_create?: boolean
+          can_read?: boolean
+          can_sign?: boolean
+          cell_text?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_code?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_permissions_module_code_fkey"
+            columns: ["module_code"]
+            isOneToOne: false
+            referencedRelation: "permission_modules"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       numbering_sequences: {
         Row: {
           created_at: string
@@ -226,6 +360,138 @@ export type Database = {
         }
         Relationships: []
       }
+      organizational_areas: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          head_user_id: string | null
+          id: string
+          is_quality_owner: boolean
+          name: string
+          parent_id: string | null
+          process_code: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          head_user_id?: string | null
+          id?: string
+          is_quality_owner?: boolean
+          name: string
+          parent_id?: string | null
+          process_code?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          head_user_id?: string | null
+          id?: string
+          is_quality_owner?: boolean
+          name?: string
+          parent_id?: string | null
+          process_code?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organizational_areas_head_user_id_fkey"
+            columns: ["head_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organizational_areas_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "organizational_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permission_modules: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          name: string
+          order_no: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          name: string
+          order_no: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          name?: string
+          order_no?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      product_lines: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          regulatory_profile: Database["public"]["Enums"]["regulatory_profile_kind"]
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          regulatory_profile: Database["public"]["Enums"]["regulatory_profile_kind"]
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          regulatory_profile?: Database["public"]["Enums"]["regulatory_profile_kind"]
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           active: boolean
@@ -237,6 +503,8 @@ export type Database = {
           full_name: string
           id: string
           job_title: string | null
+          must_change_password: boolean
+          password_changed_at: string | null
           updated_at: string
           updated_by: string | null
         }
@@ -250,6 +518,8 @@ export type Database = {
           full_name: string
           id: string
           job_title?: string | null
+          must_change_password?: boolean
+          password_changed_at?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -263,6 +533,139 @@ export type Database = {
           full_name?: string
           id?: string
           job_title?: string | null
+          must_change_password?: boolean
+          password_changed_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_area_fk"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "organizational_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regulatory_profiles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          enabled: boolean
+          id: string
+          label: string
+          mode: string
+          params: Json
+          profile: Database["public"]["Enums"]["regulatory_profile_kind"]
+          rule_key: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          enabled: boolean
+          id?: string
+          label: string
+          mode: string
+          params?: Json
+          profile: Database["public"]["Enums"]["regulatory_profile_kind"]
+          rule_key: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          label?: string
+          mode?: string
+          params?: Json
+          profile?: Database["public"]["Enums"]["regulatory_profile_kind"]
+          rule_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      retention_rules: {
+        Row: {
+          basis: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string
+          note: string | null
+          record_class: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+          years: number | null
+        }
+        Insert: {
+          basis: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label: string
+          note?: string | null
+          record_class: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+          years?: number | null
+        }
+        Update: {
+          basis?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string
+          note?: string | null
+          record_class?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+          years?: number | null
+        }
+        Relationships: []
+      }
+      role_incompatibilities: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string
+          role_a: Database["public"]["Enums"]["app_role"]
+          role_b: Database["public"]["Enums"]["app_role"]
+          rule_code: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message: string
+          role_a: Database["public"]["Enums"]["app_role"]
+          role_b: Database["public"]["Enums"]["app_role"]
+          rule_code: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string
+          role_a?: Database["public"]["Enums"]["app_role"]
+          role_b?: Database["public"]["Enums"]["app_role"]
+          rule_code?: string
           updated_at?: string
           updated_by?: string | null
         }
@@ -651,6 +1054,73 @@ export type Database = {
       }
     }
     Functions: {
+      admin_grant_role: {
+        Args: {
+          p_expires_at: string
+          p_reason: string
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user: string
+        }
+        Returns: string
+      }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          active: boolean
+          area_id: string
+          area_name: string
+          email: string
+          full_name: string
+          id: string
+          invitation_pending: boolean
+          job_title: string
+          last_sign_in_at: string
+          must_change_password: boolean
+          roles: Json
+          short_signature: string
+        }[]
+      }
+      admin_revoke_role: {
+        Args: { p_reason: string; p_user_role: string }
+        Returns: undefined
+      }
+      admin_save_catalog: {
+        Args: {
+          p_id: string
+          p_reason: string
+          p_table: string
+          p_values: Json
+        }
+        Returns: string
+      }
+      admin_set_role_expiry: {
+        Args: { p_expires_at: string; p_reason: string; p_user_role: string }
+        Returns: undefined
+      }
+      admin_set_short_signature: {
+        Args: { p_reason: string; p_short: string; p_user: string }
+        Returns: undefined
+      }
+      admin_set_user_active: {
+        Args: { p_active: boolean; p_reason: string; p_user: string }
+        Returns: undefined
+      }
+      admin_update_profile: {
+        Args: {
+          p_area_id: string
+          p_document_id: string
+          p_full_name: string
+          p_job_title: string
+          p_must_change_password: boolean
+          p_reason: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      admin_update_setting: {
+        Args: { p_key: string; p_reason: string; p_value: Json }
+        Returns: undefined
+      }
       can_read_audit: { Args: never; Returns: boolean }
       can_sign: {
         Args: {
@@ -660,6 +1130,7 @@ export type Database = {
         }
         Returns: Json
       }
+      check_password_policy: { Args: { p_password: string }; Returns: Json }
       check_sod: {
         Args: {
           p_meaning: Database["public"]["Enums"]["signature_meaning"]
@@ -699,6 +1170,10 @@ export type Database = {
         Args: { p_roles: Database["public"]["Enums"]["app_role"][] }
         Returns: boolean
       }
+      has_module_permission: {
+        Args: { p_module: string; p_permission: string }
+        Returns: boolean
+      }
       has_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
@@ -710,6 +1185,7 @@ export type Database = {
       }
       log_session_event: { Args: { p_action: string }; Returns: undefined }
       next_number: { Args: { p_key: string }; Returns: string }
+      practice_reauth: { Args: { p_password: string }; Returns: Json }
       record_correction: {
         Args: {
           p_field: string
@@ -721,7 +1197,17 @@ export type Database = {
         Returns: Json
       }
       record_hash: { Args: { p_row: Json }; Returns: string }
+      record_password_change: {
+        Args: { p_password: string }
+        Returns: undefined
+      }
       reference_now: { Args: never; Returns: string }
+      regulatory_profile_snapshot: {
+        Args: {
+          p_profile: Database["public"]["Enums"]["regulatory_profile_kind"]
+        }
+        Returns: Json
+      }
       server_now: { Args: never; Returns: string }
       short_signature_of: { Args: { p_full_name: string }; Returns: string }
       sign_record: {
@@ -760,6 +1246,7 @@ export type Database = {
         | "aq_doc"
         | "gerencia"
         | "auditor"
+      regulatory_profile_kind: "cosmetico" | "medicamento"
       signature_meaning:
         | "ejecuto"
         | "verifico"
@@ -911,6 +1398,7 @@ export const Constants = {
         "gerencia",
         "auditor",
       ],
+      regulatory_profile_kind: ["cosmetico", "medicamento"],
       signature_meaning: [
         "ejecuto",
         "verifico",

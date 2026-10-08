@@ -1,12 +1,23 @@
 "use client";
 
-import { CircleCheck, CircleX, Clock, Eye, EyeOff, Info, Lock, ShieldCheck } from "lucide-react";
+import {
+  CalendarX,
+  CircleCheck,
+  CircleX,
+  Clock,
+  Eye,
+  EyeOff,
+  Info,
+  Lock,
+  ShieldCheck,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatDate } from "@/lib/format";
 import { signIn, type LoginState } from "./actions";
 
 const BANNERS = {
@@ -27,6 +38,24 @@ const BANNERS = {
     icon: Lock,
     title: "Su cuenta no tiene acceso vigente",
     text: "No tiene un rol activo o su acceso venció. Solicite la asignación o la ampliación a Administración.",
+  },
+  expired: {
+    tone: "neutral",
+    icon: CalendarX,
+    title: "Cuenta de auditor vencida",
+    text: "Su acceso venció. Solicite una ampliación a Administración.",
+  },
+  contrasena: {
+    tone: "ok",
+    icon: CircleCheck,
+    title: "Contraseña actualizada",
+    text: "Ingrese con su nueva contraseña.",
+  },
+  enlace: {
+    tone: "bad",
+    icon: CircleX,
+    title: "El enlace no es válido",
+    text: "El enlace ya se usó o venció. Solicite uno nuevo a Administración.",
   },
   inactividad: {
     tone: "neutral",
@@ -55,8 +84,21 @@ export function LoginForm({ idleMinutes }: { idleMinutes: number }) {
 
   const motivo = params.get("motivo");
   const bannerKey =
-    state.error ?? (motivo === "inactividad" || motivo === "salida" ? motivo : undefined);
-  const banner = bannerKey ? BANNERS[bannerKey] : null;
+    state.error ??
+    (motivo === "inactividad" ||
+    motivo === "salida" ||
+    motivo === "contrasena" ||
+    motivo === "enlace"
+      ? motivo
+      : undefined);
+  const base = bannerKey ? BANNERS[bannerKey] : null;
+  const banner =
+    base && bannerKey === "expired" && state.expiredAt
+      ? {
+          ...base,
+          text: `Su acceso venció el ${formatDate(state.expiredAt)}. Solicite una ampliación a Administración.`,
+        }
+      : base;
   const fieldError = state.error === "credentials" || state.error === "invalid";
 
   return (
