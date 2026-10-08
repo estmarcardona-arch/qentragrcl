@@ -27,5 +27,11 @@ export async function login(page: Page, email: string, password = DEV_PASSWORD) 
 
 export async function loginOk(page: Page, email: string) {
   await login(page, email);
-  await expect(page).toHaveURL(/\/inicio$/);
+  try {
+    await expect(page).toHaveURL(/\/inicio$/, { timeout: 10_000 });
+  } catch {
+    // Diagnóstico: el texto visible explica por qué no entró (mensaje de error o pantalla).
+    const text = (await page.locator("body").innerText()).replace(/\s+/g, " ").slice(0, 600);
+    throw new Error(`No llegó a /inicio (URL ${page.url()}). Pantalla: ${text}`);
+  }
 }
