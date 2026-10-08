@@ -1,17 +1,17 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E0**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E1**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
-| RNF-01 | E0 | Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base y componentes base sin violaciones axe; catálogo de estados con ícono y texto | e2e: `e2e/inicio.spec.ts`<br>e2e: `e2e/design.spec.ts`<br>unitaria: `src/components/gxp/status.test.ts` | Cubierto |
+| RNF-01 | E0 | Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base y componentes base sin violaciones axe; catálogo de estados con ícono y texto | e2e: `e2e/design.spec.ts`<br>unitaria: `src/components/gxp/status.test.ts` | Cubierto |
 | RNF-03 | E0 | Idioma es-CO; formatos COP, dd/mm/aaaa, 24 h | unitaria: `src/lib/format.test.ts` | Cubierto |
 | AG-05 | E0 | AGENTS.md regla 5: la clave service_role nunca se usa en el código del navegador | unitaria: `src/lib/db/secrets.test.ts` | Cubierto |
-| RF-01 | E1 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-02 | E1 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-01 | E1 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-02 | E1 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-08 | E1 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| RF-01 | E1 | Inicio de sesión con correo/contraseña y cierre automático por inactividad (15 min configurable) | e2e: `e2e/auth.spec.ts`<br>pgtap: `supabase/tests/0007_auth_session.test.sql`<br>unitaria: `src/lib/auth/constants.test.ts` | Cubierto |
+| RF-02 | E1 | Dashboard por rol con tareas pendientes propias | e2e: `e2e/auth.spec.ts`<br>unitaria: `src/lib/auth/navigation.test.ts`<br>unitaria: `src/lib/dashboard/cards.test.ts` | Cubierto |
+| AC-01 | E1 | Mismo usuario ejecuta y verifica → SOD_VIOLATION | pgtap: `supabase/tests/0005_signatures_sod.test.sql` | Cubierto |
+| AC-02 | E1 | Editar registro firmado → RECORD_LOCKED | pgtap: `supabase/tests/0005_signatures_sod.test.sql` | Cubierto |
+| AC-08 | E1 | Modificar audit_log → permiso denegado | pgtap: `supabase/tests/0003_audit_log.test.sql` | Cubierto |
 | RF-03 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-04 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-06 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
@@ -41,7 +41,7 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-32 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | AC-33 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | AC-34 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-35 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| AC-35 | E2B | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Etapa futura |
 | RF-10 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-11 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-12 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |

@@ -81,6 +81,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: E2E y accesibilidad
         run: npm run test:e2e
+        env:
+          # La base local tiene la semilla (usuarios del Prompt 0B) y el hook de bloqueo activo.
+          E2E_SEED_USERS: "1"
+          E2E_AUTH_HOOK: "1"
 
       - uses: actions/upload-artifact@v4
         if: failure()

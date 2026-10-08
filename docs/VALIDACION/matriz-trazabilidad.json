@@ -1,5 +1,5 @@
 {
-  "etapa_actual": "E0",
+  "etapa_actual": "E1",
   "orden_etapas": ["E0", "E1", "E2", "E2B", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11"],
   "requisitos": [
     {
@@ -7,10 +7,6 @@
       "etapa": "E0",
       "descripcion": "Accesibilidad AA (contraste, foco visible, estado nunca solo por color) — parcial en E0: página base y componentes base sin violaciones axe; catálogo de estados con ícono y texto",
       "pruebas": [
-        {
-          "tipo": "e2e",
-          "archivo": "e2e/inicio.spec.ts"
-        },
         {
           "tipo": "e2e",
           "archivo": "e2e/design.spec.ts"
@@ -46,32 +42,73 @@
     {
       "id": "RF-01",
       "etapa": "E1",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Inicio de sesión con correo/contraseña y cierre automático por inactividad (15 min configurable)",
+      "pruebas": [
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/auth.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0007_auth_session.test.sql"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/auth/constants.test.ts"
+        }
+      ]
     },
     {
       "id": "RF-02",
       "etapa": "E1",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Dashboard por rol con tareas pendientes propias",
+      "pruebas": [
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/auth.spec.ts"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/auth/navigation.test.ts"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/dashboard/cards.test.ts"
+        }
+      ]
     },
     {
       "id": "AC-01",
       "etapa": "E1",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Mismo usuario ejecuta y verifica → SOD_VIOLATION",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0005_signatures_sod.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-02",
       "etapa": "E1",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Editar registro firmado → RECORD_LOCKED",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0005_signatures_sod.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-08",
       "etapa": "E1",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Modificar audit_log → permiso denegado",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0003_audit_log.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-03",
@@ -251,7 +288,12 @@
       "id": "AC-35",
       "etapa": "E2B",
       "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0006_corrections_numbering.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-10",
