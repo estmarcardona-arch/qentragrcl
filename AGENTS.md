@@ -57,16 +57,17 @@ Al cerrar cada etapa: `docs/reportes/ETAPA-Ex.md` con lo construido (migraciones
 
 ## Comandos
 
-| Comando                                                       | Qué hace                                                                              |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `npm run dev`                                                 | Servidor de desarrollo (`/_design` y `/api/health` disponibles)                       |
-| `npm run ci`                                                  | Prettier, lint, tsc, Vitest, matriz, versiones y build (job «Calidad» del CI + build) |
-| `npm run test` / `npm run test:e2e`                           | Vitest / Playwright + axe                                                             |
-| `npm run db:push`                                             | Aplica migraciones nuevas al proyecto de `SUPABASE_DB_URL` (pide confirmación)        |
-| `npm run test:db`                                             | pgTAP contra `SUPABASE_DB_URL` (sin Docker)                                           |
-| `npm run db:start` · `db:reset` · `test:db:local` · `db:stop` | Supabase local (requiere Docker; es lo que usa el CI)                                 |
-| `npm run db:types`                                            | Genera `src/lib/db/database.types.ts` (requiere `SUPABASE_ACCESS_TOKEN`)              |
-| `npm run traceability:write` · `versions:write`               | Regeneran `docs/VALIDACION/MATRIZ.md` y `docs/VERSIONES.md`                           |
+| Comando                                                       | Qué hace                                                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `npm run dev`                                                 | Servidor de desarrollo (`/_design` y `/api/health` disponibles)                             |
+| `npm run ci`                                                  | Prettier, lint, tsc, Vitest, matriz, versiones y build (job «Calidad» del CI + build)       |
+| `npm run test` / `npm run test:e2e`                           | Vitest / Playwright + axe                                                                   |
+| `npm run db:push`                                             | Aplica migraciones nuevas al proyecto de `SUPABASE_DB_URL` (pide confirmación)              |
+| `npm run test:db`                                             | pgTAP contra `SUPABASE_DB_URL` (sin Docker)                                                 |
+| `npm run test:db:pending`                                     | Prueba migraciones aún no aplicadas en una transacción que se revierte (antes de `db:push`) |
+| `npm run db:start` · `db:reset` · `test:db:local` · `db:stop` | Supabase local (requiere Docker; es lo que usa el CI)                                       |
+| `npm run db:types`                                            | Genera `src/lib/db/database.types.ts` (requiere `SUPABASE_ACCESS_TOKEN`)                    |
+| `npm run traceability:write` · `versions:write`               | Regeneran `docs/VALIDACION/MATRIZ.md` y `docs/VERSIONES.md`                                 |
 
 ## Dónde va cada cosa
 

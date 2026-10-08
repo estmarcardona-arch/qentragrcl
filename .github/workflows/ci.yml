@@ -81,6 +81,21 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: E2E y accesibilidad
         run: npm run test:e2e
+        env:
+          # La base local tiene la semilla (usuarios del Prompt 0B) y el hook de bloqueo activo.
+          E2E_SEED_USERS: "1"
+          E2E_AUTH_HOOK: "1"
+
+      - name: Diagnóstico de autenticación (solo si falla)
+        if: failure()
+        run: |
+          R=$(curl -s -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/token?grant_type=password" \
+            -H "apikey: $NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" -H "Content-Type: application/json" \
+            -d '{"email":"diego.cardenas@grufarcol.test","password":"Grufarcol.Dev.2026"}')
+          echo "::error title=Token de prueba::$(echo "$R" | head -c 600)"
+          docker logs supabase_auth_grufarcol-ebr 2>&1 | grep -iE "error|hook|fail" | tail -8 | while read -r l; do
+            echo "::warning title=Auth::$(echo "$l" | head -c 400)"
+          done
 
       - uses: actions/upload-artifact@v4
         if: failure()

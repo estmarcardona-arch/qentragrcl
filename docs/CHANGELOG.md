@@ -2,6 +2,16 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E1] Núcleo GxP — 07/10/2026
+
+### Agregado
+
+- Migraciones 0003–0007: bitácora de solo-agregar con triggers genéricos (DI-1), registro de tablas con metadatos, bloqueo tras firma (DI-3) y sin borrado (DI-10); roles del PRD 2.1, perfiles, roles con vigencia, firma corta (DI-11) y configuración; firmas con `sign_record` (reautenticación configurable, huella SHA-256, orden de firmas, estado y bloqueo en una transacción), `check_sod` con SOD-1…SOD-10, `can_sign` y `verify_signature_integrity`; correcciones sin borrado con contador y aviso (DI-12); numeración sin saltos; bloqueo de cuenta por hook de Supabase Auth; eventos de sesión y `get_audit_trail`; reloj de referencia congelable en pruebas.
+- pgTAP: línea base de seguridad (ninguna tabla sin RLS ni sin bitácora), AC-01, AC-02, AC-08, cada regla SOD con caso prohibido y permitido, RLS por rol, correcciones (AC-35) y sesión. Ayudas pgTAP y modo `test:db:pending` (prueba migraciones nuevas en una transacción revertida).
+- Interfaz: S-01 inicio de sesión (mensaje único que no revela si el usuario existe), S-02 panel por rol con tarjetas «Sin datos», menú por rol, proxy de rutas protegidas, guardas por rol en servidor, cierre por inactividad con aviso, cierre de sesión.
+- Componentes GxP: `SignatureModal`, `AuditTrailPanel`, `CorrectionDialog`, `LockedBanner`, `SignatureStamp`, `CorrectedValue`; utilidad de huella idéntica a `record_hash()`.
+- Semilla local con los 15 usuarios ficticios del Prompt 0B; E2E de inicio de sesión, inactividad, bloqueo y firma con contraseña errónea.
+
 ## [E0] Cimientos — 07/10/2026
 
 ### Cambiado

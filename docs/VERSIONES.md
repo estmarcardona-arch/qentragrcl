@@ -57,4 +57,5 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | `tw-animate-css` | 1.4.0 | producción |
 | `typescript` | 5.9.3 | desarrollo |
 | `vitest` | 5.0.3 | desarrollo |
+| `zod` | 4.6.5 | producción |
 <!-- deps:end -->
