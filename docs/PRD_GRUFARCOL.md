@@ -629,7 +629,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | | 20 | Registro de acondicionamiento (incluye codificación) | Auxiliar ejecuta; verificador distinto | RF-36 |
 | | 21 | Inspección de producto terminado (9 puntos) | Control de calidad | RF-36 |
 | **Cierre (general)** | 22 | Certificado de calidad del producto terminado | Control de calidad | RF-41 |
-| | 23 | Consolidado y liberación del producto terminado | Director técnico | RF-83, RF-31 |
+| | 23 | Consolidado y liberación del producto terminado | Director técnico | RF-80, RF-83 |
 
 *El «paquete técnico» (documento 0 del formato) se forma al final con los pasos anteriores marcados «Sí» o «No aplica».*
 
