@@ -1,7 +1,7 @@
 # Reporte de etapa E2 — Administración
 
 **Fase del PRD:** F2 · **Rama:** `etapa/E2` · **Fecha:** 07/10/2026
-**Estado:** construida; RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…41 aprobados en pgTAP; la matriz de la interfaz coincide con el PRD (prueba automática). **Pendiente:** revisión del responsable y aprobación para integrar a `main`.
+**Estado:** **cerrada**: aprobada por el responsable el 08/10/2026 (S-03, S-04, roles configurables y aprobación de cambios de rol) e integrada a `main`. RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…41 aprobados; la matriz de la interfaz coincide con el PRD (prueba automática); CI en verde ([ejecución 37880427267](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/37880427267)).
 
 ## Puerta de salida
 
