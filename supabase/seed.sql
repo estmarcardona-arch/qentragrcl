@@ -10,7 +10,7 @@ declare
 begin
   for v_user in
     select * from (values
-      ('a1000000-0000-4000-8000-000000000001'::uuid, 'camila.ortega@grufarcol.test', 'Camila Ortega', 'Comercial', 'comercial'::public.app_role, null::timestamptz),
+      ('a1000000-0000-4000-8000-000000000001'::uuid, 'camila.ortega@grufarcol.test', 'Camila Ortega', 'Comercial', 'comercial'::text, null::timestamptz),
       ('a1000000-0000-4000-8000-000000000002', 'sebastian.rojas@grufarcol.test', 'Sebastián Rojas', 'Químico formulador (I+D)', 'idi', null),
       ('a1000000-0000-4000-8000-000000000003', 'marta.quintero@grufarcol.test', 'Marta Quintero', 'Auxiliar de bodega', 'bodega_aux', null),
       ('a1000000-0000-4000-8000-000000000004', 'hernan.salgado@grufarcol.test', 'Hernán Salgado', 'Jefe de bodega', 'bodega_jefe', null),
