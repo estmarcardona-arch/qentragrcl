@@ -1,7 +1,7 @@
 # Reporte de etapa E3 — Sistema de gestión documental y plantillas
 
 **Fase del PRD:** F2B (el responsable la nombró E3; en la matriz de trazabilidad conserva la clave E2B, ver D-44) · **Rama:** `etapa/E3` · **Fecha:** 09/10/2026
-**Estado:** construida. AC-19, 20, 23, 25, 26, 28, 29, 30, 31, 32, 33 y 34 aprobados en pgTAP; ciclo completo aprobado en E2E. **Pendiente:** revisión y aprobación del responsable para integrar a `main`. Migraciones 0014, 0015 y 0016 aplicadas en la nube.
+**Estado:** **cerrada**: aprobada por el responsable el 09/10/2026 e integrada a `main`. AC-19, 20, 23, 25, 26, 28, 29, 30, 31, 32, 33 y 34 aprobados; listado maestro de la semilla = pantalla (CI); migraciones 0014–0016 aplicadas en la nube; CI en verde ([ejecución 37991670244](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/37991670244)).
 
 ## Puerta de salida
 
