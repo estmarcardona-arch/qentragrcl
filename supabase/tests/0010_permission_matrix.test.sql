@@ -4,7 +4,8 @@ begin;
 select plan(8);
 
 select is((select count(*)::int from public.permission_modules), 19, 'los 19 módulos del PRD 2.2');
-select is((select count(*)::int from public.module_permissions), 19 * 15, 'una celda por módulo y rol (19 × 15)');
+select is((select count(*)::int from public.module_permissions mp join public.roles r on r.code = mp.role and r.is_system), 19 * 15,
+  'una celda por módulo y rol del sistema (19 × 15)');
 select is(
   (select cell_text from public.module_permissions where module_code = 'liberacion_final_del_lote' and role = 'dt'),
   'F A (libera)', 'el director técnico libera el lote');
@@ -13,7 +14,7 @@ select is(
   true, 'solo admin crea usuarios, catálogos y perfiles');
 select is(
   (select count(*)::int from public.module_permissions where module_code = 'usuarios_catalogos_perfiles' and can_create),
-  1, 'nadie más administra usuarios');
+  1, 'nadie más administra usuarios (tampoco un rol adicional: función reservada)');
 
 select pg_temp.test_user('dt@p.test', 'Dr. Esteban Gaviria', '{dt}', p_id => 'a0000000-0000-4000-8000-000000000001');
 select pg_temp.login_as('a0000000-0000-4000-8000-000000000001');

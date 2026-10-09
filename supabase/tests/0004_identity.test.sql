@@ -2,10 +2,10 @@
 begin;
 select plan(19);
 
-select has_type('public', 'app_role', 'existe el tipo app_role');
+select has_table('public', 'roles', 'existe el catálogo de roles');
 select is(
-  (select count(*)::int from unnest(enum_range(null::public.app_role))),
-  15, 'los 15 roles del PRD 2.1'
+  (select count(*)::int from public.roles where is_system),
+  15, 'los 15 roles del sistema del PRD 2.1'
 );
 
 -- Firma corta: inicial del primer nombre, punto y primer apellido.
@@ -14,10 +14,10 @@ select is(public.short_signature_of('Dr. Esteban Gaviria'), 'E. Gaviria', 'firma
 select is(public.short_signature_of('  diego   Cárdenas '), 'D. Cárdenas', 'firma corta con espacios y minúscula');
 
 -- Usuarios de prueba (el trigger crea perfil y firma corta).
-select pg_temp.test_user('diego@prueba.test', 'Diego Cárdenas', array['prod_aux']::public.app_role[]);
-select pg_temp.test_user('admin@prueba.test', 'Tomás Herrera', array['admin']::public.app_role[]);
-select pg_temp.test_user('comercial@prueba.test', 'Camila Ortega', array['comercial']::public.app_role[]);
-select pg_temp.test_user('aud@prueba.test', 'Inés Valencia', array['auditor']::public.app_role[]);
+select pg_temp.test_user('diego@prueba.test', 'Diego Cárdenas', array['prod_aux']::text[]);
+select pg_temp.test_user('admin@prueba.test', 'Tomás Herrera', array['admin']::text[]);
+select pg_temp.test_user('comercial@prueba.test', 'Camila Ortega', array['comercial']::text[]);
+select pg_temp.test_user('aud@prueba.test', 'Inés Valencia', array['auditor']::text[]);
 
 select is(
   (select sr.short_signature from public.signature_registry sr join public.profiles p on p.id = sr.user_id
@@ -30,11 +30,11 @@ update public.user_roles set granted_at = now() - interval '2 days', expires_at 
 where user_id = (select id from public.profiles where email = 'aud@prueba.test');
 select is(
   public.user_active_roles((select id from public.profiles where email = 'aud@prueba.test')),
-  '{}'::public.app_role[], 'un rol vencido no cuenta como activo'
+  '{}'::text[], 'un rol vencido no cuenta como activo'
 );
 select is(
   public.user_active_roles((select id from public.profiles where email = 'diego@prueba.test')),
-  array['prod_aux']::public.app_role[], 'roles activos del usuario'
+  array['prod_aux']::text[], 'roles activos del usuario'
 );
 
 -- RLS: anon no lee perfiles.

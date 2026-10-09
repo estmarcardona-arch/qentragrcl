@@ -36,7 +36,7 @@ reset role;
 -- AC-11: un auditor vencido no tiene acceso (sin roles activos; get_my_context informa el vencimiento).
 update public.user_roles set granted_at = now() - interval '40 days', expires_at = now() - interval '1 minute'
 where user_id = 'a0000000-0000-4000-8000-000000000003';
-select is(public.user_active_roles('a0000000-0000-4000-8000-000000000003'), '{}'::public.app_role[],
+select is(public.user_active_roles('a0000000-0000-4000-8000-000000000003'), '{}'::text[],
   'AC-11: un auditor vencido no tiene roles activos');
 select pg_temp.login_as('a0000000-0000-4000-8000-000000000003');
 select ok((public.get_my_context() ->> 'access_expired_at') is not null and jsonb_array_length(public.get_my_context() -> 'roles') = 0,
@@ -51,7 +51,7 @@ select lives_ok(
        now() + interval '15 days', 'Ampliación solicitada por Calidad') $$,
   'el administrador amplía el acceso del auditor');
 reset role;
-select is(public.user_active_roles('a0000000-0000-4000-8000-000000000003'), array['auditor']::public.app_role[],
+select is(public.user_active_roles('a0000000-0000-4000-8000-000000000003'), array['auditor']::text[],
   'ampliado, el auditor vuelve a tener acceso');
 
 -- Combinaciones prohibidas.
@@ -78,7 +78,7 @@ select lives_ok($$ select public.admin_set_user_active('a0000000-0000-4000-8000-
 reset role;
 select is((select active from public.profiles where id = 'a0000000-0000-4000-8000-000000000002'), false,
   'el usuario queda inactivo (no se borra)');
-select is(public.user_active_roles('a0000000-0000-4000-8000-000000000002'), '{}'::public.app_role[],
+select is(public.user_active_roles('a0000000-0000-4000-8000-000000000002'), '{}'::text[],
   'un usuario inactivo no tiene roles activos');
 select ok(
   (select count(*) from public.audit_log where table_name = 'user_roles' and reason = 'Auditoría externa de octubre') = 1,

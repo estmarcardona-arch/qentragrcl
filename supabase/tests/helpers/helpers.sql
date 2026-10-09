@@ -5,7 +5,7 @@
 create or replace function pg_temp.test_user(
   p_email text,
   p_name text,
-  p_roles public.app_role[],
+  p_roles text[],
   p_password text default 'Clave-Prueba-2026',
   p_id uuid default null
 )
