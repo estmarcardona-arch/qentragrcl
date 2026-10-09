@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.4 · **Fecha:** 05/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.5 · **Fecha:** 08/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -44,7 +44,7 @@ Decisiones de arquitectura en una línea cada una:
 | `master` | Usuario master (edición maestra) | `aq_doc` | Analista de gestión documental (área Aseguramiento de la calidad) |
 | `gerencia` | Gerente general (aprueba documentos administrativos, fórmulas y prototipos) | | |
 
-Un usuario puede tener varios roles, **pero la segregación de funciones se evalúa por registro**, no por rol (ver 2.3).
+Un usuario puede tener varios roles, **pero la segregación de funciones se evalúa por registro**, no por rol (ver 2.3). Estos 15 roles son los **roles del sistema**; el administrador puede crear **roles adicionales** con los permisos y restricciones de la sección 2.6.
 
 ### 2.2 Matriz de permisos (L = leer, C = crear/editar borrador, F = firmar, A = aprobar, — = sin acceso)
 
@@ -69,6 +69,8 @@ Un usuario puede tener varios roles, **pero la segregación de funciones se eval
 | Traslados y envíos a bodegas externas | — | — | C | C F A | — | L | — | L | L | L | — | — | — | L | L |
 | Sistema de gestión documental (SGD): solicitar, redactar, revisar, aprobar, codificar, publicar y anular documentos | C (autor) | C (autor) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa) | F A (revisa, aprueba y decide anulaciones) | A (documentos técnicos y administrativos) | — | C (autor) | **C F (estandariza, codifica, publica y custodia)** | A (documentos administrativos) | L |
 | Lectura y capacitación (leer, presentar cuestionario y obtener constancia) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | — | F (lee) | C (asigna y hace seguimiento) | F (lee) | L |
+
+La matriz anterior es la **línea base** de los roles del sistema y es de solo lectura en la plataforma (cambiarla es un cambio de este PRD). Los roles adicionales (2.6) agregan columnas configurables.
 
 ### 2.3 Reglas de segregación de funciones (SOD) — obligatorias en base de datos
 
@@ -182,6 +184,19 @@ El **listado maestro** es una vista (`v_master_list`) exportable a Excel que se 
 #### 2.5.11 Buenas prácticas de diligenciamiento reflejadas en el eBR
 
 Información puntual, exacta, consistente y libre de falsificación (ALCOA+); fechas `dd-mm-aaaa`; hora de 24 h; **firma corta** registrada (DI-11); «N.A.» cuando no aplica; **no hay tachones ni enmiendas**: una corrección conserva el valor anterior tachado, con asterisco, firma corta, fecha y motivo, y **más de 5 correcciones en un mismo registro generan aviso** (DI-12); unidades del SI.
+
+### 2.6 Roles configurables (roles adicionales)
+
+El administrador puede **crear, configurar y retirar roles adicionales** desde *Catálogos y configuración* (S-04) para cubrir cargos que no encajan en los 15 roles del sistema (D-06). Reglas:
+
+| Tema | Regla |
+|---|---|
+| Qué se configura | Código (minúsculas, único), nombre, descripción; **permisos por módulo** de la matriz 2.2 (L, C, F, A en cada uno de los 19 módulos); roles **incompatibles** (no puede tenerlos la misma persona); si el rol **exige fecha de vencimiento** al asignarlo (como `auditor`) y si es **de solo lectura** (solo L) |
+| Funciones reservadas (no se pueden dar a un rol adicional) | Administrar usuarios, catálogos y perfiles (exclusivo de `admin`); **aprobar la liberación final del lote** (exclusivo de `dt`, PRD 2.2); **codificar y crear documentos controlados** (exclusivo de `aq_doc`, RF-93) |
+| Segregación de funciones | SOD-1…SOD-10 aplican a todo rol por igual (se evalúan por registro, 2.3) |
+| Roles del sistema | Los 15 roles de 2.1 no se retiran y sus permisos son de solo lectura (línea base del PRD) |
+| Retiro («eliminar») | Nada se borra: un rol se **retira** (deja de poder asignarse y de dar permisos) solo si ningún usuario lo tiene asignado y vigente; su historial y la bitácora se conservan. Un rol retirado puede reactivarse |
+| Trazabilidad | Toda creación, cambio de permiso, incompatibilidad o retiro exige **motivo** y queda en la bitácora con antes/después y versión del rol. Si la creación de roles requiere además aprobación de Aseguramiento de la calidad se define en D-39 |
 
 ## 3. Arquitectura
 
@@ -555,6 +570,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 - **RF-03** Administración de usuarios, roles y vencimiento de accesos de auditor. *Aceptación:* un auditor vencido no puede iniciar sesión; toda asignación de rol queda en bitácora.
 - **RF-04** Catálogos y perfiles regulatorios (líneas, marcas, áreas, unidades). *Aceptación:* cambiar un perfil no altera lotes existentes (DI-8/snapshot).
 - **RF-05** Usuario master (edición maestra): crea y modifica fórmulas, especificaciones, instructivos y las plantillas de cada etapa del proceso (despeje de línea, dispensación, fabricación, envase, acondicionamiento y otras) **como versiones nuevas en borrador**. *Aceptación:* el master no puede editar una versión aprobada (`RECORD_LOCKED`), no puede aprobar lo que creó (`SOD_VIOLATION`) y cada cambio exige motivo y queda en bitácora.
+- **RF-07** Roles configurables (2.6): crear, configurar permisos por módulo e incompatibilidades, y retirar roles adicionales; las funciones reservadas y los roles del sistema no se pueden modificar. *Aceptación:* un rol nuevo con permisos asignados da exactamente esos permisos a quien lo recibe; dar una función reservada se rechaza (`RESERVED_PERMISSION`); retirar un rol asignado y vigente se rechaza (`ROLE_IN_USE`); los permisos de un rol del sistema no se modifican (`SYSTEM_ROLE_LOCKED`).
 - **RF-06** Catálogo de áreas de la empresa con **Aseguramiento de la calidad** como área dueña del SGD y asignación de usuarios a áreas; catálogo de etapas del proceso editable por versión. *Aceptación:* un documento siempre tiene un área propietaria; solo `aq_doc` crea documentos controlados.
 
 **I+D y documentos maestros**
@@ -656,7 +672,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | S-01 | Inicio de sesión + modal de firma (componente `SignatureModal`) | `/login` | todos | RF-01 | 1 |
 | S-02 | Dashboard por rol | `/inicio` | todos | RF-02 | 1 |
 | S-03 | Usuarios y roles | `/admin/usuarios` | admin | RF-03, RF-102 | 2 |
-| S-04 | Catálogos y perfiles regulatorios | `/admin/catalogos` | admin | RF-04 | 2 |
+| S-04 | Catálogos, roles y permisos, perfiles regulatorios y configuración | `/admin/catalogos` | admin | RF-04, RF-07 | 2 |
 | S-05 | Listado de briefs | `/idi/briefs` | comercial, idi, dt | RF-10 | 3 |
 | S-06 | Formulario de brief | `/idi/briefs/nuevo` | comercial | RF-10 | 3 |
 | S-07 | Fórmula cualicuantitativa | `/idi/formulas/[id]` | idi, dt | RF-11 | 3 |
@@ -783,6 +799,9 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | AC-33 | Preliminar con «generalmente» y redacción no infinitiva | `STYLE_CHECK_FAILED` con observaciones |
 | AC-34 | Fórmula con registro sanitario que vence el 30/09/2030 | Fecha de revisión del documento = 30/09/2030 |
 | AC-35 | Un registro con 6 correcciones | Aviso al verificador |
+| AC-36 | Crear un rol adicional con lectura en «Trazabilidad / Auditoría» y asignarlo | El usuario obtiene solo ese permiso (`has_module_permission`) |
+| AC-37 | Dar a un rol adicional la aprobación de la liberación final o la administración de usuarios | `RESERVED_PERMISSION` |
+| AC-38 | Retirar un rol asignado a un usuario vigente / un rol del sistema | `ROLE_IN_USE` / `SYSTEM_ROLE_LOCKED` |
 
 ## 15. Reglas para el agente de desarrollo (`AGENTS.md`)
 
@@ -802,7 +821,7 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 |---|---|---|---|
 | **F0 Cimientos** | Repo, Next.js, Tailwind, shadcn, Supabase CLI, CI (lint+tsc+tests), tokens del sistema de diseño, `AGENTS.md` | — | App vacía desplegada, CI en verde |
 | **F1 Núcleo GxP** | `profiles`, `user_roles`, `audit_log` + triggers, `signatures`, `sign_record`, bloqueo, SOD, `SignatureModal`, login, dashboard por rol (S-01, S-02) | F0 | AC-01, AC-02, AC-08 |
-| **F2 Administración** | Usuarios/roles (incluye `master` y `aq_doc`), áreas, catálogos, perfiles regulatorios (S-03, S-04) | F1 | RF-03, RF-04, RF-06, AC-11 |
+| **F2 Administración** | Usuarios/roles (incluye `master` y `aq_doc`), roles configurables, áreas, catálogos, perfiles regulatorios (S-03, S-04) | F1 | RF-03, RF-04, RF-06, RF-07, AC-11, AC-36…38 |
 | **F2B Gestión documental y plantillas** | SGD completo según los procedimientos: tipos y niveles, codificación, solicitudes, estandarización, rutas, versiones, copias controladas, capacitación con cuestionario, vigencias, anulación, listado maestro, plantillas de proceso y edición maestra (S-43…S-49) | F2 | RF-05, RF-92…103, AC-19, AC-20, AC-23, AC-25, AC-28…33 |
 | **F3 Documentos maestros** | Brief ampliado, prototipos, estabilidad preliminar, fórmula, especificación, instructivo, costos, aprobación versionada **sobre el SGD** (S-05…S-10, S-36, S-37) | F2B | RF-10…17, AC-07 (parcial), AC-13 |
 | **F4 Bodega y calidad de insumos** | Estructura de bodegas y ubicaciones, bodegas externas y traslados, recepción con ubicación, rótulos, kardex, liberación de insumos (S-11…S-14, S-41, S-42) | F2 | RF-20…25, AC-21, AC-22, AC-24, saldo de inventario |
@@ -846,11 +865,14 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 | D-24 | ¿Quién aprueba los documentos administrativos: `gerencia`, `dt` o ambos? | Dirección | Rutas |
 | D-25 | Umbral de correcciones por registro que dispara el aviso (5 en la referencia) | Calidad | DI-12 |
 | D-26 | ¿Un formato con revisión vencida bloquea la creación de órdenes o solo alerta? | Calidad | RF-101 |
+| D-39 | ¿Crear o cambiar un rol adicional exige aprobación de Aseguramiento de la calidad además del motivo? | Calidad | RF-07 |
+| D-40 | ¿Se permitirá ajustar en la plataforma los permisos de los 15 roles del sistema (hoy línea base de solo lectura)? | Dirección / Calidad | RF-07 |
 
 ## 18. Historial
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.5 | 08/10/2026 | Roles configurables (sección 2.6): el administrador crea, configura (permisos por módulo, incompatibilidades, vencimiento obligatorio, solo lectura) y retira roles adicionales; funciones reservadas (`admin`, `dt`, `aq_doc`); roles del sistema protegidos como línea base; RF-07; AC-36…38; D-39, D-40; S-04 ampliada |
 | 1.4 | 06/10/2026 | SGD reescrito con los procedimientos de elaboración y de registro y control de documentos: niveles y tipos, codificación `PPP-TT-NNN` y subdocumentos `PPP-TT-NNN-LL-##`, estructura, encabezado y pie, solicitud → estandarización → revisión → aprobación → copias controladas, anulación con recolección, vigencias por tipo (3 años / registro sanitario / anual / validación), retención, capacitación con cuestionario ≥ 80 %, listado maestro, cambio técnico de formato que obliga a revisar el procedimiento, firma corta y correcciones; rol `gerencia`; pantalla S-49; RF-92…103; AC-28…35; D-21…26 |
 | 1.3 | 06/10/2026 | Bodegas con estantes, pisos, posiciones y tipos de material (incluye rechazo, devolución, granel y bodegas externas para maquila); usuario `master` de edición maestra y plantillas de proceso; área de Aseguramiento de la calidad y sistema de gestión documental (código, versión, ciclo de vida, lectura, cambios) integrado con el registro de lote; pantallas S-41…S-48; RF-05, 06, 23…25, 92…99; AC-19…27; D-15…20; SOD-8…10 |
 | 1.2 | 06/10/2026 | RF-16 reescrito con el protocolo de estabilidad preliminar de Calidad: calentamiento 42–48 °C, enfriamiento 0–8 °C (30 días, 7 tiempos, triplicado), microbiología en laboratorio externo (0 h y 30 d), viscosidad con ≥ 250 mL (0 y 30 d, triplicado) y densidad con picnómetro si se requiere; nuevas tablas `stability_tests` y `stability_readings`; RPC `start_stability_study`, `record_stability_reading`, `close_stability_study`; AC-13, AC-16…18; D-13 ajustada |
