@@ -627,11 +627,13 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | | 18 | Rótulo a granel (el granel envasado que se acondiciona) | Se genera en la transferencia | RF-37 |
 | | 19 | Limpieza de equipos y utensilios | Auxiliar / supervisor | RF-39 |
 | | 20 | Registro de acondicionamiento (incluye codificación) | Auxiliar ejecuta; verificador distinto | RF-36 |
-| | 21 | Inspección de producto terminado (9 puntos) | Control de calidad | RF-36 |
+| | 21 | Inspección de producto terminado (9 puntos) | Coordinador de producción o supervisor (firma la inspección, D-47) | RF-36 |
 | **Cierre (general)** | 22 | Certificado de calidad del producto terminado | Control de calidad | RF-41 |
 | | 23 | Consolidado y liberación del producto terminado | Director técnico | RF-80, RF-83 |
 
 *El «paquete técnico» (documento 0 del formato) se forma al final con los pasos anteriores marcados «Sí» o «No aplica».*
+
+*Supervisor (D-46).* En empresas grandes un **supervisor de producción** verifica despeje, limpieza e inspección; en empresas pequeñas lo hace el **coordinador de producción** (`prod_coord`). El supervisor no es un rol del sistema: se crea como **rol adicional** (2.6) con los permisos de verificación de `prod_coord`; donde no exista, verifica `prod_coord`. La segregación (quien ejecuta no verifica) aplica igual.
 
 **A. Orden de producción y documentos generados**
 - **RF-30** Crear la orden de producción (OP) por parte de coordinación. El número lo define Aseguramiento de calidad (formato y consecutivo). *Aceptación:* la OP toma **solo** documentos en versión vigente (fórmula, especificaciones, instructivos, plantillas y formatos) y congela esas versiones en el lote; sin versión aprobada falla (`NO_APPROVED_VERSION` / `DOCUMENT_NOT_EFFECTIVE`); el número no se repite ni se edita.
@@ -653,7 +655,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 - **RF-35** Registro de envase por presentación, con control de peso o volumen cada N minutos (D-08). *Aceptación:* el sistema recuerda cada intervalo; un valor fuera de rango alerta y exige acción registrada.
 
 **F. Acondicionamiento**
-- **RF-36** Registro de acondicionamiento (incluye codificación y devolución de material sobrante) y la inspección de producto terminado de 9 puntos. *Aceptación:* los 9 puntos tienen resultado antes de completar; lo devuelto cuadra con lo solicitado (entregado − usado − merma = devuelto, con tolerancia).
+- **RF-36** Registro de acondicionamiento (incluye codificación y devolución de material sobrante) y la inspección de producto terminado de 9 puntos. *Aceptación:* los 9 puntos tienen resultado antes de completar; lo devuelto cuadra con lo solicitado (entregado − usado − merma = devuelto, con la tolerancia configurada: **0 unidades por defecto**, D-48); la inspección la firma el coordinador de producción o el supervisor.
 
 **Calidad**
 - **RF-40** Captura de resultados de análisis contra especificación. *Aceptación:* conformidad calculada automáticamente; fuera de especificación abre OOS.
@@ -922,7 +924,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado |
+| 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado. Decisiones del responsable: el paso 23 cita RF-80 (D-45); supervisor = rol adicional o, si no existe, `prod_coord` (D-46); la inspección de producto terminado la firma el coordinador o el supervisor (D-47); tolerancia de la devolución 0 unidades por defecto (D-48) |
 | 1.6 | 08/10/2026 | Aprobación de cambios de rol (D-39, D-40 resueltas): todo cambio de rol es una solicitud del administrador que aprueba Aseguramiento de la calidad; los permisos de los roles del sistema se ajustan con doble aprobación (`aq_dir` y `dt`) y las funciones reservadas siguen con candado; línea base del PRD conservada y marcada en S-04; bandeja S-04B; AC-39…41; D-41 |
 | 1.5 | 08/10/2026 | Roles configurables (sección 2.6): el administrador crea, configura (permisos por módulo, incompatibilidades, vencimiento obligatorio, solo lectura) y retira roles adicionales; funciones reservadas (`admin`, `dt`, `aq_doc`); roles del sistema protegidos como línea base; RF-07; AC-36…38; D-39, D-40; S-04 ampliada |
 | 1.4 | 06/10/2026 | SGD reescrito con los procedimientos de elaboración y de registro y control de documentos: niveles y tipos, codificación `PPP-TT-NNN` y subdocumentos `PPP-TT-NNN-LL-##`, estructura, encabezado y pie, solicitud → estandarización → revisión → aprobación → copias controladas, anulación con recolección, vigencias por tipo (3 años / registro sanitario / anual / validación), retención, capacitación con cuestionario ≥ 80 %, listado maestro, cambio técnico de formato que obliga a revisar el procedimiento, firma corta y correcciones; rol `gerencia`; pantalla S-49; RF-92…103; AC-28…35; D-21…26 |
