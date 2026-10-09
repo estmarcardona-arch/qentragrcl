@@ -1,7 +1,7 @@
 # Reporte de etapa E2 — Administración
 
 **Fase del PRD:** F2 · **Rama:** `etapa/E2` · **Fecha:** 07/10/2026
-**Estado:** construida; RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…41 aprobados en pgTAP; la matriz de la interfaz coincide con el PRD (prueba automática). **Pendiente:** aplicar la migración 0013 en la nube (con su confirmación), CI de las E2E de aprobación, revisión del responsable y aprobación para integrar a `main`.
+**Estado:** construida; RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…41 aprobados en pgTAP; la matriz de la interfaz coincide con el PRD (prueba automática). **Pendiente:** revisión del responsable y aprobación para integrar a `main`.
 
 ## Puerta de salida
 

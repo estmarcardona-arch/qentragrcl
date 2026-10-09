@@ -696,6 +696,160 @@ export type Database = {
         }
         Relationships: []
       }
+      role_change_approvals: {
+        Row: {
+          approver: string
+          approver_name: string
+          approver_role: string
+          created_at: string
+          created_by: string | null
+          decided_at: string
+          decision: string
+          id: string
+          reason: string
+          reauth_method: string
+          request_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approver: string
+          approver_name: string
+          approver_role: string
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string
+          decision: string
+          id?: string
+          reason: string
+          reauth_method: string
+          request_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approver?: string
+          approver_name?: string
+          approver_role?: string
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string
+          decision?: string
+          id?: string
+          reason?: string
+          reauth_method?: string
+          request_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_approvals_approver_fkey"
+            columns: ["approver"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_approvals_approver_role_fkey"
+            columns: ["approver_role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "role_change_approvals_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "role_change_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_change_requests: {
+        Row: {
+          before: Json
+          close_reason: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          payload: Json
+          reason: string
+          request_number: string
+          requested_at: string
+          requested_by: string
+          required_roles: string[]
+          role_code: string
+          role_is_system: boolean
+          status: string
+          summary: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          before?: Json
+          close_reason?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          payload?: Json
+          reason: string
+          request_number: string
+          requested_at?: string
+          requested_by: string
+          required_roles: string[]
+          role_code: string
+          role_is_system: boolean
+          status?: string
+          summary: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          before?: Json
+          close_reason?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          payload?: Json
+          reason?: string
+          request_number?: string
+          requested_at?: string
+          requested_by?: string
+          required_roles?: string[]
+          role_code?: string
+          role_is_system?: boolean
+          status?: string
+          summary?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_requests_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_incompatibilities: {
         Row: {
           active: boolean
@@ -1206,10 +1360,6 @@ export type Database = {
         Args: { p_reason: string; p_request: string }
         Returns: undefined
       }
-      admin_request_role_change: {
-        Args: { p_kind: string; p_payload: Json; p_reason: string; p_role: string }
-        Returns: Json
-      }
       admin_grant_role: {
         Args: {
           p_expires_at: string
@@ -1235,6 +1385,15 @@ export type Database = {
           roles: Json
           short_signature: string
         }[]
+      }
+      admin_request_role_change: {
+        Args: {
+          p_kind: string
+          p_payload: Json
+          p_reason: string
+          p_role: string
+        }
+        Returns: Json
       }
       admin_revoke_role: {
         Args: { p_reason: string; p_user_role: string }
@@ -1278,6 +1437,7 @@ export type Database = {
         Returns: undefined
       }
       can_read_audit: { Args: never; Returns: boolean }
+      can_see_role_changes: { Args: never; Returns: boolean }
       can_sign: {
         Args: {
           p_meaning: Database["public"]["Enums"]["signature_meaning"]
@@ -1298,6 +1458,15 @@ export type Database = {
         Returns: undefined
       }
       current_user_roles: { Args: never; Returns: string[] }
+      decide_role_change: {
+        Args: {
+          p_decision: string
+          p_password: string
+          p_reason: string
+          p_request: string
+        }
+        Returns: Json
+      }
       format_sequence_code: {
         Args: { p_format: string; p_value: number; p_year: number }
         Returns: string
@@ -1317,20 +1486,11 @@ export type Database = {
           table_name: string
         }[]
       }
-      decide_role_change: {
-        Args: {
-          p_decision: string
-          p_password: string
-          p_reason: string
-          p_request: string
-        }
-        Returns: Json
-      }
+      get_my_context: { Args: never; Returns: Json }
       get_role_change_requests: {
         Args: { p_role?: string; p_status?: string }
         Returns: Json
       }
-      get_my_context: { Args: never; Returns: Json }
       get_setting: { Args: { p_key: string }; Returns: Json }
       has_any_role: { Args: { p_roles: string[] }; Returns: boolean }
       has_module_permission: {
