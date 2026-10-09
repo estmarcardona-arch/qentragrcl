@@ -88,7 +88,7 @@ export function NewChangeRequest({
               });
             }}
           >
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label htmlFor="cr-doc" className="text-label uppercase">
                 Documento
               </Label>
@@ -96,7 +96,7 @@ export function NewChangeRequest({
                 id="cr-doc"
                 value={f.documentId}
                 onChange={(e) => setF({ ...f, documentId: e.target.value })}
-                className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+                className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
               >
                 <option value="">Seleccione…</option>
                 {documents.map((d) => (
@@ -107,7 +107,7 @@ export function NewChangeRequest({
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-1.5">
+              <div className="grid min-w-0 gap-1.5">
                 <Label htmlFor="cr-origin" className="text-label uppercase">
                   Origen
                 </Label>
@@ -115,7 +115,7 @@ export function NewChangeRequest({
                   id="cr-origin"
                   value={f.origin}
                   onChange={(e) => setF({ ...f, origin: e.target.value })}
-                  className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+                  className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
                 >
                   {Object.entries(ORIGIN_LABELS).map(([k, v]) => (
                     <option key={k} value={k}>
@@ -124,7 +124,7 @@ export function NewChangeRequest({
                   ))}
                 </select>
               </div>
-              <div className="grid gap-1.5">
+              <div className="grid min-w-0 gap-1.5">
                 <Label htmlFor="cr-ref" className="text-label uppercase">
                   Referencia del origen
                 </Label>
@@ -136,7 +136,7 @@ export function NewChangeRequest({
                 />
               </div>
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label htmlFor="cr-reason" className="text-label uppercase">
                 Motivo <span className="text-q-bad-ic">*</span>
               </Label>
@@ -147,7 +147,7 @@ export function NewChangeRequest({
                 onChange={(e) => setF({ ...f, reason: e.target.value })}
               />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label htmlFor="cr-impact" className="text-label uppercase">
                 Impacto
               </Label>
@@ -174,7 +174,7 @@ export function NewChangeRequest({
               </span>
             </label>
             {canAssignAuthor ? (
-              <div className="grid gap-1.5">
+              <div className="grid min-w-0 gap-1.5">
                 <Label htmlFor="cr-author" className="text-label uppercase">
                   Autor de la versión nueva
                 </Label>
@@ -182,7 +182,7 @@ export function NewChangeRequest({
                   id="cr-author"
                   value={f.authorId}
                   onChange={(e) => setF({ ...f, authorId: e.target.value })}
-                  className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+                  className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
                 >
                   <option value="">Yo</option>
                   {people.map((p) => (

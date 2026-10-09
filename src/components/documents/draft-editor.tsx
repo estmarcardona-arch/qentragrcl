@@ -98,7 +98,7 @@ export function DraftEditor({
           </div>
         ) : null}
         {SECTIONS.filter((s) => keys.includes(s.key)).map((s) => (
-          <div key={s.key} className="grid gap-1.5">
+          <div key={s.key} className="grid min-w-0 gap-1.5">
             <Label htmlFor={`sec-${s.key}`} className="text-label uppercase">
               {s.label}
             </Label>
@@ -113,7 +113,7 @@ export function DraftEditor({
         ))}
         {isModification ? (
           <div className="grid gap-3 rounded-lg border border-border bg-surface-sunken p-3.5">
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label htmlFor="sec-change" className="text-label uppercase">
                 Descripción del cambio <span className="text-q-bad-ic">*</span>
               </Label>
@@ -189,7 +189,7 @@ export function DraftEditor({
             <CircleCheck aria-hidden className="size-4" /> Cumple
           </p>
         ) : (
-          <ul className="grid gap-1.5" aria-label="Observaciones">
+          <ul className="grid min-w-0 gap-1.5" aria-label="Observaciones">
             {obs.map((o, i) => (
               <li key={i} className="flex items-start gap-1.5 text-sm text-q-warn-fg">
                 <TriangleAlert aria-hidden className="mt-0.5 size-3.5 shrink-0" />

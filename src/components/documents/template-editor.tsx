@@ -109,7 +109,7 @@ export function TemplateEditor({
               {steps.length} {checklist ? "ítems" : "pasos"}
             </span>
           </div>
-          <ol className="grid gap-1.5" data-testid="template-steps">
+          <ol className="grid min-w-0 gap-1.5" data-testid="template-steps">
             {steps.map((s, i) => (
               <li key={i}>
                 <button
@@ -215,7 +215,7 @@ export function TemplateEditor({
                 </div>
               </div>
               <div className="grid grid-cols-[80px_1fr] gap-2">
-                <div className="grid gap-1.5">
+                <div className="grid min-w-0 gap-1.5">
                   <Label htmlFor="st-label" className="text-label uppercase">
                     N.º
                   </Label>
@@ -226,7 +226,7 @@ export function TemplateEditor({
                     className="font-mono"
                   />
                 </div>
-                <div className="grid gap-1.5">
+                <div className="grid min-w-0 gap-1.5">
                   <Label htmlFor="st-text" className="text-label uppercase">
                     Texto
                   </Label>
@@ -240,7 +240,7 @@ export function TemplateEditor({
               </div>
               {!checklist ? (
                 <>
-                  <fieldset className="grid gap-1.5">
+                  <fieldset className="grid min-w-0 gap-1.5">
                     <legend className="mb-1 text-label text-text-strong uppercase">
                       Parámetro (unidad · mínimo · máximo · frecuencia)
                     </legend>
@@ -307,7 +307,7 @@ export function TemplateEditor({
                         </div>
                       ))}
                   </fieldset>
-                  <div className="grid gap-1.5">
+                  <div className="grid min-w-0 gap-1.5">
                     <Label htmlFor="st-eq" className="text-label uppercase">
                       Equipo exigido
                     </Label>

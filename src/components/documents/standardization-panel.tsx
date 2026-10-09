@@ -108,7 +108,7 @@ export function StandardizationPanel({
                 {okCount} de {items.length}
               </span>
             </div>
-            <ul className="grid gap-1.5" data-testid="checklist">
+            <ul className="grid min-w-0 gap-1.5" data-testid="checklist">
               {items.map((i) => (
                 <li
                   key={i.t}
@@ -332,7 +332,7 @@ function CodeForm({
           {data.parentCode ? (
             <Locked label="Procedimiento padre" value={data.parentCode} mono />
           ) : null}
-          <div className="grid gap-1.5">
+          <div className="grid min-w-0 gap-1.5">
             <Label htmlFor="code-rule" className="text-label uppercase">
               Regla de vigencia
             </Label>
@@ -340,7 +340,7 @@ function CodeForm({
               id="code-rule"
               value={rule}
               onChange={(e) => setRule(e.target.value)}
-              className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+              className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
             >
               <option value="periodo">Periodo del tipo (3 años; especificaciones, anual)</option>
               <option value="registro_sanitario">Vigencia del registro sanitario</option>
@@ -348,7 +348,7 @@ function CodeForm({
             </select>
           </div>
           {rule !== "periodo" ? (
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label htmlFor="code-expiry" className="text-label uppercase">
                 Vence el registro o la validación
               </Label>
@@ -426,7 +426,7 @@ function Locked({
   mono?: boolean;
 }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid min-w-0 gap-1.5">
       <span className="flex items-center gap-1.5 text-label text-text-strong uppercase">
         {label}
         {tag ? (

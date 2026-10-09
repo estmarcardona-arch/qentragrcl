@@ -104,7 +104,7 @@ export function ReauthDialog({
         >
           {children}
           {reasonLabel ? (
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label htmlFor="reauth-reason" className="text-label uppercase">
                 {reasonLabel} {reasonRequired ? <span className="text-q-bad-ic">*</span> : null}
               </Label>
@@ -116,7 +116,7 @@ export function ReauthDialog({
               />
             </div>
           ) : null}
-          <div className="grid gap-1.5">
+          <div className="grid min-w-0 gap-1.5">
             <Label htmlFor="reauth-password" className="text-label uppercase">
               <KeyRound aria-hidden className="mr-1 inline size-3.5" />
               Contraseña <span className="text-q-bad-ic">*</span>

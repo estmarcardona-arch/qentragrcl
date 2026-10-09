@@ -86,7 +86,7 @@ export function RequestForm({
       }}
     >
       <section className="grid content-start gap-4 rounded-[10px] border border-border bg-surface p-5">
-        <fieldset className="grid gap-1.5">
+        <fieldset className="grid min-w-0 gap-1.5">
           <legend className="mb-1 text-label text-text-strong uppercase">Tipo de solicitud</legend>
           <div
             className="inline-flex w-fit overflow-hidden rounded-md border border-border-control"
@@ -172,7 +172,7 @@ export function RequestForm({
           />
         )}
 
-        <div className="grid gap-1.5">
+        <div className="grid min-w-0 gap-1.5">
           <Label htmlFor="req-reason" className="text-label uppercase">
             Motivo <span className="text-q-bad-ic">*</span>
           </Label>
@@ -226,7 +226,7 @@ export function RequestForm({
           </p>
         )}
 
-        <div className="grid gap-1.5">
+        <div className="grid min-w-0 gap-1.5">
           <span className="text-label text-text-strong uppercase">Autor</span>
           <span className="rounded-md border border-border bg-surface-sunken px-3 py-2 text-sm">
             {authorLabel}
@@ -300,7 +300,7 @@ function Select({
   options: string[][];
 }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid min-w-0 gap-1.5">
       <Label htmlFor={id} className="text-label uppercase">
         {label}
       </Label>
@@ -308,7 +308,7 @@ function Select({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+        className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
       >
         <option value="">Seleccione…</option>
         {options.map(([v, l]) => (

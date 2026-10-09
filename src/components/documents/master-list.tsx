@@ -273,7 +273,7 @@ function Filter({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+        className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
       >
         <option value="">Todos</option>
         {options.map(([v, l]) => (

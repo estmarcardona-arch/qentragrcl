@@ -208,8 +208,8 @@ export function AssignTraining({
       }}
     >
       <h2 className="text-card-title">Asignar divulgación</h2>
-      <div className="grid grid-cols-2 gap-3 max-[1279px]:grid-cols-1">
-        <div className="grid gap-1.5">
+      <div className="grid grid-cols-2 items-start gap-3 max-[1279px]:grid-cols-1">
+        <div className="grid min-w-0 gap-1.5">
           <Label htmlFor="tr-version" className="text-label uppercase">
             Documento vigente
           </Label>
@@ -217,7 +217,7 @@ export function AssignTraining({
             id="tr-version"
             value={versionId}
             onChange={(e) => setVersionId(e.target.value)}
-            className="h-10 rounded-md border border-border-control bg-white px-2.5 text-sm"
+            className="h-10 w-full min-w-0 truncate rounded-md border border-border-control bg-white px-2.5 text-sm"
           >
             <option value="">Seleccione…</option>
             {versions.map((v) => (
@@ -227,14 +227,20 @@ export function AssignTraining({
             ))}
           </select>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid min-w-0 gap-1.5">
           <Label htmlFor="tr-due" className="text-label uppercase">
             Fecha límite
           </Label>
-          <Input id="tr-due" type="date" value={due} onChange={(e) => setDue(e.target.value)} />
+          <Input
+            id="tr-due"
+            type="date"
+            className="h-10"
+            value={due}
+            onChange={(e) => setDue(e.target.value)}
+          />
         </div>
       </div>
-      <fieldset className="grid gap-1.5">
+      <fieldset className="grid min-w-0 gap-1.5">
         <legend className="mb-1 text-label text-text-strong uppercase">Personas</legend>
         <div className="grid max-h-48 grid-cols-3 gap-1.5 overflow-y-auto max-[1279px]:grid-cols-2">
           {people.map((p) => (
