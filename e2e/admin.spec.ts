@@ -20,6 +20,10 @@ async function confirmWithReason(
   button: string | RegExp,
 ) {
   const dialog = page.getByRole("dialog");
+  await expect(
+    dialog,
+    `no se abrió el diálogo para «${String(button)}» en ${page.url()}`,
+  ).toBeVisible();
   await dialog.getByLabel(/Motivo/).fill(reason);
   await dialog.getByRole("button", { name: button }).click();
   await expect(dialog).toBeHidden();
