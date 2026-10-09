@@ -1,7 +1,7 @@
 # Reporte de etapa E2 — Administración
 
 **Fase del PRD:** F2 · **Rama:** `etapa/E2` · **Fecha:** 07/10/2026
-**Estado:** construida; RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…38 aprobados; la matriz de la interfaz coincide con el PRD (prueba automática); CI en verde. **Pendiente:** revisión del responsable y aprobación para integrar a `main`.
+**Estado:** construida; RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…41 aprobados en pgTAP; la matriz de la interfaz coincide con el PRD (prueba automática). **Pendiente:** aplicar la migración 0013 en la nube (con su confirmación), CI de las E2E de aprobación, revisión del responsable y aprobación para integrar a `main`.
 
 ## Puerta de salida
 
@@ -46,6 +46,16 @@ El responsable pidió poder **crear y eliminar roles** desde Catálogos y config
 | S-04 «Roles y permisos»                 | Panel con lo que se puede configurar y las restricciones fijas; lista de roles (tipo, opciones, usuarios vigentes, estado, versión); crear rol; configuración por rol con la matriz L/C/F/A por módulo (funciones reservadas con candado), incompatibilidades, opciones y retiro                                                                                                                                                                |
 | «Eliminar» = retirar                    | Nada se borra: un rol se retira solo si nadie lo tiene vigente; su historial se conserva y puede reactivarse                                                                                                                                                                                                                                                                                                                                    |
 | Pruebas                                 | pgTAP `0012_configurable_roles` (24): RF-07, AC-36, AC-37, AC-38; E2E de creación, configuración, función reservada bloqueada, matriz con la columna nueva, retiro y rol del sistema en solo lectura                                                                                                                                                                                                                                            |
+
+## Aprobación de cambios de rol (decisiones D-39 y D-40, 08/10/2026)
+
+El responsable resolvió que **crear o cambiar un rol pasa por Aseguramiento de la calidad** (D-39) y que los **permisos de los 15 roles del sistema se pueden ajustar con doble aprobación**, dejando las funciones reservadas con candado (D-40). PRD actualizado a la **versión 1.6** (sección 2.6, RF-07, S-04B, AC-39…41, D-41).
+
+| Elemento                                   | Detalle                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migración `0013_role_change_approvals.sql` | Solicitudes (`role_change_requests`, `CR-AAAA-NNNN`) y aprobaciones de solo-agregar (`role_change_approvals`), con RLS, bitácora y escritura solo por RPC. `admin_request_role_change` valida el cambio completo (lo aplica y lo revierte) y guarda el antes; `decide_role_change` aprueba o rechaza con contraseña y aplica el cambio al reunir las aprobaciones, en la misma transacción; `admin_cancel_role_change`; `get_role_change_requests`. Rol adicional: `aq_dir`. Rol del sistema: `aq_dir` + `dt`, personas distintas. Quien solicita no aprueba. Una solicitud pendiente por rol. Candado: el dueño de una función reservada no la pierde. Línea base del PRD por celda (`prd_cell_text`). Las RPC de cambio directo de 0012 se eliminan |
+| Pantallas                                  | Bandeja **Cambios de roles** (`/cambios-roles`, menú de `admin`, `aq_dir`, `dt` y `auditor`) con antes/después y aprobaciones; solicitudes pendientes en «Roles y permisos» y en cada rol; los roles del sistema permiten proponer permisos; S-04 marca con «*» las celdas ajustadas y muestra su base del PRD                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Pruebas                                    | pgTAP `0012` reescrita al flujo con aprobación (31) y `0013_role_change_approvals` (24): RF-07, AC-39, AC-40, AC-41. E2E: rol adicional aprobado por Calidad (crear, permisos, retiro) y rol del sistema con doble aprobación y regreso a la línea base                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 ## Resultados de pruebas
 
@@ -101,6 +111,7 @@ El responsable pidió poder **crear y eliminar roles** desde Catálogos y config
 - Rúbrica en imagen en el registro de firmas: pendiente de Storage (D-38).
 - El envío automático de correos depende de un SMTP corporativo (D-37).
 - Pestaña de proveedores de maquila (Prompt 2): la tabla `external_parties` es de E4.
+- Los menús de los roles del sistema siguen la tabla fija del PRD; un permiso ajustado con doble aprobación cambia `has_module_permission`, pero no agrega secciones al menú (las secciones se habilitan en sus etapas).
 - En la nube faltan tres ajustes del panel de Supabase (`docs/ENTORNOS.md`): longitud mínima 12, vencimiento de enlaces 24 h y registro público desactivado.
 - Para usar el alta y el restablecimiento en local y en Vercel hace falta `SUPABASE_SERVICE_ROLE_KEY` (solo servidor).
 
@@ -108,6 +119,7 @@ El responsable pidió poder **crear y eliminar roles** desde Catálogos y config
 
 - Nuevas: D-36 (motivos de corrección), D-37 (SMTP corporativo) y D-38 (rúbrica en imagen).
 - Actualizadas: D-06, D-18, D-34 y D-35.
+- Resueltas el 08/10/2026: D-39 y D-40. Nueva: D-41 (quiénes dan la doble aprobación y numeración de solicitudes).
 
 ## Comandos para reproducir
 

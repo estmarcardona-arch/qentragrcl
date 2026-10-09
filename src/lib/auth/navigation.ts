@@ -1,6 +1,7 @@
 import { isSystemRole, type SystemRole } from "./roles";
 
-// Menú lateral por rol (Prompt 0 y Prompt 1; diseño S-02). Desde E2: «Inicio» y «Administración»;
+// Menú lateral por rol (Prompt 0 y Prompt 1; diseño S-02). Desde E2: «Inicio», «Administración» y
+// «Cambios de roles» (aprobación de cambios de rol, D-39/D-40);
 // las demás secciones se habilitan en la etapa que las construye.
 
 export type NavKey =
@@ -16,6 +17,7 @@ export type NavKey =
   | "trazabilidad"
   | "liberacion"
   | "auditoria"
+  | "cambios_roles"
   | "administracion";
 
 export type NavItem = {
@@ -49,6 +51,12 @@ export const NAV_ITEMS: Record<NavKey, NavItem> = {
   },
   liberacion: { key: "liberacion", label: "Liberación", href: "/liberacion", stage: "E9" },
   auditoria: { key: "auditoria", label: "Auditoría", href: "/auditoria/bitacora", stage: "E10" },
+  cambios_roles: {
+    key: "cambios_roles",
+    label: "Cambios de roles",
+    href: "/cambios-roles",
+    stage: null,
+  },
   administracion: {
     key: "administracion",
     label: "Administración",
@@ -70,6 +78,7 @@ const ORDER: NavKey[] = [
   "trazabilidad",
   "liberacion",
   "auditoria",
+  "cambios_roles",
   "administracion",
 ];
 
@@ -109,6 +118,7 @@ export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
     "trazabilidad",
     "liberacion",
     "auditoria",
+    "cambios_roles",
   ],
   dt: [
     "inicio",
@@ -121,8 +131,9 @@ export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
     "trazabilidad",
     "liberacion",
     "auditoria",
+    "cambios_roles",
   ],
-  admin: ["inicio", "documentos", "auditoria", "administracion"],
+  admin: ["inicio", "documentos", "auditoria", "cambios_roles", "administracion"],
   master: ["inicio", "documentos", "idi", "desviaciones", "trazabilidad"],
   aq_doc: ["inicio", "documentos", "desviaciones", "trazabilidad"],
   gerencia: ["inicio", "aprobaciones", "documentos", "idi", "trazabilidad"],
@@ -138,6 +149,7 @@ export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
     "trazabilidad",
     "liberacion",
     "auditoria",
+    "cambios_roles",
   ],
 };
 

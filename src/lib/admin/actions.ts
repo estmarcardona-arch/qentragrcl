@@ -412,7 +412,9 @@ export async function updateSetting(input: {
 }
 
 // ---------------------------------------------------------------------------
-// Roles configurables (PRD 2.6, RF-07)
+// Roles configurables (PRD 2.6, RF-07): cada cambio es una solicitud que se aplica al aprobarse.
+// Rol adicional: aprueba Aseguramiento de calidad (D-39). Permisos de un rol del sistema: doble
+// aprobación, Aseguramiento de calidad y Dirección técnica (D-40). La base valida todo al solicitar.
 // ---------------------------------------------------------------------------
 const roleOptions = z.object({
   name: z.string().trim().min(2, "El nombre es obligatorio").max(80),
@@ -421,6 +423,45 @@ const roleOptions = z.object({
   readOnly: z.boolean().default(false),
 });
 
+export type RoleChangeKind =
+  "create" | "update" | "permissions" | "incompatibilities" | "retire" | "reactivate";
+
+export type RequestResult = AdminResult<{ requestNumber: string; requiredRoles: string[] }>;
+
+async function requestRoleChange(
+  kind: RoleChangeKind,
+  code: string,
+  payload: Record<string, unknown>,
+  why: string,
+): Promise<RequestResult> {
+  try {
+    await requireAdmin();
+    const supabase = await createClient();
+    const res = (await callRpc(supabase, "admin_request_role_change", {
+      p_kind: kind,
+      p_role: code,
+      p_payload: payload as never,
+      p_reason: reason.parse(why),
+    })) as { request_number: string; required_roles: string[] };
+    log.info("admin.role_change_requested", { kind, code, request: res.request_number });
+    revalidatePath("/admin/catalogos");
+    revalidatePath(`/admin/roles/${code}`);
+    revalidatePath("/cambios-roles");
+    return { ok: true, requestNumber: res.request_number, requiredRoles: res.required_roles };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+const newRoleCode = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(
+    /^[a-z][a-z0-9_]{2,30}$/,
+    "El código debe tener de 3 a 31 caracteres: minúsculas, números o «_»",
+  );
+
 export async function createRole(input: {
   code: string;
   name: string;
@@ -428,25 +469,21 @@ export async function createRole(input: {
   requiresExpiry: boolean;
   readOnly: boolean;
   reason: string;
-}): Promise<AdminResult<{ code: string }>> {
-  try {
-    await requireAdmin();
-    const opts = roleOptions.parse(input);
-    const supabase = await createClient();
-    const code = (await callRpc(supabase, "admin_create_role", {
-      p_code: input.code.trim().toLowerCase(),
-      p_name: opts.name,
-      p_description: opts.description,
-      p_requires_expiry: opts.requiresExpiry,
-      p_read_only: opts.readOnly,
-      p_reason: reason.parse(input.reason),
-    })) as string;
-    log.info("admin.role_created", { code });
-    revalidatePath("/admin/catalogos");
-    return { ok: true, code };
-  } catch (e) {
-    return fail(e);
-  }
+}): Promise<RequestResult> {
+  const parsed = roleOptions.extend({ code: newRoleCode }).safeParse(input);
+  if (!parsed.success) return fail(parsed.error);
+  const o = parsed.data;
+  return requestRoleChange(
+    "create",
+    o.code,
+    {
+      name: o.name,
+      description: o.description,
+      requires_expiry: o.requiresExpiry,
+      read_only: o.readOnly,
+    },
+    input.reason,
+  );
 }
 
 export async function updateRole(input: {
@@ -456,24 +493,21 @@ export async function updateRole(input: {
   requiresExpiry: boolean;
   readOnly: boolean;
   reason: string;
-}): Promise<AdminResult> {
-  try {
-    await requireAdmin();
-    const opts = roleOptions.parse(input);
-    const supabase = await createClient();
-    await callRpc(supabase, "admin_update_role", {
-      p_code: roleCode.parse(input.code),
-      p_name: opts.name,
-      p_description: opts.description,
-      p_requires_expiry: opts.requiresExpiry,
-      p_read_only: opts.readOnly,
-      p_reason: reason.parse(input.reason),
-    });
-    revalidatePath(`/admin/roles/${input.code}`);
-    return { ok: true };
-  } catch (e) {
-    return fail(e);
-  }
+}): Promise<RequestResult> {
+  const parsed = roleOptions.extend({ code: roleCode }).safeParse(input);
+  if (!parsed.success) return fail(parsed.error);
+  const o = parsed.data;
+  return requestRoleChange(
+    "update",
+    o.code,
+    {
+      name: o.name,
+      description: o.description,
+      requires_expiry: o.requiresExpiry,
+      read_only: o.readOnly,
+    },
+    input.reason,
+  );
 }
 
 export type ModulePermission = {
@@ -484,45 +518,45 @@ export type ModulePermission = {
   approve: boolean;
 };
 
+const modulePermission = z.object({
+  module: z.string().regex(/^[a-z0-9_]{1,63}$/),
+  read: z.boolean(),
+  create: z.boolean(),
+  sign: z.boolean(),
+  approve: z.boolean(),
+});
+
+/** Permisos por módulo: rol adicional (D-39) o rol del sistema con doble aprobación (D-40). */
 export async function setRolePermissions(input: {
   code: string;
   permissions: ModulePermission[];
   reason: string;
-}): Promise<AdminResult<{ changed: number }>> {
-  try {
-    await requireAdmin();
-    const supabase = await createClient();
-    const changed = (await callRpc(supabase, "admin_set_role_permissions", {
-      p_code: roleCode.parse(input.code),
-      p_permissions: input.permissions as never,
-      p_reason: reason.parse(input.reason),
-    })) as number;
-    log.info("admin.role_permissions", { code: input.code, changed });
-    revalidatePath(`/admin/roles/${input.code}`);
-    return { ok: true, changed };
-  } catch (e) {
-    return fail(e);
-  }
+}): Promise<RequestResult> {
+  const parsed = z
+    .object({ code: roleCode, permissions: z.array(modulePermission).min(1).max(19) })
+    .safeParse(input);
+  if (!parsed.success) return fail(parsed.error);
+  return requestRoleChange(
+    "permissions",
+    parsed.data.code,
+    { permissions: parsed.data.permissions },
+    input.reason,
+  );
 }
 
 export async function setRoleIncompatibilities(input: {
   code: string;
   others: string[];
   reason: string;
-}): Promise<AdminResult> {
-  try {
-    await requireAdmin();
-    const supabase = await createClient();
-    await callRpc(supabase, "admin_set_role_incompatibilities", {
-      p_code: roleCode.parse(input.code),
-      p_others: input.others.map((o) => roleCode.parse(o)),
-      p_reason: reason.parse(input.reason),
-    });
-    revalidatePath(`/admin/roles/${input.code}`);
-    return { ok: true };
-  } catch (e) {
-    return fail(e);
-  }
+}): Promise<RequestResult> {
+  const parsed = z.object({ code: roleCode, others: z.array(roleCode).max(40) }).safeParse(input);
+  if (!parsed.success) return fail(parsed.error);
+  return requestRoleChange(
+    "incompatibilities",
+    parsed.data.code,
+    { others: parsed.data.others },
+    input.reason,
+  );
 }
 
 /** Retirar («eliminar») o reactivar un rol adicional. */
@@ -530,19 +564,87 @@ export async function setRoleActive(input: {
   code: string;
   active: boolean;
   reason: string;
+}): Promise<RequestResult> {
+  const code = roleCode.safeParse(input.code);
+  if (!code.success) return fail(code.error);
+  return requestRoleChange(input.active ? "reactivate" : "retire", code.data, {}, input.reason);
+}
+
+/** Quien solicitó anula su solicitud pendiente. */
+export async function cancelRoleChange(input: {
+  requestId: string;
+  reason: string;
 }): Promise<AdminResult> {
   try {
     await requireAdmin();
     const supabase = await createClient();
-    await callRpc(supabase, "admin_set_role_active", {
-      p_code: roleCode.parse(input.code),
-      p_active: input.active,
+    await callRpc(supabase, "admin_cancel_role_change", {
+      p_request: z.uuid().parse(input.requestId),
       p_reason: reason.parse(input.reason),
     });
-    log.info("admin.role_active", { code: input.code, active: input.active });
     revalidatePath("/admin/catalogos");
-    revalidatePath(`/admin/roles/${input.code}`);
+    revalidatePath("/cambios-roles");
     return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export type DecisionResult =
+  | {
+      ok: true;
+      status: "pendiente" | "aprobada" | "rechazada";
+      approvals: number;
+      required: number;
+    }
+  | (AdminResult<never> & { remaining?: number; lockedUntil?: string });
+
+/**
+ * Aprobar o rechazar una solicitud (Aseguramiento de calidad o Dirección técnica) con contraseña.
+ * La base valida rol, segregación (quien solicita no aprueba; dos personas distintas) y la contraseña.
+ */
+export async function decideRoleChange(input: {
+  requestId: string;
+  decision: "aprobada" | "rechazada";
+  reason: string;
+  password: string;
+}): Promise<DecisionResult> {
+  try {
+    const parsed = z
+      .object({
+        requestId: z.uuid(),
+        decision: z.enum(["aprobada", "rechazada"]),
+        reason,
+        password: z.string().min(1, "Escriba su contraseña").max(200),
+      })
+      .parse(input);
+    const supabase = await createClient();
+    const res = (await callRpc(supabase, "decide_role_change", {
+      p_request: parsed.requestId,
+      p_decision: parsed.decision,
+      p_reason: parsed.reason,
+      p_password: parsed.password,
+    })) as Record<string, unknown>;
+    if (res.ok !== true) {
+      const code = String(res.code) as keyof typeof ERROR_MESSAGES;
+      log.warn("admin.role_change_reauth_failed", { code });
+      return {
+        ok: false,
+        code,
+        ...(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.REAUTH_FAILED),
+        remaining: typeof res.remaining === "number" ? res.remaining : undefined,
+        lockedUntil: typeof res.locked_until === "string" ? res.locked_until : undefined,
+      };
+    }
+    log.info("admin.role_change_decided", { decision: parsed.decision, status: res.status });
+    revalidatePath("/cambios-roles");
+    revalidatePath("/admin/catalogos");
+    return {
+      ok: true,
+      status: res.status as "pendiente" | "aprobada" | "rechazada",
+      approvals: Number(res.approvals),
+      required: Number(res.required),
+    };
   } catch (e) {
     return fail(e);
   }

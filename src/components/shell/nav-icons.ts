@@ -12,6 +12,7 @@ import {
   Send,
   ShieldCheck,
   SlidersHorizontal,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 import type { NavKey } from "@/lib/auth/navigation";
@@ -30,5 +31,6 @@ export const NAV_ICONS: Record<NavKey, LucideIcon> = {
   trazabilidad: GitBranch,
   liberacion: Send,
   auditoria: ListChecks,
+  cambios_roles: UserCog,
   administracion: SlidersHorizontal,
 };

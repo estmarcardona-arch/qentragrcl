@@ -41,17 +41,20 @@ describe("RF-02 · menú por rol", () => {
     ]);
   });
 
-  it("en E2 están habilitados Inicio y, para el administrador, Administración", () => {
-    expect(
-      navForRoles(["dt"])
+  it("en E2 están habilitados Inicio, Cambios de roles (quien solicita o aprueba) y Administración", () => {
+    const enabled = (roles: string[]) =>
+      navForRoles(roles)
         .filter((n) => n.stage === null)
-        .map((n) => n.key),
-    ).toEqual(["inicio"]);
-    expect(
-      navForRoles(["admin"])
-        .filter((n) => n.stage === null)
-        .map((n) => n.key),
-    ).toEqual(["inicio", "administracion"]);
+        .map((n) => n.key);
+    expect(enabled(["prod_aux"])).toEqual(["inicio"]);
+    expect(enabled(["dt"])).toEqual(["inicio", "cambios_roles"]);
+    expect(enabled(["aq_dir"])).toEqual(["inicio", "cambios_roles"]);
+    expect(enabled(["admin"])).toEqual(["inicio", "cambios_roles", "administracion"]);
+  });
+
+  it("D-39/D-40: solo Administración, Calidad, Dirección técnica y el auditor ven los cambios de roles", () => {
+    const withChanges = SYSTEM_ROLES.filter((r) => NAV_BY_ROLE[r].includes("cambios_roles"));
+    expect(withChanges).toEqual(["aq_dir", "dt", "admin", "auditor"]);
   });
 
   it("RF-07: un rol adicional ve las secciones de los módulos donde tiene permiso", () => {

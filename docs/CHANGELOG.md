@@ -18,6 +18,12 @@ Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en
 - Migración 0012: los roles pasan de un tipo enumerado a la tabla `roles` (15 roles del sistema protegidos y roles adicionales); funciones reservadas (`reserved_permissions`); matriz editable solo para roles adicionales; `admin_create_role`, `admin_update_role`, `admin_set_role_permissions`, `admin_set_role_incompatibilities`, `admin_set_role_active` (retirar o reactivar); vencimiento obligatorio por rol; la lectura de la bitácora se deriva del permiso de «Trazabilidad / Auditoría».
 - S-04: pestaña «Roles y permisos» con el panel de permisos y restricciones, creación de roles y configuración por rol (permisos por módulo, incompatibilidades, opciones, retiro); la matriz muestra también los roles adicionales; el menú de un rol adicional se arma con sus permisos.
 
+### Agregado (decisiones D-39 y D-40, 08/10/2026)
+
+- PRD 1.6: aprobación de cambios de rol (sección 2.6), bandeja S-04B, AC-39…41, D-41.
+- Migración 0013: solicitudes de cambio de rol (`role_change_requests`, `role_change_approvals`, numeración `CR-AAAA-NNNN`); `admin_request_role_change` (valida el cambio completo sin aplicarlo), `decide_role_change` (aprobar o rechazar con contraseña; quien solicita no aprueba; dos personas distintas), `admin_cancel_role_change`, `get_role_change_requests`. Rol adicional: aprueba `aq_dir`; permisos de un rol del sistema: `aq_dir` y `dt`; funciones reservadas con candado (su dueño no las pierde). Línea base del PRD guardada por celda (`prd_cell_text`). Las RPC de cambio directo de 0012 se eliminan.
+- Bandeja «Cambios de roles» (`/cambios-roles`) para administración, Calidad, Dirección técnica y auditor, con antes y después; solicitudes pendientes en «Roles y permisos» y en cada rol; S-04 marca con «*» las celdas ajustadas.
+
 ### Corregido
 
 - Migración 0011: `sign_record` valida registro, rol, orden y SOD antes de la contraseña; un rechazo por regla ya no consume intentos ni revierte el reinicio del contador. `practice_reauth` para la prueba en vivo.

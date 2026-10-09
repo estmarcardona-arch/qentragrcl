@@ -181,11 +181,15 @@
     {
       "id": "RF-07",
       "etapa": "E2",
-      "descripcion": "Roles configurables (PRD 2.6): crear, configurar permisos e incompatibilidades y retirar roles adicionales",
+      "descripcion": "Roles configurables (PRD 2.6): solicitar crear, configurar y retirar roles adicionales con aprobación de Calidad (D-39); permisos de roles del sistema con doble aprobación (D-40)",
       "pruebas": [
         {
           "tipo": "pgtap",
           "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
         },
         {
           "tipo": "e2e",
@@ -227,6 +231,51 @@
         {
           "tipo": "pgtap",
           "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-39",
+      "etapa": "E2",
+      "descripcion": "Rol adicional: no existe mientras está pendiente; autoaprobación → SOD_VIOLATION; aq_dir aprueba y se crea",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-40",
+      "etapa": "E2",
+      "descripcion": "Rol del sistema: una aprobación no aplica; misma persona dos veces → SOD_VIOLATION; aq_dir + dt aplican y S-04 marca la celda",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-41",
+      "etapa": "E2",
+      "descripcion": "Quitar al dt la liberación final → RESERVED_PERMISSION (candado)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
         }
       ]
     },

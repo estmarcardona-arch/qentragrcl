@@ -4,11 +4,14 @@ import { cn } from "cn";
 import { CatalogEditor, type FieldDef } from "@/components/admin/catalog-editor";
 import { PermissionMatrix, type MatrixRow } from "@/components/admin/permission-matrix";
 import { RegulatoryProfiles, type ProfileRule } from "@/components/admin/regulatory-profiles";
+import { RoleChangeList } from "@/components/admin/role-change-list";
 import { RolesManager, type ReservedPermission } from "@/components/admin/roles-manager";
 import { SettingsEditor, type Setting } from "@/components/admin/settings-editor";
 import { PageHeader } from "@/components/common/page-header";
 import { EmptyState } from "@/components/common/state-card";
+import { loadRoleChanges } from "@/lib/admin/role-changes-server";
 import type { RoleInfo } from "@/lib/auth/roles";
+import { requireSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/db/server";
 
 export const metadata: Metadata = { title: "Catálogos y configuración · GRUFARCOL eBR" };
@@ -77,13 +80,21 @@ async function TabContent({ tab, catalog }: { tab: Tab; catalog: (typeof GENERIC
   const supabase = await createClient();
 
   if (tab === "roles") {
-    const [{ data: roles }, { data: assigned }, { data: reserved }, { data: modules }] =
-      await Promise.all([
-        supabase.from("roles").select("*").order("is_system", { ascending: false }).order("name"),
-        supabase.rpc("admin_list_users"),
-        supabase.from("reserved_permissions").select("module_code, permission, owner_role, reason"),
-        supabase.from("permission_modules").select("code, name"),
-      ]);
+    const [
+      ctx,
+      { data: roles },
+      { data: assigned },
+      { data: reserved },
+      { data: modules },
+      changes,
+    ] = await Promise.all([
+      requireSession(),
+      supabase.from("roles").select("*").order("is_system", { ascending: false }).order("name"),
+      supabase.rpc("admin_list_users"),
+      supabase.from("reserved_permissions").select("module_code, permission, owner_role, reason"),
+      supabase.from("permission_modules").select("code, name"),
+      loadRoleChanges(supabase, { status: "pendiente" }),
+    ]);
     const holders: Record<string, number> = {};
     for (const u of (assigned ?? []) as unknown as {
       active: boolean;
@@ -96,8 +107,33 @@ async function TabContent({ tab, catalog }: { tab: Tab; catalog: (typeof GENERIC
       ...r,
       module_name: modules?.find((m) => m.code === r.module_code)?.name ?? r.module_code,
     }));
+    const pendingPanel =
+      changes.requests.length > 0 ? (
+        <section aria-labelledby="pendientes" className="grid gap-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="pendientes" className="text-card-title">
+              Solicitudes pendientes de aprobación ({changes.requests.length})
+            </h2>
+            <Link href="/cambios-roles?estado=todas" className="text-sm">
+              Ver historial de cambios de roles
+            </Link>
+          </div>
+          <RoleChangeList
+            requests={changes.requests}
+            userId={ctx.userId}
+            roles={ctx.roles}
+            moduleNames={changes.moduleNames}
+            roleNames={changes.roleNames}
+          />
+        </section>
+      ) : null;
     return (
-      <RolesManager roles={(roles ?? []) as RoleInfo[]} holders={holders} reserved={reservedRows} />
+      <RolesManager
+        roles={(roles ?? []) as RoleInfo[]}
+        holders={holders}
+        reserved={reservedRows}
+        pendingPanel={pendingPanel}
+      />
     );
   }
 
@@ -312,7 +348,7 @@ async function TabContent({ tab, catalog }: { tab: Tab; catalog: (typeof GENERIC
   if (tab === "matriz") {
     const [{ data: modules }, { data: perms }, { data: catalog }] = await Promise.all([
       supabase.from("permission_modules").select("code, name, order_no").order("order_no"),
-      supabase.from("module_permissions").select("module_code, role, cell_text"),
+      supabase.from("module_permissions").select("module_code, role, cell_text, prd_cell_text"),
       supabase.from("roles").select("*").order("created_at"),
     ]);
     // Roles del sistema en el orden del PRD 2.2; después los adicionales.
@@ -341,6 +377,11 @@ async function TabContent({ tab, catalog }: { tab: Tab; catalog: (typeof GENERIC
       name: m.name,
       cells: Object.fromEntries(
         (perms ?? []).filter((p) => p.module_code === m.code).map((p) => [p.role, p.cell_text]),
+      ),
+      prd: Object.fromEntries(
+        (perms ?? [])
+          .filter((p) => p.module_code === m.code && p.prd_cell_text !== null)
+          .map((p) => [p.role, p.prd_cell_text as string]),
       ),
     }));
     return <PermissionMatrix roles={roles} rows={rows} />;

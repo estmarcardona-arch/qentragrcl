@@ -186,16 +186,15 @@ test.describe("RF-04 / RF-06 · catálogos y matriz", () => {
     // Columnas de los roles del sistema (las de roles adicionales son configurables, PRD 2.6).
     const header = await table.locator('thead th[data-role][data-system="true"]').allInnerTexts();
     expect(header.map((h) => h.trim())).toEqual(prd.roles);
-    const rows = await table
-      .locator("tbody tr")
-      .evaluateAll((trs) =>
-        trs.map((tr) => [
-          (tr.querySelector("th")?.textContent ?? "").replace(/\s+/g, " ").trim(),
-          ...Array.from(tr.querySelectorAll('td[data-system="true"]')).map((c) =>
-            (c.textContent ?? "").replace(/\s+/g, " ").trim(),
-          ),
-        ]),
-      );
+    const rows = await table.locator("tbody tr").evaluateAll((trs) =>
+      trs.map((tr) => [
+        (tr.querySelector("th")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+        // Una celda ajustada con doble aprobación (D-40) conserva y expone su base del PRD.
+        ...Array.from(tr.querySelectorAll('td[data-system="true"]')).map((c) =>
+          (c.getAttribute("data-prd") ?? c.textContent ?? "").replace(/\s+/g, " ").trim(),
+        ),
+      ]),
+    );
     expect(rows).toEqual(prd.rows.map((r) => [r.module, ...r.cells.map((c) => c.text)]));
   });
 
@@ -239,12 +238,40 @@ test.describe("RF-04 / RF-06 · catálogos y matriz", () => {
   });
 });
 
-test.describe("RF-07 · roles configurables", () => {
+const DT = "esteban.gaviria@grufarcol.test";
+
+/** Quien aprueba (en otra sesión) decide la solicitud pendiente del rol en la bandeja «Cambios de roles». */
+async function decideAs(
+  browser: Browser,
+  email: string,
+  roleCode: string,
+  decision: "Aprobar" | "Rechazar",
+) {
+  const { ctx, page } = await freshPage(browser);
+  try {
+    await loginOk(page, email);
+    await page.goto("/cambios-roles?estado=pendiente");
+    const card = page.getByTestId("role-change").filter({ hasText: roleCode });
+    await expect(card, `solicitud pendiente de ${roleCode} para ${email}`).toBeVisible();
+    await card.getByRole("button", { name: decision }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.locator("#decision-reason").fill(`Decisión E2E de ${email}`);
+    await dialog.locator("#decision-password").fill(DEV_PASSWORD);
+    await dialog.getByRole("button", { name: decision }).click();
+    await expect(dialog).toBeHidden();
+  } finally {
+    await ctx.close();
+  }
+}
+
+test.describe("RF-07 · roles configurables con aprobación (D-39, D-40)", () => {
   test.skip(!hasSeedUsers, "Requiere los usuarios de la semilla");
 
-  test("RF-07 · crear un rol, configurar permisos con funciones reservadas bloqueadas y retirarlo", async ({
+  test("RF-07 · AC-39 · D-39: el administrador solicita un rol, Calidad lo aprueba; permisos con candado; retiro", async ({
     page,
+    browser,
   }, info) => {
+    test.setTimeout(120_000);
     const code = `e2e_${info.project.name}_${Date.now()}`.slice(0, 31);
     await loginOk(page, ADMIN);
     await page.goto("/admin/catalogos?tab=roles");
@@ -255,20 +282,33 @@ test.describe("RF-07 · roles configurables", () => {
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Código").fill(code);
     await dialog.getByLabel("Nombre").fill("Consulta E2E");
-    await confirmWithReason(page, "Prueba E2E de rol adicional", "Crear rol");
-    await expect(page).toHaveURL(new RegExp(`/admin/roles/${code}$`));
+    await confirmWithReason(page, "Prueba E2E de rol adicional", "Solicitar rol");
+    await expect(
+      page.getByRole("status").filter({ hasText: /Solicitud CR-\d{4}-\d{4} enviada/ }),
+    ).toBeVisible();
+    // Aún no existe: queda pendiente y el administrador no puede aprobarse a sí mismo.
+    const mine = page.getByTestId("role-change").filter({ hasText: code });
+    await expect(mine).toContainText("Pendiente de aprobación");
+    await expect(mine.getByRole("button", { name: "Aprobar" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: `Configurar Consulta E2E` })).toHaveCount(0);
 
-    // Funciones reservadas: no se pueden marcar.
+    await decideAs(browser, USERS.lucia, code, "Aprobar");
+
+    await page.goto(`/admin/roles/${code}`);
+    // Funciones reservadas con candado: no se pueden marcar.
     await expect(page.getByLabel("A en Liberación final del lote")).toBeDisabled();
     await expect(page.getByLabel("C en Usuarios, catálogos, perfiles")).toBeDisabled();
-    // Configurar lectura de trazabilidad.
     await page.getByLabel("L en Trazabilidad / Auditoría (consulta)").check();
-    const save = page.getByRole("button", { name: /Guardar permisos \(1\)/ });
-    await expect(save, `botón de guardar permisos en ${page.url()}`).toBeEnabled();
+    const save = page.getByRole("button", { name: /Solicitar cambio de permisos \(1\)/ });
+    await expect(save).toBeEnabled();
     await save.click();
-    await confirmWithReason(page, "Consulta de trazabilidad", "Guardar permisos");
+    await confirmWithReason(page, "Consulta de trazabilidad", "Solicitar cambio");
+    await expect(page.getByRole("heading", { name: "Solicitud pendiente" })).toBeVisible();
+    await expect(page.getByLabel("L en Trazabilidad / Auditoría (consulta)")).not.toBeChecked();
+
+    await decideAs(browser, USERS.lucia, code, "Aprobar");
+    await page.reload();
     await expect(page.getByLabel("L en Trazabilidad / Auditoría (consulta)")).toBeChecked();
-    await expect(page.getByText(`${code} · v2`)).toBeVisible();
 
     // La matriz muestra la columna del rol adicional.
     await page.goto("/admin/catalogos?tab=matriz");
@@ -276,22 +316,61 @@ test.describe("RF-07 · roles configurables", () => {
       page.getByTestId("permission-matrix").locator(`th[data-role="${code}"]`),
     ).toBeVisible();
 
-    // Retirar (no tiene usuarios).
+    // Retiro (no tiene usuarios): se solicita y Calidad lo aprueba.
     await page.goto(`/admin/roles/${code}`);
     const retire = page.getByRole("button", { name: "Retirar rol" });
-    await expect(retire, `botón de retirar en ${page.url()}`).toBeEnabled();
+    await expect(retire).toBeEnabled();
     await retire.click();
-    await confirmWithReason(page, "Fin de la prueba E2E", "Retirar rol");
+    await confirmWithReason(page, "Fin de la prueba E2E", "Solicitar retiro");
+    await decideAs(browser, USERS.lucia, code, "Aprobar");
+    await page.reload();
     await expect(page.getByText("Rol retirado: no se asigna ni da permisos.")).toBeVisible();
   });
 
-  test("RF-07 · los roles del sistema son de solo lectura", async ({ page }) => {
+  test("RF-07 · AC-40 · AC-41 · D-40: los permisos de un rol del sistema exigen doble aprobación y las funciones reservadas siguen con candado", async ({
+    page,
+    browser,
+  }, info) => {
+    test.skip(info.project.name !== "escritorio", "Modifica un rol compartido: un solo proyecto");
+    test.setTimeout(150_000);
     await loginOk(page, ADMIN);
     await page.goto("/admin/roles/dt");
     await expect(page.getByText(/Rol del sistema \(PRD 2\.1\)/)).toBeVisible();
     await expect(page.getByLabel("A en Liberación final del lote")).toBeDisabled();
     await expect(page.getByLabel("A en Liberación final del lote")).toBeChecked();
-    await expect(page.getByRole("button", { name: /Guardar permisos/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Retirar rol" })).toHaveCount(0);
+
+    // Comercial: se propone L en «Paquete técnico» (PRD: —).
+    const cell = "L en Paquete técnico (lista de verificación de expediente)";
+    const propose = async (why: string) => {
+      await page.goto("/admin/roles/comercial");
+      await page.getByLabel(cell).click();
+      await page.getByRole("button", { name: /Solicitar cambio de permisos \(1\)/ }).click();
+      await confirmWithReason(page, why, "Solicitar cambio");
+      await expect(page.getByRole("heading", { name: "Solicitud pendiente" })).toBeVisible();
+    };
+    await propose("Comercial consulta el paquete técnico (E2E)");
+    await expect(page.getByText("Doble aprobación")).toBeVisible();
+
+    await decideAs(browser, USERS.lucia, "comercial", "Aprobar");
+    await page.reload();
+    await expect(page.getByLabel(cell), "con una aprobación no se aplica").not.toBeChecked();
+
+    await decideAs(browser, DT, "comercial", "Aprobar");
+    await page.reload();
+    await expect(page.getByLabel(cell)).toBeChecked();
+    await page.goto("/admin/catalogos?tab=matriz");
+    await expect(
+      page.getByTestId("permission-matrix").locator('td[data-adjusted="true"]'),
+    ).toHaveCount(1);
+
+    // Se vuelve a la línea base del PRD (también con doble aprobación).
+    await propose("Volver a la línea base del PRD (E2E)");
+    await decideAs(browser, USERS.lucia, "comercial", "Aprobar");
+    await decideAs(browser, DT, "comercial", "Aprobar");
+    await page.goto("/admin/catalogos?tab=matriz");
+    await expect(
+      page.getByTestId("permission-matrix").locator('td[data-adjusted="true"]'),
+    ).toHaveCount(0);
   });
 });

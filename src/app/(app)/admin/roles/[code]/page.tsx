@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/common/page-header";
+import { RoleChangeList } from "@/components/admin/role-change-list";
 import { RoleEditor, type ModuleRow } from "@/components/admin/role-editor";
+import { loadRoleChanges } from "@/lib/admin/role-changes-server";
 import type { RoleInfo } from "@/lib/auth/roles";
+import { requireSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/db/server";
 
 export const metadata: Metadata = { title: "Rol · GRUFARCOL eBR" };
@@ -10,6 +13,7 @@ export const metadata: Metadata = { title: "Rol · GRUFARCOL eBR" };
 // Configuración de un rol (PRD 2.6, RF-07). Guarda de administrador en el layout de /admin.
 export default async function RolePage({ params }: PageProps<"/admin/roles/[code]">) {
   const { code } = await params;
+  const ctx = await requireSession();
   const supabase = await createClient();
   const [
     { data: role },
@@ -35,6 +39,8 @@ export default async function RolePage({ params }: PageProps<"/admin/roles/[code
     supabase.rpc("admin_list_users"),
   ]);
   if (!role) notFound();
+  const changes = await loadRoleChanges(supabase, { status: "pendiente", role: code });
+  const pending = changes.requests[0] ?? null;
 
   const rows: ModuleRow[] = (modules ?? []).map((m) => {
     const p = perms?.find((x) => x.module_code === m.code);
@@ -80,6 +86,18 @@ export default async function RolePage({ params }: PageProps<"/admin/roles/[code
           .filter((i) => i.active)
           .map((i) => (i.role_a === code ? i.role_b : i.role_a))}
         holders={holders}
+        pendingNumber={pending?.request_number ?? null}
+        pendingPanel={
+          pending ? (
+            <RoleChangeList
+              requests={[pending]}
+              userId={ctx.userId}
+              roles={ctx.roles}
+              moduleNames={changes.moduleNames}
+              roleNames={changes.roleNames}
+            />
+          ) : null
+        }
       />
     </main>
   );

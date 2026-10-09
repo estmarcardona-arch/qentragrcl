@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.5 · **Fecha:** 08/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.6 · **Fecha:** 08/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -70,7 +70,7 @@ Un usuario puede tener varios roles, **pero la segregación de funciones se eval
 | Sistema de gestión documental (SGD): solicitar, redactar, revisar, aprobar, codificar, publicar y anular documentos | C (autor) | C (autor) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa) | F A (revisa, aprueba y decide anulaciones) | A (documentos técnicos y administrativos) | — | C (autor) | **C F (estandariza, codifica, publica y custodia)** | A (documentos administrativos) | L |
 | Lectura y capacitación (leer, presentar cuestionario y obtener constancia) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | — | F (lee) | C (asigna y hace seguimiento) | F (lee) | L |
 
-La matriz anterior es la **línea base** de los roles del sistema y es de solo lectura en la plataforma (cambiarla es un cambio de este PRD). Los roles adicionales (2.6) agregan columnas configurables.
+La matriz anterior es la **línea base** de los roles del sistema. Sus permisos solo se ajustan en la plataforma con **doble aprobación** (2.6, D-40); la línea base se conserva y la pantalla S-04 marca las celdas ajustadas. Los roles adicionales (2.6) agregan columnas configurables.
 
 ### 2.3 Reglas de segregación de funciones (SOD) — obligatorias en base de datos
 
@@ -187,16 +187,17 @@ Información puntual, exacta, consistente y libre de falsificación (ALCOA+); fe
 
 ### 2.6 Roles configurables (roles adicionales)
 
-El administrador puede **crear, configurar y retirar roles adicionales** desde *Catálogos y configuración* (S-04) para cubrir cargos que no encajan en los 15 roles del sistema (D-06). Reglas:
+El administrador puede **solicitar la creación, configuración y retiro de roles adicionales** desde *Catálogos y configuración* (S-04) para cubrir cargos que no encajan en los 15 roles del sistema (D-06), y **solicitar ajustes de permisos de los roles del sistema**. Ningún cambio de rol lo hace una sola persona. Reglas:
 
 | Tema | Regla |
 |---|---|
 | Qué se configura | Código (minúsculas, único), nombre, descripción; **permisos por módulo** de la matriz 2.2 (L, C, F, A en cada uno de los 19 módulos); roles **incompatibles** (no puede tenerlos la misma persona); si el rol **exige fecha de vencimiento** al asignarlo (como `auditor`) y si es **de solo lectura** (solo L) |
 | Funciones reservadas (no se pueden dar a un rol adicional) | Administrar usuarios, catálogos y perfiles (exclusivo de `admin`); **aprobar la liberación final del lote** (exclusivo de `dt`, PRD 2.2); **codificar y crear documentos controlados** (exclusivo de `aq_doc`, RF-93) |
 | Segregación de funciones | SOD-1…SOD-10 aplican a todo rol por igual (se evalúan por registro, 2.3) |
-| Roles del sistema | Los 15 roles de 2.1 no se retiran y sus permisos son de solo lectura (línea base del PRD) |
+| Roles del sistema | Los 15 roles de 2.1 no se retiran, no se renombran y sus incompatibilidades son las del PRD. Sus **permisos por módulo** se pueden ajustar solo con **doble aprobación** (D-40): Director de aseguramiento de calidad (`aq_dir`) y Director técnico (`dt`), dos personas distintas de quien solicita (D-41). Las funciones reservadas siguen **con candado**: su dueño no las pierde y nadie más las recibe. La línea base 2.2 se conserva y S-04 marca con «*» las celdas ajustadas |
 | Retiro («eliminar») | Nada se borra: un rol se **retira** (deja de poder asignarse y de dar permisos) solo si ningún usuario lo tiene asignado y vigente; su historial y la bitácora se conservan. Un rol retirado puede reactivarse |
-| Trazabilidad | Toda creación, cambio de permiso, incompatibilidad o retiro exige **motivo** y queda en la bitácora con antes/después y versión del rol. Si la creación de roles requiere además aprobación de Aseguramiento de la calidad se define en D-39 |
+| Aprobación (D-39) | Todo cambio es una **solicitud de cambio de rol** (`CR-AAAA-NNNN`) del administrador, con motivo; se valida completa al solicitarse y **se aplica solo al aprobarse**, en la misma transacción. Rol adicional: aprueba `aq_dir`. Permisos de un rol del sistema: `aq_dir` y `dt`. Quien solicita no aprueba (`SOD_VIOLATION`), quien aprueba confirma su identidad con contraseña (mismo contador de intentos que la firma) y cualquiera de ellos puede rechazar. Una sola solicitud pendiente por rol; quien la hizo puede anularla. Bandeja *Cambios de roles* (S-04B) para `admin`, `aq_dir`, `dt` y `auditor` |
+| Trazabilidad | Solicitud, cada decisión y cada celda aplicada quedan en la bitácora con motivo, antes/después, autor, hora del servidor y versión del rol |
 
 ## 3. Arquitectura
 
@@ -570,7 +571,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 - **RF-03** Administración de usuarios, roles y vencimiento de accesos de auditor. *Aceptación:* un auditor vencido no puede iniciar sesión; toda asignación de rol queda en bitácora.
 - **RF-04** Catálogos y perfiles regulatorios (líneas, marcas, áreas, unidades). *Aceptación:* cambiar un perfil no altera lotes existentes (DI-8/snapshot).
 - **RF-05** Usuario master (edición maestra): crea y modifica fórmulas, especificaciones, instructivos y las plantillas de cada etapa del proceso (despeje de línea, dispensación, fabricación, envase, acondicionamiento y otras) **como versiones nuevas en borrador**. *Aceptación:* el master no puede editar una versión aprobada (`RECORD_LOCKED`), no puede aprobar lo que creó (`SOD_VIOLATION`) y cada cambio exige motivo y queda en bitácora.
-- **RF-07** Roles configurables (2.6): crear, configurar permisos por módulo e incompatibilidades, y retirar roles adicionales; las funciones reservadas y los roles del sistema no se pueden modificar. *Aceptación:* un rol nuevo con permisos asignados da exactamente esos permisos a quien lo recibe; dar una función reservada se rechaza (`RESERVED_PERMISSION`); retirar un rol asignado y vigente se rechaza (`ROLE_IN_USE`); los permisos de un rol del sistema no se modifican (`SYSTEM_ROLE_LOCKED`).
+- **RF-07** Roles configurables (2.6): solicitar la creación, la configuración de permisos por módulo e incompatibilidades y el retiro de roles adicionales, con aprobación de Aseguramiento de la calidad; ajustar permisos de los roles del sistema con doble aprobación; las funciones reservadas siguen con candado. *Aceptación:* un rol nuevo con permisos aprobados da exactamente esos permisos a quien lo recibe; nada cambia mientras la solicitud está pendiente; dar o quitar una función reservada se rechaza (`RESERVED_PERMISSION`); retirar un rol asignado y vigente se rechaza (`ROLE_IN_USE`); retirar o renombrar un rol del sistema se rechaza (`SYSTEM_ROLE_LOCKED`); quien solicita no aprueba y un rol del sistema exige dos aprobaciones de personas distintas.
 - **RF-06** Catálogo de áreas de la empresa con **Aseguramiento de la calidad** como área dueña del SGD y asignación de usuarios a áreas; catálogo de etapas del proceso editable por versión. *Aceptación:* un documento siempre tiene un área propietaria; solo `aq_doc` crea documentos controlados.
 
 **I+D y documentos maestros**
@@ -673,6 +674,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | S-02 | Dashboard por rol | `/inicio` | todos | RF-02 | 1 |
 | S-03 | Usuarios y roles | `/admin/usuarios` | admin | RF-03, RF-102 | 2 |
 | S-04 | Catálogos, roles y permisos, perfiles regulatorios y configuración | `/admin/catalogos` | admin | RF-04, RF-07 | 2 |
+| S-04B | Cambios de roles (bandeja de solicitudes y aprobación) | `/cambios-roles` | admin, aq_dir, dt, auditor (lectura) | RF-07 | 2 |
 | S-05 | Listado de briefs | `/idi/briefs` | comercial, idi, dt | RF-10 | 3 |
 | S-06 | Formulario de brief | `/idi/briefs/nuevo` | comercial | RF-10 | 3 |
 | S-07 | Fórmula cualicuantitativa | `/idi/formulas/[id]` | idi, dt | RF-11 | 3 |
@@ -802,6 +804,9 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | AC-36 | Crear un rol adicional con lectura en «Trazabilidad / Auditoría» y asignarlo | El usuario obtiene solo ese permiso (`has_module_permission`) |
 | AC-37 | Dar a un rol adicional la aprobación de la liberación final o la administración de usuarios | `RESERVED_PERMISSION` |
 | AC-38 | Retirar un rol asignado a un usuario vigente / un rol del sistema | `ROLE_IN_USE` / `SYSTEM_ROLE_LOCKED` |
+| AC-39 | El administrador solicita un rol adicional e intenta aprobarlo él mismo; luego lo aprueba `aq_dir` | El rol no existe mientras está pendiente; autoaprobación → `SOD_VIOLATION`; con la aprobación de `aq_dir` el rol se crea |
+| AC-40 | Se solicita un permiso para un rol del sistema; aprueba solo `aq_dir`, luego la misma persona otra vez, luego `dt` | Con una aprobación no se aplica; la misma persona → `SOD_VIOLATION`; con `aq_dir` + `dt` se aplica y S-04 marca la celda ajustada con su base del PRD |
+| AC-41 | Solicitar quitar al `dt` la aprobación de la liberación final | `RESERVED_PERMISSION` (candado) |
 
 ## 15. Reglas para el agente de desarrollo (`AGENTS.md`)
 
@@ -821,7 +826,7 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 |---|---|---|---|
 | **F0 Cimientos** | Repo, Next.js, Tailwind, shadcn, Supabase CLI, CI (lint+tsc+tests), tokens del sistema de diseño, `AGENTS.md` | — | App vacía desplegada, CI en verde |
 | **F1 Núcleo GxP** | `profiles`, `user_roles`, `audit_log` + triggers, `signatures`, `sign_record`, bloqueo, SOD, `SignatureModal`, login, dashboard por rol (S-01, S-02) | F0 | AC-01, AC-02, AC-08 |
-| **F2 Administración** | Usuarios/roles (incluye `master` y `aq_doc`), roles configurables, áreas, catálogos, perfiles regulatorios (S-03, S-04) | F1 | RF-03, RF-04, RF-06, RF-07, AC-11, AC-36…38 |
+| **F2 Administración** | Usuarios/roles (incluye `master` y `aq_doc`), roles configurables, áreas, catálogos, perfiles regulatorios (S-03, S-04) | F1 | RF-03, RF-04, RF-06, RF-07, AC-11, AC-36…41 |
 | **F2B Gestión documental y plantillas** | SGD completo según los procedimientos: tipos y niveles, codificación, solicitudes, estandarización, rutas, versiones, copias controladas, capacitación con cuestionario, vigencias, anulación, listado maestro, plantillas de proceso y edición maestra (S-43…S-49) | F2 | RF-05, RF-92…103, AC-19, AC-20, AC-23, AC-25, AC-28…33 |
 | **F3 Documentos maestros** | Brief ampliado, prototipos, estabilidad preliminar, fórmula, especificación, instructivo, costos, aprobación versionada **sobre el SGD** (S-05…S-10, S-36, S-37) | F2B | RF-10…17, AC-07 (parcial), AC-13 |
 | **F4 Bodega y calidad de insumos** | Estructura de bodegas y ubicaciones, bodegas externas y traslados, recepción con ubicación, rótulos, kardex, liberación de insumos (S-11…S-14, S-41, S-42) | F2 | RF-20…25, AC-21, AC-22, AC-24, saldo de inventario |
@@ -865,13 +870,15 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 | D-24 | ¿Quién aprueba los documentos administrativos: `gerencia`, `dt` o ambos? | Dirección | Rutas |
 | D-25 | Umbral de correcciones por registro que dispara el aviso (5 en la referencia) | Calidad | DI-12 |
 | D-26 | ¿Un formato con revisión vencida bloquea la creación de órdenes o solo alerta? | Calidad | RF-101 |
-| D-39 | ¿Crear o cambiar un rol adicional exige aprobación de Aseguramiento de la calidad además del motivo? | Calidad | RF-07 |
-| D-40 | ¿Se permitirá ajustar en la plataforma los permisos de los 15 roles del sistema (hoy línea base de solo lectura)? | Dirección / Calidad | RF-07 |
+| D-39 | ~~¿Crear o cambiar un rol adicional exige aprobación de Aseguramiento de la calidad?~~ **Resuelta (08/10/2026): sí, aprueba `aq_dir`** | Calidad | RF-07 |
+| D-40 | ~~¿Se permitirá ajustar en la plataforma los permisos de los 15 roles del sistema?~~ **Resuelta (08/10/2026): sí, con doble aprobación; funciones reservadas con candado** | Dirección / Calidad | RF-07 |
+| D-41 | ¿Quiénes dan la doble aprobación de los roles del sistema (por defecto `aq_dir` y `dt`) y con qué formato se numeran las solicitudes (por defecto `CR-AAAA-NNNN`)? | Calidad / Dirección | RF-07 |
 
 ## 18. Historial
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.6 | 08/10/2026 | Aprobación de cambios de rol (D-39, D-40 resueltas): todo cambio de rol es una solicitud del administrador que aprueba Aseguramiento de la calidad; los permisos de los roles del sistema se ajustan con doble aprobación (`aq_dir` y `dt`) y las funciones reservadas siguen con candado; línea base del PRD conservada y marcada en S-04; bandeja S-04B; AC-39…41; D-41 |
 | 1.5 | 08/10/2026 | Roles configurables (sección 2.6): el administrador crea, configura (permisos por módulo, incompatibilidades, vencimiento obligatorio, solo lectura) y retira roles adicionales; funciones reservadas (`admin`, `dt`, `aq_doc`); roles del sistema protegidos como línea base; RF-07; AC-36…38; D-39, D-40; S-04 ampliada |
 | 1.4 | 06/10/2026 | SGD reescrito con los procedimientos de elaboración y de registro y control de documentos: niveles y tipos, codificación `PPP-TT-NNN` y subdocumentos `PPP-TT-NNN-LL-##`, estructura, encabezado y pie, solicitud → estandarización → revisión → aprobación → copias controladas, anulación con recolección, vigencias por tipo (3 años / registro sanitario / anual / validación), retención, capacitación con cuestionario ≥ 80 %, listado maestro, cambio técnico de formato que obliga a revisar el procedimiento, firma corta y correcciones; rol `gerencia`; pantalla S-49; RF-92…103; AC-28…35; D-21…26 |
 | 1.3 | 06/10/2026 | Bodegas con estantes, pisos, posiciones y tipos de material (incluye rechazo, devolución, granel y bodegas externas para maquila); usuario `master` de edición maestra y plantillas de proceso; área de Aseguramiento de la calidad y sistema de gestión documental (código, versión, ciclo de vida, lectura, cambios) integrado con el registro de lote; pantallas S-41…S-48; RF-05, 06, 23…25, 92…99; AC-19…27; D-15…20; SOD-8…10 |

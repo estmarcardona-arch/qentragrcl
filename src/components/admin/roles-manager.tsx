@@ -3,7 +3,7 @@
 import { Lock, Plus, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { StatusBadge } from "@/components/gxp/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,11 +65,16 @@ export function RoleRestrictions({ reserved }: { reserved: ReservedPermission[] 
             </li>
             <li>La segregación de funciones (SOD-1…SOD-10) aplica a todo rol, en cada registro.</li>
             <li>
-              Los 15 roles del sistema no se retiran y sus permisos son de solo lectura (línea base
-              del PRD 2.2).
+              Los 15 roles del sistema no se retiran ni se renombran. Sus permisos (línea base del
+              PRD 2.2) solo cambian con doble aprobación: Aseguramiento de calidad y Dirección
+              técnica (D-40).
             </li>
             <li>Nada se borra: un rol se retira solo si nadie lo tiene asignado y vigente.</li>
-            <li>Todo cambio exige motivo y queda en la bitácora.</li>
+            <li>
+              Ningún cambio lo hace una sola persona: Administración solicita con motivo y
+              Aseguramiento de calidad aprueba con su contraseña (D-39). Quien solicita no aprueba.
+              Todo queda en la bitácora.
+            </li>
           </ul>
         </div>
       </div>
@@ -81,12 +86,16 @@ export function RolesManager({
   roles,
   holders,
   reserved,
+  pendingPanel,
 }: {
   roles: RoleInfo[];
   holders: Record<string, number>;
   reserved: ReservedPermission[];
+  /** Solicitudes pendientes de aprobación. */
+  pendingPanel?: ReactNode;
 }) {
   const router = useRouter();
+  const [notice, setNotice] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -105,9 +114,9 @@ export function RolesManager({
               Crear rol
             </Button>
           }
-          title="Crear rol adicional"
-          description="El rol nace sin permisos; después configure sus permisos por módulo. Queda en la bitácora."
-          confirmLabel="Crear rol"
+          title="Solicitar un rol adicional"
+          description="El rol se crea cuando lo apruebe Aseguramiento de calidad (D-39). Nace sin permisos; después solicite sus permisos por módulo."
+          confirmLabel="Solicitar rol"
           onOpen={() => {
             setCode("");
             setName("");
@@ -115,10 +124,22 @@ export function RolesManager({
             setRequiresExpiry(false);
             setReadOnly(false);
           }}
-          onConfirm={(reason) =>
-            createRole({ code, name, description, requiresExpiry, readOnly, reason })
-          }
-          onDone={() => router.push(`/admin/roles/${code.trim().toLowerCase()}`)}
+          onConfirm={async (reason) => {
+            const res = await createRole({
+              code,
+              name,
+              description,
+              requiresExpiry,
+              readOnly,
+              reason,
+            });
+            if (res.ok)
+              setNotice(
+                `Solicitud ${res.requestNumber} enviada: el rol «${name.trim()}» se crea cuando lo apruebe Aseguramiento de calidad.`,
+              );
+            return res;
+          }}
+          onDone={() => router.refresh()}
         >
           <div className="grid gap-1.5">
             <Label htmlFor="role-code" className="text-label uppercase">
@@ -171,6 +192,15 @@ export function RolesManager({
           </label>
         </ReasonDialog>
       </div>
+      {notice ? (
+        <p
+          role="status"
+          className="rounded-lg border border-tram-en-curso-bd bg-tram-en-curso-bg px-3 py-2 text-sm text-tram-en-curso-fg"
+        >
+          {notice}
+        </p>
+      ) : null}
+      {pendingPanel}
       <div className="overflow-x-auto rounded-[10px] border border-border bg-surface">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Roles del sistema y adicionales</caption>
@@ -227,7 +257,7 @@ export function RolesManager({
                   <Button size="sm" variant="ghost" asChild>
                     <Link
                       href={`/admin/roles/${r.code}`}
-                      aria-label={`${r.is_system ? "Ver" : "Configurar"} ${r.name}`}
+                      aria-label={`${r.is_system ? "Ver permisos de" : "Configurar"} ${r.name}`}
                     >
                       {r.is_system ? "Ver permisos" : "Configurar"}
                     </Link>

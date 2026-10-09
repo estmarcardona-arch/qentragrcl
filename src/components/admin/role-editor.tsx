@@ -2,7 +2,7 @@
 
 import { Archive, ArchiveRestore, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import {
   setRolePermissions,
   updateRole,
   type ModulePermission,
+  type RequestResult,
 } from "@/lib/admin/actions";
 import type { RoleInfo } from "@/lib/auth/roles";
 import { ReasonDialog } from "./reason-dialog";
@@ -28,7 +29,8 @@ const PERMS: [Perm, string][] = [
 
 /**
  * Configuración de un rol (PRD 2.6): permisos por módulo, incompatibilidades, opciones y retiro.
- * Los roles del sistema se muestran en solo lectura (línea base del PRD 2.2).
+ * Cada cambio es una solicitud: la aprueba Aseguramiento de calidad (D-39); los permisos de un rol
+ * del sistema exigen además Dirección técnica (D-40). Las funciones reservadas siguen con candado.
  */
 export function RoleEditor({
   role,
@@ -37,6 +39,8 @@ export function RoleEditor({
   otherRoles,
   incompatible,
   holders,
+  pendingNumber,
+  pendingPanel,
 }: {
   role: RoleInfo;
   modules: ModuleRow[];
@@ -44,9 +48,25 @@ export function RoleEditor({
   otherRoles: RoleInfo[];
   incompatible: string[];
   holders: number;
+  /** Solicitud pendiente del rol (mientras exista, no se solicitan otros cambios). */
+  pendingNumber: string | null;
+  pendingPanel?: ReactNode;
 }) {
   const router = useRouter();
-  const locked = role.is_system || !role.active;
+  const pending = pendingNumber !== null;
+  const permLocked = !role.active || pending;
+  const locked = role.is_system || !role.active || pending;
+  const [notice, setNotice] = useState<string | null>(null);
+  const approvers = role.is_system
+    ? "Aseguramiento de calidad y Dirección técnica (doble aprobación)"
+    : "Aseguramiento de calidad";
+  const sent = (res: RequestResult) => {
+    if (res.ok)
+      setNotice(
+        `Solicitud ${res.requestNumber} enviada. El cambio se aplica cuando lo apruebe ${approvers}.`,
+      );
+    return res;
+  };
   const [grid, setGrid] = useState<ModuleRow[]>(modules);
   const [incomp, setIncomp] = useState<string[]>(incompatible);
   const [name, setName] = useState(role.name);
@@ -69,11 +89,32 @@ export function RoleEditor({
 
   return (
     <div className="grid gap-5">
+      {notice ? (
+        <p
+          role="status"
+          className="rounded-lg border border-tram-en-curso-bd bg-tram-en-curso-bg px-3 py-2 text-sm text-tram-en-curso-fg"
+        >
+          {notice}
+        </p>
+      ) : null}
+      {pending ? (
+        <section aria-labelledby="pendiente" className="grid gap-2">
+          <h2 id="pendiente" className="text-card-title">
+            Solicitud pendiente
+          </h2>
+          <p className="text-small text-text-secondary">
+            Mientras la solicitud {pendingNumber} esté pendiente no se pueden solicitar otros
+            cambios de este rol.
+          </p>
+          {pendingPanel}
+        </section>
+      ) : null}
       {role.is_system ? (
         <p className="flex items-center gap-2 rounded-lg border border-neutral-strong bg-surface-sunken px-3 py-2 text-sm">
-          <Lock aria-hidden className="size-4" />
-          Rol del sistema (PRD 2.1): sus permisos son la línea base del PRD 2.2 y no se modifican ni
-          se retira.
+          <Lock aria-hidden className="size-4 shrink-0" />
+          Rol del sistema (PRD 2.1): no se retira ni se renombra. Sus permisos son la línea base del
+          PRD 2.2 y solo cambian con doble aprobación (Aseguramiento de calidad y Dirección
+          técnica); las funciones reservadas siguen con candado.
         </p>
       ) : !role.active ? (
         <p className="flex items-center gap-2 rounded-lg border border-neutral-strong bg-surface-sunken px-3 py-2 text-sm">
@@ -82,35 +123,42 @@ export function RoleEditor({
         </p>
       ) : null}
 
-      {!role.is_system ? <RoleRestrictions reserved={reserved} /> : null}
+      <RoleRestrictions reserved={reserved} />
 
       <section aria-labelledby="permisos" className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 id="permisos" className="text-card-title">
             Permisos por módulo
           </h2>
-          {!locked ? (
+          {!permLocked ? (
             <ReasonDialog
               trigger={
-                <Button disabled={changed.length === 0}>Guardar permisos ({changed.length})</Button>
+                <Button disabled={changed.length === 0}>
+                  Solicitar cambio de permisos ({changed.length})
+                </Button>
               }
-              title={`Guardar permisos de ${role.name}`}
-              description={`Se modifican ${changed.length} módulo(s). Cada celda queda en la bitácora con su antes y después.`}
-              confirmLabel="Guardar permisos"
-              onConfirm={(reason) =>
-                setRolePermissions({
-                  code: role.code,
-                  permissions: changed.map(({ module, read, create, sign, approve }) => ({
-                    module,
-                    read,
-                    create,
-                    sign,
-                    approve,
-                  })),
-                  reason,
-                })
+              title={`Solicitar cambio de permisos de ${role.name}`}
+              description={`Se proponen cambios en ${changed.length} módulo(s). Se aplican cuando los apruebe ${approvers}; cada celda queda en la bitácora con su antes y después.`}
+              confirmLabel="Solicitar cambio"
+              onConfirm={async (reason) =>
+                sent(
+                  await setRolePermissions({
+                    code: role.code,
+                    permissions: changed.map(({ module, read, create, sign, approve }) => ({
+                      module,
+                      read,
+                      create,
+                      sign,
+                      approve,
+                    })),
+                    reason,
+                  }),
+                )
               }
-              onDone={() => router.refresh()}
+              onDone={() => {
+                setGrid(modules);
+                router.refresh();
+              }}
             />
           ) : null}
         </div>
@@ -141,14 +189,14 @@ export function RoleEditor({
                   </th>
                   {PERMS.map(([p, l]) => {
                     const res = reservedOf(m.module, p);
-                    const disabled = locked || Boolean(res) || (role.read_only && p !== "read");
+                    const disabled = permLocked || Boolean(res) || (role.read_only && p !== "read");
                     return (
                       <td key={p} className="px-3 py-2 text-center">
                         <label
                           className="inline-flex items-center gap-1"
                           title={
                             res
-                              ? res.reason
+                              ? `Con candado: ${res.reason}`
                               : role.read_only && p !== "read"
                                 ? "Rol de solo lectura"
                                 : undefined
@@ -164,7 +212,11 @@ export function RoleEditor({
                           />
                           {res ? (
                             <Lock
-                              aria-label={`Reservado a ${res.owner_role}`}
+                              aria-label={
+                                res.owner_role === role.code
+                                  ? "Función reservada de este rol, con candado"
+                                  : `Reservado a ${res.owner_role}`
+                              }
                               className="size-3.5 text-text-muted"
                             />
                           ) : null}
@@ -213,13 +265,14 @@ export function RoleEditor({
               <ReasonDialog
                 trigger={
                   <Button variant="secondary" className="justify-self-start">
-                    Guardar incompatibilidades
+                    Solicitar incompatibilidades
                   </Button>
                 }
-                title="Guardar roles incompatibles"
-                confirmLabel="Guardar"
-                onConfirm={(reason) =>
-                  setRoleIncompatibilities({ code: role.code, others: incomp, reason })
+                title="Solicitar roles incompatibles"
+                description={`Se aplica cuando lo apruebe ${approvers}.`}
+                confirmLabel="Solicitar"
+                onConfirm={async (reason) =>
+                  sent(await setRoleIncompatibilities({ code: role.code, others: incomp, reason }))
                 }
                 onDone={() => router.refresh()}
               />
@@ -279,20 +332,23 @@ export function RoleEditor({
               <ReasonDialog
                 trigger={
                   <Button variant="secondary" className="justify-self-start">
-                    Guardar datos
+                    Solicitar cambio de datos
                   </Button>
                 }
-                title="Guardar datos del rol"
-                confirmLabel="Guardar"
-                onConfirm={(reason) =>
-                  updateRole({
-                    code: role.code,
-                    name,
-                    description,
-                    requiresExpiry,
-                    readOnly,
-                    reason,
-                  })
+                title="Solicitar cambio de datos del rol"
+                description={`Se aplica cuando lo apruebe ${approvers}.`}
+                confirmLabel="Solicitar"
+                onConfirm={async (reason) =>
+                  sent(
+                    await updateRole({
+                      code: role.code,
+                      name,
+                      description,
+                      requiresExpiry,
+                      readOnly,
+                      reason,
+                    }),
+                  )
                 }
                 onDone={() => router.refresh()}
               />
@@ -307,30 +363,35 @@ export function RoleEditor({
                     <Button
                       variant="destructive"
                       className="justify-self-start"
-                      disabled={holders > 0}
+                      disabled={holders > 0 || pending}
                     >
                       <Archive aria-hidden />
                       Retirar rol
                     </Button>
                   }
-                  title={`Retirar el rol ${role.name}`}
-                  description="El rol deja de poder asignarse y de dar permisos. Nada se borra: su historial se conserva y puede reactivarse."
-                  confirmLabel="Retirar rol"
+                  title={`Solicitar el retiro del rol ${role.name}`}
+                  description="Al aprobarlo Aseguramiento de calidad, el rol deja de poder asignarse y de dar permisos. Nada se borra: su historial se conserva y puede reactivarse."
+                  confirmLabel="Solicitar retiro"
                   destructive
-                  onConfirm={(reason) => setRoleActive({ code: role.code, active: false, reason })}
+                  onConfirm={async (reason) =>
+                    sent(await setRoleActive({ code: role.code, active: false, reason }))
+                  }
                   onDone={() => router.refresh()}
                 />
               ) : (
                 <ReasonDialog
                   trigger={
-                    <Button className="justify-self-start">
+                    <Button className="justify-self-start" disabled={pending}>
                       <ArchiveRestore aria-hidden />
                       Reactivar rol
                     </Button>
                   }
-                  title={`Reactivar el rol ${role.name}`}
-                  confirmLabel="Reactivar"
-                  onConfirm={(reason) => setRoleActive({ code: role.code, active: true, reason })}
+                  title={`Solicitar la reactivación del rol ${role.name}`}
+                  description={`Se aplica cuando lo apruebe ${approvers}.`}
+                  confirmLabel="Solicitar reactivación"
+                  onConfirm={async (reason) =>
+                    sent(await setRoleActive({ code: role.code, active: true, reason }))
+                  }
                   onDone={() => router.refresh()}
                 />
               )}

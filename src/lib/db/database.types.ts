@@ -282,6 +282,7 @@ export type Database = {
           created_by: string | null
           id: string
           module_code: string
+          prd_cell_text: string | null
           role: string
           updated_at: string
           updated_by: string | null
@@ -296,6 +297,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           module_code: string
+          prd_cell_text?: string | null
           role: string
           updated_at?: string
           updated_by?: string | null
@@ -310,6 +312,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           module_code?: string
+          prd_cell_text?: string | null
           role?: string
           updated_at?: string
           updated_by?: string | null
@@ -1199,16 +1202,13 @@ export type Database = {
       }
     }
     Functions: {
-      admin_create_role: {
-        Args: {
-          p_code: string
-          p_description: string
-          p_name: string
-          p_read_only: boolean
-          p_reason: string
-          p_requires_expiry: boolean
-        }
-        Returns: string
+      admin_cancel_role_change: {
+        Args: { p_reason: string; p_request: string }
+        Returns: undefined
+      }
+      admin_request_role_change: {
+        Args: { p_kind: string; p_payload: Json; p_reason: string; p_role: string }
+        Returns: Json
       }
       admin_grant_role: {
         Args: {
@@ -1249,21 +1249,9 @@ export type Database = {
         }
         Returns: string
       }
-      admin_set_role_active: {
-        Args: { p_active: boolean; p_code: string; p_reason: string }
-        Returns: undefined
-      }
       admin_set_role_expiry: {
         Args: { p_expires_at: string; p_reason: string; p_user_role: string }
         Returns: undefined
-      }
-      admin_set_role_incompatibilities: {
-        Args: { p_code: string; p_others: string[]; p_reason: string }
-        Returns: undefined
-      }
-      admin_set_role_permissions: {
-        Args: { p_code: string; p_permissions: Json; p_reason: string }
-        Returns: number
       }
       admin_set_short_signature: {
         Args: { p_reason: string; p_short: string; p_user: string }
@@ -1282,17 +1270,6 @@ export type Database = {
           p_must_change_password: boolean
           p_reason: string
           p_user: string
-        }
-        Returns: undefined
-      }
-      admin_update_role: {
-        Args: {
-          p_code: string
-          p_description: string
-          p_name: string
-          p_read_only: boolean
-          p_reason: string
-          p_requires_expiry: boolean
         }
         Returns: undefined
       }
@@ -1339,6 +1316,19 @@ export type Database = {
           reason: string
           table_name: string
         }[]
+      }
+      decide_role_change: {
+        Args: {
+          p_decision: string
+          p_password: string
+          p_reason: string
+          p_request: string
+        }
+        Returns: Json
+      }
+      get_role_change_requests: {
+        Args: { p_role?: string; p_status?: string }
+        Returns: Json
       }
       get_my_context: { Args: never; Returns: Json }
       get_setting: { Args: { p_key: string }; Returns: Json }
