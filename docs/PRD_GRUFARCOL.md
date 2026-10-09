@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.6 · **Fecha:** 08/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.7 · **Fecha:** 09/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -600,16 +600,60 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 - **RF-25** Bodegas externas y traslados a maquilador: bodega externa vinculada a un **tercero calificado**, traslado con remisión PDF, firma de despacho y de recepción, estado «en tránsito» y existencias visibles por bodega; la trazabilidad (S-29) incluye la ubicación externa. *Aceptación:* enviar a una bodega cuyo tercero no está calificado o tiene la calificación vencida se rechaza (`EXTERNAL_SITE_NOT_QUALIFIED`).
 
 **Producción**
-- **RF-30** Crear orden de producción (coordinación) con número según el formato definido por Aseguramiento de calidad. *Aceptación:* genera lote con versiones congeladas; sin versión aprobada, falla; el número no se repite ni se edita.
-- **RF-38** Al aprobar la OP se generan automáticamente las solicitudes de dispensación, de material de envase y de material de acondicionamiento (con su devolución), la orden de codificado, los rótulos con cantidades según fórmula y tamaño de lote, y los registros de fabricación, envase y acondicionamiento, descargables en PDF por coordinación y Dirección técnica. *Aceptación:* tras aprobar existen las 4 solicitudes/órdenes y los 3 registros; las cantidades = % de fórmula × tamaño de lote.
-- **RF-31** Tablero de órdenes y lotes (producto, lote, cantidad, presentación, estado: en curso / en cuarentena / aprobada) con botón «Crear orden de producción». *Aceptación:* filtros por estado y etapa; conteos coherentes con el dashboard.
-- **RF-32** Prealistamiento y despeje de línea por área (dispensación, fabricación, envase, acondicionamiento) con firma del coordinador o supervisor que verifica los rótulos de limpieza de equipos y utensilios. *Aceptación:* etapa no inicia sin despeje verificado por persona distinta.
-- **RF-33** Dispensación multi-lote con balanza, FEFO y verificación independiente (según perfil). *Aceptación:* una línea admite varios lotes; suma = requerido (tolerancia del instructivo).
-- **RF-34** Registro de fabricación paso a paso con parámetros y equipos. *Aceptación:* valores fuera de rango se marcan y exigen desviación; equipos vencidos bloquean.
-- **RF-35** Registro de envase con control de peso/volumen cada N minutos, por presentación. *Aceptación:* recordatorio por intervalo; fuera de rango alerta.
-- **RF-36** Registro de acondicionamiento con inspección PT de 9 puntos. *Aceptación:* los 9 puntos con resultado antes de completar.
-- **RF-37** Transferencias de granel con rótulo y conciliación de rendimiento por etapa. *Aceptación:* porcentaje calculado y comparado con límites.
-- **RF-39** Registro de limpieza de equipos y utensilios por etapa, con verificación de rótulos de limpieza y vigencia. *Aceptación:* un equipo sin limpieza vigente bloquea el paso (`EQUIPMENT_NOT_VALID`); ejecutor ≠ verificador.
+
+*Cómo leer esta sección.* La producción de un lote avanza por **tres etapas en este orden fijo: Manufactura → Envase → Acondicionamiento**, y se cierra con la liberación. En cada etapa se repite el mismo ciclo: **orden → alistamiento y despeje → limpieza → ejecución y registro**. Cada paso corresponde a un documento del paquete técnico (RF-83), y el sistema no deja iniciar un paso si falta el anterior. Los RF se agrupan por bloque; los números se conservan para no romper la trazabilidad con pantallas y pruebas.
+
+**Secuencia de documentos por etapa** (es la misma lista del formato «Formación de paquete técnico»; cada documento tiene código y versión del SGD asignados por `aq_doc`):
+
+| Etapa | Paso | Documento que se genera o diligencia | Quién lo diligencia / verifica | RF |
+|---|---|---|---|---|
+| **Manufactura** | 1 | Orden de producción (de fabricación) | Se genera al aprobar la OP | RF-30, RF-38 |
+| | 2 | Prealistamiento y despeje de línea | Auxiliar ejecuta; coordinador o supervisor verifica | RF-32 |
+| | 3 | Solicitud de dispensación de materias primas | Se genera; bodega atiende | RF-38 |
+| | 4 | Rótulo de dispensación de materia prima y alistamiento de materiales | Se genera con cantidades de la fórmula | RF-38, RF-33 |
+| | 5 | Limpieza de equipos y utensilios | Auxiliar ejecuta; supervisor verifica | RF-39 |
+| | 6 | Registro de fabricación (paso a paso, con la dispensación multi-lote) | Auxiliar ejecuta; verificador distinto | RF-33, RF-34 |
+| **Envase** | 7 | Orden de envase | Se genera al aprobar la OP | RF-38 |
+| | 8 | Solicitud de material de envase | Se genera; bodega atiende | RF-38 |
+| | 9 | Rótulo de dispensación y alistamiento de materiales de envase | Se genera | RF-38 |
+| | 10 | Prealistamiento y despeje de línea | Auxiliar / coordinador | RF-32 |
+| | 11 | Limpieza de equipos y utensilios | Auxiliar / supervisor | RF-39 |
+| | 12 | Rótulo a granel (el granel recibido de Manufactura) | Se genera en la transferencia | RF-37 |
+| | 13 | Registro de envase | Auxiliar ejecuta; verificador distinto | RF-35 |
+| | 14 | Control de peso o volumen en envase (periódico) | Auxiliar; alerta si sale de rango | RF-35 |
+| **Acondicionamiento** | 15 | Orden de acondicionamiento | Se genera al aprobar la OP | RF-38 |
+| | 16 | Solicitud y devolución de material para acondicionamiento | Se genera; al cerrar se registra lo devuelto | RF-38 |
+| | 17 | Prealistamiento y despeje de línea | Auxiliar / coordinador | RF-32 |
+| | 18 | Rótulo a granel (el granel envasado que se acondiciona) | Se genera en la transferencia | RF-37 |
+| | 19 | Limpieza de equipos y utensilios | Auxiliar / supervisor | RF-39 |
+| | 20 | Registro de acondicionamiento (incluye codificación) | Auxiliar ejecuta; verificador distinto | RF-36 |
+| | 21 | Inspección de producto terminado (9 puntos) | Control de calidad | RF-36 |
+| **Cierre (general)** | 22 | Certificado de calidad del producto terminado | Control de calidad | RF-41 |
+| | 23 | Consolidado y liberación del producto terminado | Director técnico | RF-83, RF-31 |
+
+*El «paquete técnico» (documento 0 del formato) se forma al final con los pasos anteriores marcados «Sí» o «No aplica».*
+
+**A. Orden de producción y documentos generados**
+- **RF-30** Crear la orden de producción (OP) por parte de coordinación. El número lo define Aseguramiento de calidad (formato y consecutivo). *Aceptación:* la OP toma **solo** documentos en versión vigente (fórmula, especificaciones, instructivos, plantillas y formatos) y congela esas versiones en el lote; sin versión aprobada falla (`NO_APPROVED_VERSION` / `DOCUMENT_NOT_EFFECTIVE`); el número no se repite ni se edita.
+- **RF-38** Al **aprobar** la OP el sistema genera, sin intervención manual y descargables en PDF por coordinación y Dirección técnica: **(a)** las tres órdenes de etapa (fabricación, envase, acondicionamiento); **(b)** las tres solicitudes de materiales (dispensación de materias primas, material de envase y material de acondicionamiento, esta última con su devolución); **(c)** la orden de codificado; **(d)** los rótulos de dispensación y alistamiento con las cantidades de la fórmula y el tamaño de lote; **(e)** los tres registros de ejecución (fabricación, envase y acondicionamiento, este último con la codificación). *Aceptación:* tras aprobar existen 3 órdenes de etapa, 3 solicitudes, 1 orden de codificado, los rótulos y 3 registros; cantidad = % de la fórmula × tamaño de lote.
+- **RF-31** Tablero de órdenes y lotes (producto, lote, cantidad, presentación, estado: en curso / en cuarentena / aprobada, y **etapa actual**: manufactura, envase, acondicionamiento) con el botón «Crear orden de producción». *Aceptación:* filtros por estado y etapa; conteos coherentes con el panel.
+
+**B. Pasos que se repiten en cada etapa**
+- **RF-32** Prealistamiento y despeje de línea al comenzar **cada** área (dispensación, fabricación, envase, acondicionamiento): se verifican los rótulos de limpieza de equipos y utensilios y la ausencia de material de otro producto o lote. Firma el coordinador o supervisor. *Aceptación:* la etapa no inicia sin despeje verificado por una persona distinta de quien lo ejecutó (`CLEARANCE_MISSING`).
+- **RF-39** Limpieza de equipos y utensilios **antes de cada etapa**, con verificación del rótulo de limpieza y su vigencia. *Aceptación:* un equipo sin limpieza vigente bloquea el paso (`EQUIPMENT_NOT_VALID`); ejecutor ≠ verificador.
+
+**C. Manufactura**
+- **RF-33** Dispensación de materias primas contra la solicitud: balanza válida, FEFO y verificación independiente (según perfil); una línea admite **varios lotes** de una misma materia prima. *Aceptación:* suma de lotes = cantidad requerida (tolerancia del instructivo); un lote en cuarentena o rechazado no se puede dispensar (`LOT_NOT_APPROVED`).
+- **RF-34** Registro de fabricación paso a paso según el instructivo vigente, con parámetros, equipos y firma electrónica por paso. *Aceptación:* valores fuera de rango se marcan y exigen desviación; un equipo con calibración vencida bloquea el paso (`EQUIPMENT_NOT_VALID`).
+
+**D. Paso entre etapas (granel)**
+- **RF-37** Transferencia de granel de una etapa a la siguiente (Manufactura → Envase; Envase → Acondicionamiento) con **rótulo a granel** y conciliación del rendimiento de la etapa que termina. *Aceptación:* el porcentaje de rendimiento se calcula y se compara con los límites de la especificación; fuera de límites exige desviación antes de recibir en la etapa siguiente.
+
+**E. Envase**
+- **RF-35** Registro de envase por presentación, con control de peso o volumen cada N minutos (D-08). *Aceptación:* el sistema recuerda cada intervalo; un valor fuera de rango alerta y exige acción registrada.
+
+**F. Acondicionamiento**
+- **RF-36** Registro de acondicionamiento (incluye codificación y devolución de material sobrante) y la inspección de producto terminado de 9 puntos. *Aceptación:* los 9 puntos tienen resultado antes de completar; lo devuelto cuadra con lo solicitado (entregado − usado − merma = devuelto, con tolerancia).
 
 **Calidad**
 - **RF-40** Captura de resultados de análisis contra especificación. *Aceptación:* conformidad calculada automáticamente; fuera de especificación abre OOS.
@@ -779,7 +823,7 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | AC-11 | Auditor vencido inicia sesión | Rechazado |
 | AC-12 | Cerrar CAPA sin efectividad | `EFFECTIVENESS_MISSING` |
 | AC-13 | Aprobar fórmula sin estudio de estabilidad completo y conforme, o con menos de 2 prototipos | `STABILITY_INCOMPLETE` / `MIN_PROTOTYPES` |
-| AC-14 | Aprobar una OP | Se crean solicitudes (dispensación, envase, acondicionamiento), orden de codificado, rótulos y 3 registros; cantidades = % × tamaño de lote |
+| AC-14 | Aprobar una OP | Se crean 3 órdenes de etapa, 3 solicitudes (dispensación, envase, acondicionamiento con devolución), 1 orden de codificado, los rótulos y 3 registros; cantidades = % × tamaño de lote |
 | AC-15 | Firmar paquete técnico con documento «Sí» faltante, o fuera de orden | `PACKAGE_INCOMPLETE` / `INVALID_TRANSITION` |
 | AC-16 | Cerrar como «cumple» un estudio al que le faltan lecturas (p. ej. 20 de 21 en calentamiento) | `STABILITY_INCOMPLETE` |
 | AC-17 | Registrar viscosidad con una muestra de 200 mL | `SAMPLE_TOO_SMALL` |
@@ -878,6 +922,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado |
 | 1.6 | 08/10/2026 | Aprobación de cambios de rol (D-39, D-40 resueltas): todo cambio de rol es una solicitud del administrador que aprueba Aseguramiento de la calidad; los permisos de los roles del sistema se ajustan con doble aprobación (`aq_dir` y `dt`) y las funciones reservadas siguen con candado; línea base del PRD conservada y marcada en S-04; bandeja S-04B; AC-39…41; D-41 |
 | 1.5 | 08/10/2026 | Roles configurables (sección 2.6): el administrador crea, configura (permisos por módulo, incompatibilidades, vencimiento obligatorio, solo lectura) y retira roles adicionales; funciones reservadas (`admin`, `dt`, `aq_doc`); roles del sistema protegidos como línea base; RF-07; AC-36…38; D-39, D-40; S-04 ampliada |
 | 1.4 | 06/10/2026 | SGD reescrito con los procedimientos de elaboración y de registro y control de documentos: niveles y tipos, codificación `PPP-TT-NNN` y subdocumentos `PPP-TT-NNN-LL-##`, estructura, encabezado y pie, solicitud → estandarización → revisión → aprobación → copias controladas, anulación con recolección, vigencias por tipo (3 años / registro sanitario / anual / validación), retención, capacitación con cuestionario ≥ 80 %, listado maestro, cambio técnico de formato que obliga a revisar el procedimiento, firma corta y correcciones; rol `gerencia`; pantalla S-49; RF-92…103; AC-28…35; D-21…26 |
