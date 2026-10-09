@@ -7,7 +7,7 @@ export const IDLE_MINUTES_COOKIE = "ebr_idle_min";
 export const DEFAULT_IDLE_MINUTES = 15;
 
 /** Rutas que no exigen sesión. */
-export const PUBLIC_PATHS = ["/login", "/verificar", "/api/health", "/_design"];
+export const PUBLIC_PATHS = ["/login", "/auth", "/verificar", "/api/health", "/_design"];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

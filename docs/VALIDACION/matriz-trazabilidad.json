@@ -1,5 +1,5 @@
 {
-  "etapa_actual": "E1",
+  "etapa_actual": "E2",
   "orden_etapas": ["E0", "E1", "E2", "E2B", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11"],
   "requisitos": [
     {
@@ -113,26 +113,171 @@
     {
       "id": "RF-03",
       "etapa": "E2",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Administración de usuarios, roles y vencimiento de accesos de auditor",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0009_admin_users.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-04",
       "etapa": "E2",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Catálogos y perfiles regulatorios (líneas, marcas, áreas, unidades); cambiar un perfil no altera lotes existentes",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0008_areas_catalogs.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0010_permission_matrix.test.sql"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/admin/prd-matrix.test.ts"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-06",
       "etapa": "E2",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Catálogo de áreas con Aseguramiento de la calidad como dueña del SGD; solo aq_doc crea documentos controlados",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0008_areas_catalogs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-11",
       "etapa": "E2",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Auditor vencido inicia sesión → rechazado",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0009_admin_users.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "RF-07",
+      "etapa": "E2",
+      "descripcion": "Roles configurables (PRD 2.6): solicitar crear, configurar y retirar roles adicionales con aprobación de Calidad (D-39); permisos de roles del sistema con doble aprobación (D-40)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/auth/navigation.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-36",
+      "etapa": "E2",
+      "descripcion": "Rol adicional con lectura de trazabilidad: el usuario obtiene solo ese permiso",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-37",
+      "etapa": "E2",
+      "descripcion": "Dar una función reservada a un rol adicional → RESERVED_PERMISSION",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-38",
+      "etapa": "E2",
+      "descripcion": "Retirar un rol en uso / un rol del sistema → ROLE_IN_USE / SYSTEM_ROLE_LOCKED",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-39",
+      "etapa": "E2",
+      "descripcion": "Rol adicional: no existe mientras está pendiente; autoaprobación → SOD_VIOLATION; aq_dir aprueba y se crea",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-40",
+      "etapa": "E2",
+      "descripcion": "Rol del sistema: una aprobación no aplica; misma persona dos veces → SOD_VIOLATION; aq_dir + dt aplican y S-04 marca la celda",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-41",
+      "etapa": "E2",
+      "descripcion": "Quitar al dt la liberación final → RESERVED_PERMISSION (candado)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0013_role_change_approvals.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-05",

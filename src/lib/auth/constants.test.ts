@@ -6,6 +6,7 @@ describe("RF-01 · rutas protegidas", () => {
     expect(isPublicPath("/login")).toBe(true);
     expect(isPublicPath("/verificar/K7Q2-M9XP-4TD8")).toBe(true);
     expect(isPublicPath("/api/health")).toBe(true);
+    expect(isPublicPath("/auth/confirmar")).toBe(true);
     expect(isPublicPath("/inicio")).toBe(false);
     expect(isPublicPath("/loginx")).toBe(false);
   });

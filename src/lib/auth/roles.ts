@@ -1,9 +1,34 @@
-import type { Database } from "@/lib/db/database.types";
+// Roles (PRD 2.1 y 2.6). Los 15 roles del sistema son fijos; el administrador puede crear roles
+// adicionales (tabla public.roles), cuyos nombres se leen de la base.
 
-export type AppRole = Database["public"]["Enums"]["app_role"];
+export const SYSTEM_ROLES = [
+  "comercial",
+  "idi",
+  "bodega_aux",
+  "bodega_jefe",
+  "prod_aux",
+  "prod_coord",
+  "lab_aux",
+  "cc_jefe",
+  "aq_dir",
+  "dt",
+  "admin",
+  "master",
+  "aq_doc",
+  "gerencia",
+  "auditor",
+] as const;
 
-/** Nombre visible de cada rol (PRD 2.1; se renombran según el organigrama, D-06). */
-export const ROLE_LABELS: Record<AppRole, string> = {
+export type SystemRole = (typeof SYSTEM_ROLES)[number];
+/** Código de rol: uno del sistema o uno adicional creado por el administrador. */
+export type AppRole = SystemRole | (string & {});
+
+export function isSystemRole(code: string): code is SystemRole {
+  return (SYSTEM_ROLES as readonly string[]).includes(code);
+}
+
+/** Nombre visible de cada rol del sistema (PRD 2.1; se renombran según el organigrama, D-06). */
+export const ROLE_LABELS: Record<SystemRole, string> = {
   comercial: "Comercial",
   idi: "Químico formulador (I+D)",
   bodega_aux: "Auxiliar de bodega",
@@ -21,7 +46,25 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   auditor: "Auditor invitado",
 };
 
-export function hasAnyRole(roles: readonly AppRole[], wanted: readonly AppRole[]): boolean {
+export type RoleInfo = {
+  code: string;
+  name: string;
+  description: string;
+  is_system: boolean;
+  requires_expiry: boolean;
+  read_only: boolean;
+  active: boolean;
+  version: number;
+};
+
+/** Nombre del rol: del catálogo de la base si se tiene; si no, el del PRD; si no, el código. */
+export function roleLabel(code: string, catalog?: Pick<RoleInfo, "code" | "name">[]): string {
+  return (
+    catalog?.find((r) => r.code === code)?.name ?? (isSystemRole(code) ? ROLE_LABELS[code] : code)
+  );
+}
+
+export function hasAnyRole(roles: readonly string[], wanted: readonly string[]): boolean {
   return roles.some((r) => wanted.includes(r));
 }
 

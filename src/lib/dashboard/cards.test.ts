@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ROLE_LABELS, type AppRole } from "@/lib/auth/roles";
+import { SYSTEM_ROLES } from "@/lib/auth/roles";
 import { CARDS_BY_ROLE, cardsForRoles, greeting, isoWeek } from "./cards";
 
 // RF-02 · panel por rol con tareas propias.
 describe("RF-02 · panel por rol", () => {
   it("todos los roles tienen tarjetas", () => {
-    for (const role of Object.keys(ROLE_LABELS) as AppRole[]) {
+    for (const role of SYSTEM_ROLES) {
       expect(CARDS_BY_ROLE[role].length).toBeGreaterThan(0);
     }
   });

@@ -25,7 +25,10 @@ export function Sidebar({ items, roleLabel }: SidebarProps) {
       <nav aria-label="Menú principal" className="grid gap-0.5">
         {items.map((item) => {
           const Icon = NAV_ICONS[item.key];
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive =
+            pathname === item.href ||
+            pathname.startsWith(`${item.href}/`) ||
+            (item.key === "administracion" && pathname.startsWith("/admin"));
           const base =
             "flex h-10 items-center gap-3 rounded-md px-2.5 text-sm leading-5 max-[1279px]:h-11 max-[1279px]:justify-center max-[1279px]:px-0";
           if (item.stage) {

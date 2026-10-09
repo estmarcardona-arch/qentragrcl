@@ -2,6 +2,33 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E2] Administración — 07/10/2026
+
+### Agregado
+
+- Migración 0008: áreas con sigla de proceso, árbol sin ciclos y área dueña del SGD (GCA); catálogos versionados con bitácora (unidades, tipos de material y de equipo, clasificación de desviaciones, motivos de corrección), líneas de producto, perfiles regulatorios (PRD §10) con foto por lote, reglas de retención (RNF-05) y marcas detrás del interruptor de maquila (D-01); `admin_save_catalog` con lista blanca y motivo.
+- Migración 0009: gestión de usuarios (listado, datos, activación sin borrado, roles con vigencia, ampliación y revocación, firma corta), auditor con vencimiento obligatorio y AC-11, combinaciones de roles prohibidas (D-18, SOD-7, SOD-9), configuración del sistema validada y política de contraseñas (mínimo 12, historial, caducidad).
+- Migración 0010: matriz de permisos del PRD 2.2 generada desde el Markdown y `has_module_permission`.
+- Pantallas S-03 (usuarios y roles, alta por invitación con enlace de un solo uso, detalle con bitácora) y S-04 (áreas, líneas, perfiles lado a lado, catálogos, retención, marcas, matriz de solo lectura, configuración); crear y cambiar contraseña; restablecimiento por enlace.
+- Pruebas: pgTAP de RLS por catálogo, usuarios, AC-11 y matriz; E2E de administración, alta y baja, AC-11 y comparación de la matriz de S-04 con el PRD.
+
+### Agregado (solicitud del responsable, 08/10/2026)
+
+- PRD 1.5: sección 2.6 «Roles configurables», RF-07, AC-36…38, D-39 y D-40.
+- Migración 0012: los roles pasan de un tipo enumerado a la tabla `roles` (15 roles del sistema protegidos y roles adicionales); funciones reservadas (`reserved_permissions`); matriz editable solo para roles adicionales; `admin_create_role`, `admin_update_role`, `admin_set_role_permissions`, `admin_set_role_incompatibilities`, `admin_set_role_active` (retirar o reactivar); vencimiento obligatorio por rol; la lectura de la bitácora se deriva del permiso de «Trazabilidad / Auditoría».
+- S-04: pestaña «Roles y permisos» con el panel de permisos y restricciones, creación de roles y configuración por rol (permisos por módulo, incompatibilidades, opciones, retiro); la matriz muestra también los roles adicionales; el menú de un rol adicional se arma con sus permisos.
+
+### Agregado (decisiones D-39 y D-40, 08/10/2026)
+
+- PRD 1.6: aprobación de cambios de rol (sección 2.6), bandeja S-04B, AC-39…41, D-41.
+- Migración 0013: solicitudes de cambio de rol (`role_change_requests`, `role_change_approvals`, numeración `CR-AAAA-NNNN`); `admin_request_role_change` (valida el cambio completo sin aplicarlo), `decide_role_change` (aprobar o rechazar con contraseña; quien solicita no aprueba; dos personas distintas), `admin_cancel_role_change`, `get_role_change_requests`. Rol adicional: aprueba `aq_dir`; permisos de un rol del sistema: `aq_dir` y `dt`; funciones reservadas con candado (su dueño no las pierde). Línea base del PRD guardada por celda (`prd_cell_text`). Las RPC de cambio directo de 0012 se eliminan.
+- Bandeja «Cambios de roles» (`/cambios-roles`) para administración, Calidad, Dirección técnica y auditor, con antes y después; solicitudes pendientes en «Roles y permisos» y en cada rol; S-04 marca con «*» las celdas ajustadas.
+
+### Corregido
+
+- Migración 0011: `sign_record` valida registro, rol, orden y SOD antes de la contraseña; un rechazo por regla ya no consume intentos ni revierte el reinicio del contador. `practice_reauth` para la prueba en vivo.
+- Lectura de sesión y cliente de servidor marcados como de tiempo de solicitud (`connection()`), sin errores de prerender con Cache Components.
+
 ## [E1] Núcleo GxP — 07/10/2026
 
 ### Agregado

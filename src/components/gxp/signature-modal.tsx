@@ -11,6 +11,7 @@ import { formatDateTime } from "@/lib/format";
 import {
   canSign,
   getServerTime,
+  practiceReauth,
   signRecord,
   type CanSignResult,
   type SignResult,
@@ -28,6 +29,8 @@ export type SignatureModalProps = {
   signer: Signer;
   /** Verifica segregación de funciones antes de pedir la contraseña (por defecto, sí). */
   precheck?: boolean;
+  /** «practice»: solo verifica la contraseña con el mismo contador de intentos; no firma (prueba en vivo). */
+  mode?: "sign" | "practice";
   onSigned?: (result: Extract<SignResult, { ok: true }>) => void;
 };
 
@@ -44,6 +47,7 @@ export function SignatureModal({
   summary = [],
   signer,
   precheck = true,
+  mode = "sign",
   onSigned,
 }: SignatureModalProps) {
   const passwordId = useId();
@@ -52,6 +56,7 @@ export function SignatureModal({
   const [serverTime, setServerTime] = useState<string | null>(null);
   const [precheckResult, setCheck] = useState<CanSignResult | null>(null);
   const [error, setError] = useState<Exclude<SignResult, { ok: true }> | null>(null);
+  const [practiceOk, setPracticeOk] = useState(false);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -77,6 +82,7 @@ export function SignatureModal({
       setPassword("");
       setError(null);
       setCheck(null);
+      setPracticeOk(false);
     }
     onOpenChange(next);
   }
@@ -91,6 +97,13 @@ export function SignatureModal({
     e.preventDefault();
     if (!canSubmit) return;
     startTransition(async () => {
+      if (mode === "practice") {
+        const practice = await practiceReauth({ password });
+        setPassword("");
+        setPracticeOk(practice.ok);
+        setError(practice.ok ? null : practice);
+        return;
+      }
       const result = await signRecord({ table: record.table, id: record.id, meaning, password });
       setPassword("");
       if (result.ok) {
@@ -233,6 +246,12 @@ export function SignatureModal({
               </p>
             ) : null}
           </div>
+
+          {practiceOk ? (
+            <p role="status" className="text-[13px] font-medium text-q-ok-fg">
+              Contraseña verificada (práctica): no se firmó ningún registro.
+            </p>
+          ) : null}
 
           <div className="flex h-9 items-center justify-between rounded-md bg-surface-sunken px-3 text-[13px] text-neutral-strong ring-1 ring-border ring-inset">
             <span className="flex items-center gap-1.5">

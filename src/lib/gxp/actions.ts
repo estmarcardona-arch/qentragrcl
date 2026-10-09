@@ -5,7 +5,7 @@ import { createClient } from "@/lib/db/server";
 import { ERROR_MESSAGES, toAppError } from "@/lib/errors";
 import { log } from "@/lib/log";
 import { callRpc } from "@/lib/rpc";
-import { ROLE_LABELS, type AppRole } from "@/lib/auth/roles";
+import { roleLabel, type AppRole } from "@/lib/auth/roles";
 import type { SignatureMeaning } from "./meanings";
 
 // Acciones de servidor de los componentes GxP. Toda regla vive en la base (sign_record, check_sod,
@@ -49,7 +49,7 @@ export async function getSigner(): Promise<Signer> {
     if (!ctx?.full_name) return null;
     return {
       fullName: ctx.full_name,
-      roleLabel: ctx.job_title ?? (ctx.roles ?? []).map((r) => ROLE_LABELS[r]).join(" · "),
+      roleLabel: ctx.job_title ?? (ctx.roles ?? []).map((r) => roleLabel(r)).join(" · "),
     };
   } catch {
     return null;
@@ -132,6 +132,32 @@ export async function signRecord(input: {
       shortSignature: String(res.short_signature),
       signerName: String(res.signer_name),
       recordHash: String(res.record_hash),
+    };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+/** Práctica de reautenticación: mismo contador de intentos que la firma; no firma nada. */
+export async function practiceReauth(input: {
+  password: string;
+}): Promise<{ ok: true } | (ActionError & { remaining?: number; lockedUntil?: string })> {
+  const password = z.string().min(1).max(200).safeParse(input.password);
+  if (!password.success)
+    return { ok: false, code: "REAUTH_FAILED", ...ERROR_MESSAGES.REAUTH_FAILED };
+  const supabase = await createClient();
+  try {
+    const res = (await callRpc(supabase, "practice_reauth", {
+      p_password: password.data,
+    })) as Record<string, unknown>;
+    if (res.ok === true) return { ok: true };
+    const code = String(res.code) as keyof typeof ERROR_MESSAGES;
+    return {
+      ok: false,
+      code,
+      ...(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.REAUTH_FAILED),
+      remaining: typeof res.remaining === "number" ? res.remaining : undefined,
+      lockedUntil: typeof res.locked_until === "string" ? res.locked_until : undefined,
     };
   } catch (error) {
     return fail(error);

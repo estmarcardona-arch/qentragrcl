@@ -29,7 +29,7 @@ export function DemoGxp() {
     <div className="grid gap-3">
       <p className="max-w-prose text-small text-text-secondary">
         {signer
-          ? `Sesión iniciada como ${signer.fullName}. La prueba usa la contraseña real y cuenta los intentos fallidos, pero el registro de ejemplo no existe: nada se firma.`
+          ? `Sesión iniciada como ${signer.fullName}. La prueba de firma verifica su contraseña real con el mismo contador de intentos que la firma, pero no firma ningún registro.`
           : "Inicie sesión para probar la reautenticación real. Sin sesión, el modal muestra la respuesta de la base."}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -44,6 +44,7 @@ export function DemoGxp() {
         record={DEMO_RECORD}
         meaning="verifico"
         precheck={false}
+        mode="practice"
         signer={signer}
         summary={[
           { label: "Glicerina requerida", value: "60,00 kg" },

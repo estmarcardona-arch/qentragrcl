@@ -5,7 +5,7 @@ select plan(14);
 -- AC-08: modificar audit_log da permiso denegado (42501) para los roles de la API.
 insert into public.audit_log (action, table_name) values ('prueba', 'prueba');
 
-select pg_temp.login_as(pg_temp.test_user('aq@prueba.test', 'Lucía Barrera', array['aq_dir']::public.app_role[]));
+select pg_temp.login_as(pg_temp.test_user('aq@prueba.test', 'Lucía Barrera', array['aq_dir']::text[]));
 select throws_ok($$ update public.audit_log set action = 'alterado' $$, '42501', null,
   'AC-08: authenticated no puede modificar audit_log');
 select throws_ok($$ delete from public.audit_log $$, '42501', null,

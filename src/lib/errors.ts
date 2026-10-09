@@ -72,6 +72,35 @@ export const ERROR_MESSAGES = {
     rule: "Este campo no se puede corregir.",
     action: "Corrija solo los datos registrados del formato.",
   },
+  ROLE_INCOMPATIBLE: {
+    rule: "Esta combinación de roles no está permitida en una misma persona.",
+    action: "Asigne el rol a otro usuario o retire primero el rol incompatible.",
+  },
+  ROLE_RETIRED: {
+    rule: "El rol está retirado o no existe.",
+    action: "Elija un rol activo o reactive el rol en Catálogos y configuración.",
+  },
+  ROLE_IN_USE: {
+    rule: "El rol está asignado a usuarios vigentes.",
+    action: "Revoque el rol a esos usuarios antes de retirarlo.",
+  },
+  SYSTEM_ROLE_LOCKED: {
+    rule: "Los roles del sistema (PRD 2.1) no se modifican ni se retiran.",
+    action: "Cree un rol adicional con los permisos que necesite.",
+  },
+  RESERVED_PERMISSION: {
+    rule: "Ese permiso es una función reservada a un rol del sistema.",
+    action:
+      "Asigne al usuario el rol correspondiente en lugar de dar el permiso a un rol adicional.",
+  },
+  FEATURE_DISABLED: {
+    rule: "La función está desactivada en la configuración del sistema.",
+    action: "Actívela en Administración → Configuración si corresponde.",
+  },
+  CONFIG_MISSING: {
+    rule: "Falta una configuración del servidor para esta operación.",
+    action: "Pida a TI que configure la variable indicada.",
+  },
   NO_CHANGE: {
     rule: "El nuevo valor es igual al vigente.",
     action: "Escriba un valor distinto o cancele la corrección.",

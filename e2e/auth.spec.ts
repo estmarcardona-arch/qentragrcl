@@ -104,9 +104,9 @@ test.describe("DI-2 · firma con reautenticación", () => {
     await expect(dialog.getByRole("alert")).toContainText(
       "Contraseña incorrecta. Le quedan 2 intentos.",
     );
-    // Con la contraseña correcta pasa la reautenticación; el registro de prueba no existe.
+    // Con la contraseña correcta pasa la reautenticación (práctica: no firma) y el contador se reinicia.
     await dialog.getByLabel("Confirme su identidad").fill(DEV_PASSWORD);
     await dialog.getByRole("button", { name: "Firmar" }).click();
-    await expect(dialog.getByRole("alert")).toContainText("El registro no existe");
+    await expect(dialog.getByRole("status")).toContainText("Contraseña verificada");
   });
 });

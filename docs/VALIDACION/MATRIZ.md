@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E1**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E2**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -12,10 +12,14 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-01 | E1 | Mismo usuario ejecuta y verifica → SOD_VIOLATION | pgtap: `supabase/tests/0005_signatures_sod.test.sql` | Cubierto |
 | AC-02 | E1 | Editar registro firmado → RECORD_LOCKED | pgtap: `supabase/tests/0005_signatures_sod.test.sql` | Cubierto |
 | AC-08 | E1 | Modificar audit_log → permiso denegado | pgtap: `supabase/tests/0003_audit_log.test.sql` | Cubierto |
-| RF-03 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-04 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-06 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-11 | E2 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| RF-03 | E2 | Administración de usuarios, roles y vencimiento de accesos de auditor | pgtap: `supabase/tests/0009_admin_users.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| RF-04 | E2 | Catálogos y perfiles regulatorios (líneas, marcas, áreas, unidades); cambiar un perfil no altera lotes existentes | pgtap: `supabase/tests/0008_areas_catalogs.test.sql`<br>pgtap: `supabase/tests/0010_permission_matrix.test.sql`<br>unitaria: `src/lib/admin/prd-matrix.test.ts`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| RF-06 | E2 | Catálogo de áreas con Aseguramiento de la calidad como dueña del SGD; solo aq_doc crea documentos controlados | pgtap: `supabase/tests/0008_areas_catalogs.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| AC-11 | E2 | Auditor vencido inicia sesión → rechazado | pgtap: `supabase/tests/0009_admin_users.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| RF-07 | E2 | Roles configurables (PRD 2.6): crear, configurar permisos e incompatibilidades y retirar roles adicionales | pgtap: `supabase/tests/0012_configurable_roles.test.sql`<br>e2e: `e2e/admin.spec.ts`<br>unitaria: `src/lib/auth/navigation.test.ts` | Cubierto |
+| AC-36 | E2 | Rol adicional con lectura de trazabilidad: el usuario obtiene solo ese permiso | pgtap: `supabase/tests/0012_configurable_roles.test.sql` | Cubierto |
+| AC-37 | E2 | Dar una función reservada a un rol adicional → RESERVED_PERMISSION | pgtap: `supabase/tests/0012_configurable_roles.test.sql` | Cubierto |
+| AC-38 | E2 | Retirar un rol en uso / un rol del sistema → ROLE_IN_USE / SYSTEM_ROLE_LOCKED | pgtap: `supabase/tests/0012_configurable_roles.test.sql` | Cubierto |
 | RF-05 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-92 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-93 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |

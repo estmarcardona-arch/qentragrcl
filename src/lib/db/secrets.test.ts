@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // AG-05 · AGENTS.md regla 5: la clave service_role nunca se usa en el código de la app.
-// Si una etapa futura necesita la clave en el servidor, se exceptúa aquí de forma explícita.
-const ALLOWED: string[] = [];
+// Única excepción: el cliente administrativo de servidor (server-only), usado para Supabase Auth.
+const ALLOWED: string[] = ["src/lib/db/admin.ts"];
 const PATTERN = /service_role|SERVICE_ROLE/;
 
 function sourceFiles(dir: string): string[] {
@@ -21,6 +21,10 @@ describe("AG-05 · sin service_role en el código de la aplicación", () => {
       (f) => !ALLOWED.includes(f) && PATTERN.test(readFileSync(f, "utf8")),
     );
     expect(offenders).toEqual([]);
+  });
+
+  it("el cliente administrativo es solo de servidor", () => {
+    expect(readFileSync("src/lib/db/admin.ts", "utf8")).toMatch(/^import "server-only";/);
   });
 
   it("las variables públicas no incluyen la clave service_role", () => {
