@@ -15,7 +15,7 @@ import {
   setUserActive,
   updateProfile,
 } from "@/lib/admin/actions";
-import { ROLE_LABELS, type AppRole } from "@/lib/auth/roles";
+import { roleLabel, type RoleInfo } from "@/lib/auth/roles";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { ReasonDialog } from "./reason-dialog";
 import type { AdminUser, AreaOption } from "./types";
@@ -28,10 +28,12 @@ function toDateInput(iso: string | null) {
 export function UserDetail({
   user,
   areas,
+  roles,
   isSelf,
 }: {
   user: AdminUser;
   areas: AreaOption[];
+  roles: RoleInfo[];
   isSelf: boolean;
 }) {
   const router = useRouter();
@@ -40,7 +42,7 @@ export function UserDetail({
   const [jobTitle, setJobTitle] = useState(user.job_title ?? "");
   const [areaId, setAreaId] = useState(user.area_id ?? "");
   const [short, setShort] = useState(user.short_signature ?? "");
-  const [newRole, setNewRole] = useState<AppRole>("auditor");
+  const [newRole, setNewRole] = useState<string>("auditor");
   const [newExpiry, setNewExpiry] = useState("");
   const [expiry, setExpiry] = useState<Record<string, string>>({});
   const [recovery, setRecovery] = useState<string | null>(null);
@@ -136,7 +138,7 @@ export function UserDetail({
                 key={r.id}
                 className="flex flex-wrap items-center gap-3 border-b border-divider pb-2"
               >
-                <span className="min-w-56 font-semibold">{ROLE_LABELS[r.role]}</span>
+                <span className="min-w-56 font-semibold">{roleLabel(r.role, roles)}</span>
                 <span className="text-small text-text-secondary">
                   Desde {formatDate(r.granted_at)} ·{" "}
                   {r.expires_at
@@ -155,7 +157,7 @@ export function UserDetail({
                         Vigencia
                       </Button>
                     }
-                    title={`Vigencia del rol ${ROLE_LABELS[r.role]}`}
+                    title={`Vigencia del rol ${roleLabel(r.role, roles)}`}
                     confirmLabel="Guardar vigencia"
                     onConfirm={(reason) =>
                       setRoleExpiry({
@@ -186,7 +188,7 @@ export function UserDetail({
                         Revocar
                       </Button>
                     }
-                    title={`Revocar el rol ${ROLE_LABELS[r.role]}`}
+                    title={`Revocar el rol ${roleLabel(r.role, roles)}`}
                     confirmLabel="Revocar rol"
                     destructive
                     onConfirm={(reason) =>
@@ -224,21 +226,24 @@ export function UserDetail({
               <select
                 id="new-role"
                 value={newRole}
-                onChange={(e) => setNewRole(e.target.value as AppRole)}
+                onChange={(e) => setNewRole(e.target.value)}
                 className="h-9 rounded-md border border-border-control bg-white px-2 text-sm"
               >
-                {(Object.keys(ROLE_LABELS) as AppRole[])
-                  .filter((r) => !assigned.has(r))
+                {roles
+                  .filter((r) => r.active && !assigned.has(r.code))
                   .map((r) => (
-                    <option key={r} value={r}>
-                      {ROLE_LABELS[r]}
+                    <option key={r.code} value={r.code}>
+                      {r.name}
                     </option>
                   ))}
               </select>
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="new-exp" className="text-label uppercase">
-                Vence el {newRole === "auditor" ? "(obligatorio)" : "(opcional)"}
+                Vence el{" "}
+                {roles.find((r) => r.code === newRole)?.requires_expiry
+                  ? "(obligatorio)"
+                  : "(opcional)"}
               </Label>
               <Input
                 id="new-exp"

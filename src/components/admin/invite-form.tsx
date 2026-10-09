@@ -7,12 +7,13 @@ import { FormField } from "@/components/common/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { inviteUser, type AdminResult } from "@/lib/admin/actions";
+import type { RoleInfo } from "@/lib/auth/roles";
 import type { AreaOption } from "./types";
 import { RolePicker, type RoleChoice } from "./role-picker";
 
 type Done = Extract<Awaited<ReturnType<typeof inviteUser>>, { ok: true }>;
 
-export function InviteForm({ areas }: { areas: AreaOption[] }) {
+export function InviteForm({ areas, roles: catalog }: { areas: AreaOption[]; roles: RoleInfo[] }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
@@ -125,7 +126,7 @@ export function InviteForm({ areas }: { areas: AreaOption[] }) {
           </select>
         </FormField>
       </div>
-      <RolePicker value={roles} onChange={setRoles} />
+      <RolePicker roles={catalog} value={roles} onChange={setRoles} />
       {error ? (
         <p role="alert" className="flex items-start gap-1.5 text-sm font-medium text-q-bad-fg">
           <CircleX aria-hidden className="mt-0.5 size-4 shrink-0" />

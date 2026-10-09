@@ -282,7 +282,7 @@ export type Database = {
           created_by: string | null
           id: string
           module_code: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           updated_at: string
           updated_by: string | null
         }
@@ -296,7 +296,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           module_code: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           updated_at?: string
           updated_by?: string | null
         }
@@ -310,7 +310,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           module_code?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: string
           updated_at?: string
           updated_by?: string | null
         }
@@ -320,6 +320,13 @@ export type Database = {
             columns: ["module_code"]
             isOneToOne: false
             referencedRelation: "permission_modules"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "module_permissions_role_fk"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "roles"
             referencedColumns: ["code"]
           },
         ]
@@ -593,6 +600,57 @@ export type Database = {
         }
         Relationships: []
       }
+      reserved_permissions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          module_code: string
+          owner_role: string
+          permission: string
+          reason: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_code: string
+          owner_role: string
+          permission: string
+          reason: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_code?: string
+          owner_role?: string
+          permission?: string
+          reason?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reserved_permissions_module_code_fkey"
+            columns: ["module_code"]
+            isOneToOne: false
+            referencedRelation: "permission_modules"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "reserved_permissions_owner_role_fkey"
+            columns: ["owner_role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       retention_rules: {
         Row: {
           basis: string
@@ -637,37 +695,103 @@ export type Database = {
       }
       role_incompatibilities: {
         Row: {
+          active: boolean
           created_at: string
           created_by: string | null
           id: string
+          is_system: boolean
           message: string
-          role_a: Database["public"]["Enums"]["app_role"]
-          role_b: Database["public"]["Enums"]["app_role"]
+          role_a: string
+          role_b: string
           rule_code: string
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          active?: boolean
           created_at?: string
           created_by?: string | null
           id?: string
+          is_system?: boolean
           message: string
-          role_a: Database["public"]["Enums"]["app_role"]
-          role_b: Database["public"]["Enums"]["app_role"]
+          role_a: string
+          role_b: string
           rule_code: string
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          active?: boolean
           created_at?: string
           created_by?: string | null
           id?: string
+          is_system?: boolean
           message?: string
-          role_a?: Database["public"]["Enums"]["app_role"]
-          role_b?: Database["public"]["Enums"]["app_role"]
+          role_a?: string
+          role_b?: string
           rule_code?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_incompatibilities_a_fk"
+            columns: ["role_a"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "role_incompatibilities_b_fk"
+            columns: ["role_b"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string
+          is_system: boolean
+          name: string
+          read_only: boolean
+          requires_expiry: boolean
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          is_system?: boolean
+          name: string
+          read_only?: boolean
+          requires_expiry?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          is_system?: boolean
+          name?: string
+          read_only?: boolean
+          requires_expiry?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
         }
         Relationships: []
       }
@@ -721,7 +845,7 @@ export type Database = {
           requires_meaning:
             | Database["public"]["Enums"]["signature_meaning"]
             | null
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           sets_status: string | null
           table_name: string
           updated_at: string
@@ -735,7 +859,7 @@ export type Database = {
           requires_meaning?:
             | Database["public"]["Enums"]["signature_meaning"]
             | null
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           sets_status?: string | null
           table_name: string
           updated_at?: string
@@ -749,13 +873,20 @@ export type Database = {
           requires_meaning?:
             | Database["public"]["Enums"]["signature_meaning"]
             | null
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: string
           sets_status?: string | null
           table_name?: string
           updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "sign_permissions_role_fk"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
+          },
           {
             foreignKeyName: "sign_permissions_table_name_fkey"
             columns: ["table_name"]
@@ -864,7 +995,7 @@ export type Database = {
           record_id: string
           record_table: string
           short_signature: string
-          signed_as: Database["public"]["Enums"]["app_role"]
+          signed_as: string
           signed_at: string
           signer_name: string
           updated_at: string
@@ -883,7 +1014,7 @@ export type Database = {
           record_id: string
           record_table: string
           short_signature: string
-          signed_as: Database["public"]["Enums"]["app_role"]
+          signed_as: string
           signed_at?: string
           signer_name: string
           updated_at?: string
@@ -902,7 +1033,7 @@ export type Database = {
           record_id?: string
           record_table?: string
           short_signature?: string
-          signed_as?: Database["public"]["Enums"]["app_role"]
+          signed_as?: string
           signed_at?: string
           signer_name?: string
           updated_at?: string
@@ -916,6 +1047,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "signable_tables"
             referencedColumns: ["table_name"]
+          },
+          {
+            foreignKeyName: "signatures_signed_as_fk"
+            columns: ["signed_as"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "signatures_user_id_fkey"
@@ -975,7 +1113,7 @@ export type Database = {
           id: string
           revoked_at: string | null
           revoked_by: string | null
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           updated_at: string
           updated_by: string | null
           user_id: string
@@ -989,7 +1127,7 @@ export type Database = {
           id?: string
           revoked_at?: string | null
           revoked_by?: string | null
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           updated_at?: string
           updated_by?: string | null
           user_id: string
@@ -1003,7 +1141,7 @@ export type Database = {
           id?: string
           revoked_at?: string | null
           revoked_by?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: string
           updated_at?: string
           updated_by?: string | null
           user_id?: string
@@ -1022,6 +1160,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_role_fk"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "user_roles_user_id_fkey"
@@ -1054,11 +1199,22 @@ export type Database = {
       }
     }
     Functions: {
+      admin_create_role: {
+        Args: {
+          p_code: string
+          p_description: string
+          p_name: string
+          p_read_only: boolean
+          p_reason: string
+          p_requires_expiry: boolean
+        }
+        Returns: string
+      }
       admin_grant_role: {
         Args: {
           p_expires_at: string
           p_reason: string
-          p_role: Database["public"]["Enums"]["app_role"]
+          p_role: string
           p_user: string
         }
         Returns: string
@@ -1093,9 +1249,21 @@ export type Database = {
         }
         Returns: string
       }
+      admin_set_role_active: {
+        Args: { p_active: boolean; p_code: string; p_reason: string }
+        Returns: undefined
+      }
       admin_set_role_expiry: {
         Args: { p_expires_at: string; p_reason: string; p_user_role: string }
         Returns: undefined
+      }
+      admin_set_role_incompatibilities: {
+        Args: { p_code: string; p_others: string[]; p_reason: string }
+        Returns: undefined
+      }
+      admin_set_role_permissions: {
+        Args: { p_code: string; p_permissions: Json; p_reason: string }
+        Returns: number
       }
       admin_set_short_signature: {
         Args: { p_reason: string; p_short: string; p_user: string }
@@ -1114,6 +1282,17 @@ export type Database = {
           p_must_change_password: boolean
           p_reason: string
           p_user: string
+        }
+        Returns: undefined
+      }
+      admin_update_role: {
+        Args: {
+          p_code: string
+          p_description: string
+          p_name: string
+          p_read_only: boolean
+          p_reason: string
+          p_requires_expiry: boolean
         }
         Returns: undefined
       }
@@ -1141,10 +1320,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      current_user_roles: {
-        Args: never
-        Returns: Database["public"]["Enums"]["app_role"][]
-      }
+      current_user_roles: { Args: never; Returns: string[] }
       format_sequence_code: {
         Args: { p_format: string; p_value: number; p_year: number }
         Returns: string
@@ -1166,18 +1342,12 @@ export type Database = {
       }
       get_my_context: { Args: never; Returns: Json }
       get_setting: { Args: { p_key: string }; Returns: Json }
-      has_any_role: {
-        Args: { p_roles: Database["public"]["Enums"]["app_role"][] }
-        Returns: boolean
-      }
+      has_any_role: { Args: { p_roles: string[] }; Returns: boolean }
       has_module_permission: {
         Args: { p_module: string; p_permission: string }
         Returns: boolean
       }
-      has_role: {
-        Args: { p_role: Database["public"]["Enums"]["app_role"] }
-        Returns: boolean
-      }
+      has_role: { Args: { p_role: string }; Returns: boolean }
       health_check: { Args: never; Returns: Json }
       hook_password_verification_attempt: {
         Args: { event: Json }
@@ -1220,32 +1390,13 @@ export type Database = {
         }
         Returns: Json
       }
-      user_active_roles: {
-        Args: { p_user: string }
-        Returns: Database["public"]["Enums"]["app_role"][]
-      }
+      user_active_roles: { Args: { p_user: string }; Returns: string[] }
       verify_signature_integrity: {
         Args: { p_signature_id: string }
         Returns: boolean
       }
     }
     Enums: {
-      app_role:
-        | "comercial"
-        | "idi"
-        | "bodega_aux"
-        | "bodega_jefe"
-        | "prod_aux"
-        | "prod_coord"
-        | "lab_aux"
-        | "cc_jefe"
-        | "aq_dir"
-        | "dt"
-        | "admin"
-        | "master"
-        | "aq_doc"
-        | "gerencia"
-        | "auditor"
       regulatory_profile_kind: "cosmetico" | "medicamento"
       signature_meaning:
         | "ejecuto"
@@ -1381,23 +1532,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: [
-        "comercial",
-        "idi",
-        "bodega_aux",
-        "bodega_jefe",
-        "prod_aux",
-        "prod_coord",
-        "lab_aux",
-        "cc_jefe",
-        "aq_dir",
-        "dt",
-        "admin",
-        "master",
-        "aq_doc",
-        "gerencia",
-        "auditor",
-      ],
       regulatory_profile_kind: ["cosmetico", "medicamento"],
       signature_meaning: [
         "ejecuto",

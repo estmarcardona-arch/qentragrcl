@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/common/page-header";
 import type { AdminUser, AreaOption } from "@/components/admin/types";
 import { UserDetail } from "@/components/admin/user-detail";
+import type { RoleInfo } from "@/lib/auth/roles";
 import { AuditTrailPanel } from "@/components/gxp/audit-trail-panel";
 import { requireSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/db/server";
@@ -14,7 +15,7 @@ export default async function UserPage({ params }: PageProps<"/admin/usuarios/[i
   const { id } = await params;
   const ctx = await requireSession();
   const supabase = await createClient();
-  const [{ data: users }, { data: areas }, { data: audit }] = await Promise.all([
+  const [{ data: users }, { data: areas }, { data: audit }, { data: roles }] = await Promise.all([
     supabase.rpc("admin_list_users"),
     supabase
       .from("organizational_areas")
@@ -29,6 +30,7 @@ export default async function UserPage({ params }: PageProps<"/admin/usuarios/[i
       )
       .order("at", { ascending: false })
       .limit(50),
+    supabase.from("roles").select("*").order("is_system", { ascending: false }).order("name"),
   ]);
   const user = ((users ?? []) as unknown as AdminUser[]).find((u) => u.id === id);
   if (!user) notFound();
@@ -63,6 +65,7 @@ export default async function UserPage({ params }: PageProps<"/admin/usuarios/[i
       <UserDetail
         user={user}
         areas={(areas ?? []) as AreaOption[]}
+        roles={(roles ?? []) as RoleInfo[]}
         isSelf={user.id === ctx.userId}
       />
       <div className="max-w-3xl">

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/common/page-header";
 import { ErrorState } from "@/components/common/state-card";
 import type { AdminUser } from "@/components/admin/types";
 import { UsersTable } from "@/components/admin/users-table";
+import type { RoleInfo } from "@/lib/auth/roles";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/db/server";
 
@@ -13,7 +14,10 @@ export const metadata: Metadata = { title: "Usuarios y roles · GRUFARCOL eBR" }
 // S-03 · Usuarios y roles (RF-03). La guarda de administrador está en el layout de /admin.
 export default async function UsersPage() {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("admin_list_users");
+  const [{ data, error }, { data: roles }] = await Promise.all([
+    supabase.rpc("admin_list_users"),
+    supabase.from("roles").select("*").order("is_system", { ascending: false }).order("name"),
+  ]);
 
   return (
     <main className="grid content-start gap-4 px-8 pt-6 pb-10 max-[1279px]:px-4">
@@ -44,7 +48,10 @@ export default async function UsersPage() {
           code={error.code}
         />
       ) : (
-        <UsersTable users={(data ?? []) as unknown as AdminUser[]} />
+        <UsersTable
+          users={(data ?? []) as unknown as AdminUser[]}
+          roles={(roles ?? []) as RoleInfo[]}
+        />
       )}
     </main>
   );

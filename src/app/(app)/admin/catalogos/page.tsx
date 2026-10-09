@@ -4,15 +4,17 @@ import { cn } from "cn";
 import { CatalogEditor, type FieldDef } from "@/components/admin/catalog-editor";
 import { PermissionMatrix, type MatrixRow } from "@/components/admin/permission-matrix";
 import { RegulatoryProfiles, type ProfileRule } from "@/components/admin/regulatory-profiles";
+import { RolesManager, type ReservedPermission } from "@/components/admin/roles-manager";
 import { SettingsEditor, type Setting } from "@/components/admin/settings-editor";
 import { PageHeader } from "@/components/common/page-header";
 import { EmptyState } from "@/components/common/state-card";
-import { ROLE_LABELS, type AppRole } from "@/lib/auth/roles";
+import type { RoleInfo } from "@/lib/auth/roles";
 import { createClient } from "@/lib/db/server";
 
 export const metadata: Metadata = { title: "Catálogos y configuración · GRUFARCOL eBR" };
 
 const TABS = [
+  ["roles", "Roles y permisos"],
   ["areas", "Áreas"],
   ["lineas", "Líneas de producto"],
   ["perfiles", "Perfiles regulatorios"],
@@ -35,7 +37,7 @@ const GENERIC = [
 // S-04 · Catálogos y perfiles regulatorios (RF-04, RF-06). Guarda de administrador en el layout.
 export default async function CatalogsPage({ searchParams }: PageProps<"/admin/catalogos">) {
   const sp = await searchParams;
-  const tab = (TABS.find(([t]) => t === sp.tab)?.[0] ?? "areas") as Tab;
+  const tab = (TABS.find(([t]) => t === sp.tab)?.[0] ?? "roles") as Tab;
   const catalog = GENERIC.find(([c]) => c === sp.c)?.[0] ?? "unidades";
 
   return (
@@ -73,6 +75,31 @@ export default async function CatalogsPage({ searchParams }: PageProps<"/admin/c
 
 async function TabContent({ tab, catalog }: { tab: Tab; catalog: (typeof GENERIC)[number][0] }) {
   const supabase = await createClient();
+
+  if (tab === "roles") {
+    const [{ data: roles }, { data: assigned }, { data: reserved }, { data: modules }] =
+      await Promise.all([
+        supabase.from("roles").select("*").order("is_system", { ascending: false }).order("name"),
+        supabase.rpc("admin_list_users"),
+        supabase.from("reserved_permissions").select("module_code, permission, owner_role, reason"),
+        supabase.from("permission_modules").select("code, name"),
+      ]);
+    const holders: Record<string, number> = {};
+    for (const u of (assigned ?? []) as unknown as {
+      active: boolean;
+      roles: { role: string; active: boolean }[];
+    }[]) {
+      if (!u.active) continue;
+      for (const r of u.roles) if (r.active) holders[r.role] = (holders[r.role] ?? 0) + 1;
+    }
+    const reservedRows: ReservedPermission[] = (reserved ?? []).map((r) => ({
+      ...r,
+      module_name: modules?.find((m) => m.code === r.module_code)?.name ?? r.module_code,
+    }));
+    return (
+      <RolesManager roles={(roles ?? []) as RoleInfo[]} holders={holders} reserved={reservedRows} />
+    );
+  }
 
   if (tab === "areas") {
     const { data: areas } = await supabase
@@ -283,11 +310,32 @@ async function TabContent({ tab, catalog }: { tab: Tab; catalog: (typeof GENERIC
   }
 
   if (tab === "matriz") {
-    const [{ data: modules }, { data: perms }] = await Promise.all([
+    const [{ data: modules }, { data: perms }, { data: catalog }] = await Promise.all([
       supabase.from("permission_modules").select("code, name, order_no").order("order_no"),
       supabase.from("module_permissions").select("module_code, role, cell_text"),
+      supabase.from("roles").select("*").order("created_at"),
     ]);
-    const roles = Object.keys(ROLE_LABELS) as AppRole[];
+    // Roles del sistema en el orden del PRD 2.2; después los adicionales.
+    const ORDER = [
+      "comercial",
+      "idi",
+      "bodega_aux",
+      "bodega_jefe",
+      "prod_aux",
+      "prod_coord",
+      "lab_aux",
+      "cc_jefe",
+      "aq_dir",
+      "dt",
+      "admin",
+      "master",
+      "aq_doc",
+      "gerencia",
+      "auditor",
+    ];
+    const roles = ((catalog ?? []) as RoleInfo[]).sort(
+      (a, b) => (ORDER.indexOf(a.code) + 1 || 99) - (ORDER.indexOf(b.code) + 1 || 99),
+    );
     const rows: MatrixRow[] = (modules ?? []).map((m) => ({
       code: m.code,
       name: m.name,

@@ -5,8 +5,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "cn";
 
 const TABS = [
-  { href: "/admin/usuarios", label: "Usuarios y roles" },
-  { href: "/admin/catalogos", label: "Catálogos y configuración" },
+  { href: "/admin/usuarios", label: "Usuarios y roles", match: ["/admin/usuarios"] },
+  {
+    href: "/admin/catalogos",
+    label: "Catálogos y configuración",
+    match: ["/admin/catalogos", "/admin/roles"],
+  },
 ];
 
 export function AdminTabs() {
@@ -17,7 +21,7 @@ export function AdminTabs() {
       className="flex gap-1 border-b border-border bg-surface px-8 max-[1279px]:px-4"
     >
       {TABS.map((t) => {
-        const active = pathname.startsWith(t.href);
+        const active = t.match.some((m) => pathname.startsWith(m));
         return (
           <Link
             key={t.href}

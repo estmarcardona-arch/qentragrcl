@@ -1,4 +1,4 @@
-import type { AppRole } from "./roles";
+import { isSystemRole, type SystemRole } from "./roles";
 
 // Menú lateral por rol (Prompt 0 y Prompt 1; diseño S-02). Desde E2: «Inicio» y «Administración»;
 // las demás secciones se habilitan en la etapa que las construye.
@@ -74,7 +74,7 @@ const ORDER: NavKey[] = [
 ];
 
 /** Secciones por rol según la matriz de permisos (PRD 2.2) y los menús del diseño S-02. */
-export const NAV_BY_ROLE: Record<AppRole, NavKey[]> = {
+export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
   comercial: ["inicio", "documentos", "idi", "desviaciones"],
   idi: ["inicio", "documentos", "idi", "desviaciones", "trazabilidad"],
   bodega_aux: ["inicio", "documentos", "bodega", "equipos", "desviaciones", "trazabilidad"],
@@ -141,8 +141,39 @@ export const NAV_BY_ROLE: Record<AppRole, NavKey[]> = {
   ],
 };
 
-/** Menú de un usuario con varios roles: unión sin duplicados, en el orden del Prompt 0. */
-export function navForRoles(roles: readonly AppRole[]): NavItem[] {
-  const keys = new Set(roles.flatMap((r) => NAV_BY_ROLE[r] ?? []));
+/** Sección del menú de cada módulo de la matriz (para los roles adicionales, PRD 2.6). */
+export const MODULE_TO_NAV: Record<string, NavKey[]> = {
+  brief: ["idi"],
+  formula_especificacion_instructivo: ["idi"],
+  prototipos_estabilidad_y_costos: ["idi"],
+  solicitudes_y_documentos_de_la_op: ["produccion"],
+  recepcion_inventario: ["bodega"],
+  liberacion_de_insumos: ["calidad"],
+  orden_de_produccion: ["produccion"],
+  dispensacion_fabricacion_envase_acond: ["produccion"],
+  resultados_y_certificado_analitico: ["calidad"],
+  desviaciones_capa: ["desviaciones"],
+  liberacion_final_del_lote: ["liberacion"],
+  paquete_tecnico: ["liberacion"],
+  trazabilidad_auditoria: ["trazabilidad", "auditoria"],
+  usuarios_catalogos_perfiles: ["administracion"],
+  plantillas_de_proceso: ["documentos"],
+  bodegas_estantes_y_ubicaciones: ["bodega"],
+  traslados_y_envios_a_bodegas_externas: ["bodega"],
+  sistema_de_gestion_documental: ["documentos"],
+  lectura_y_capacitacion: ["documentos"],
+};
+
+/**
+ * Menú de un usuario con varios roles: unión sin duplicados, en el orden del Prompt 0.
+ * Los roles adicionales aportan las secciones de los módulos en los que tienen algún permiso.
+ */
+export function navForRoles(
+  roles: readonly string[],
+  customModules: readonly string[] = [],
+): NavItem[] {
+  const keys = new Set<NavKey>(["inicio"]);
+  for (const r of roles) if (isSystemRole(r)) for (const k of NAV_BY_ROLE[r]) keys.add(k);
+  for (const m of customModules) for (const k of MODULE_TO_NAV[m] ?? []) keys.add(k);
   return ORDER.filter((k) => keys.has(k)).map((k) => NAV_ITEMS[k]);
 }

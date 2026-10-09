@@ -1,4 +1,4 @@
-import type { AppRole } from "@/lib/auth/roles";
+import { isSystemRole, type SystemRole } from "@/lib/auth/roles";
 
 // Tarjetas del panel por rol (S-02). Títulos y enlaces del diseño (Prompt 1); los roles sin lámina
 // en el diseño usan sus tareas del PRD 2.2. En E1 no hay módulos de datos: todas muestran «Sin datos».
@@ -44,7 +44,7 @@ const C = (
   stage,
 });
 
-export const CARDS_BY_ROLE: Record<AppRole, DashboardCard[]> = {
+export const CARDS_BY_ROLE: Record<SystemRole, DashboardCard[]> = {
   prod_aux: [
     C("mis-lotes", "factory", "Mis lotes de hoy", "Ver mis lotes", "E6"),
     C("mi-firma", "sign", "Pendiente de mi firma", "Ir a firmar", "E6"),
@@ -130,12 +130,22 @@ export const CARDS_BY_ROLE: Record<AppRole, DashboardCard[]> = {
   ],
 };
 
+/** Tarjeta para quien solo tiene roles adicionales (PRD 2.6). */
+const CUSTOM_ROLE_CARD = C(
+  "rol-adicional",
+  "file",
+  "Pendientes de su rol",
+  "Ver sus módulos",
+  "E3",
+);
+
 /** Tarjetas de un usuario con varios roles, sin duplicados. */
-export function cardsForRoles(roles: readonly AppRole[]): DashboardCard[] {
+export function cardsForRoles(roles: readonly string[]): DashboardCard[] {
   const seen = new Set<string>();
-  return roles
-    .flatMap((r) => CARDS_BY_ROLE[r] ?? [])
+  const cards = roles
+    .flatMap((r) => (isSystemRole(r) ? CARDS_BY_ROLE[r] : []))
     .filter((c) => !seen.has(c.id) && seen.add(c.id));
+  return cards.length ? cards : [CUSTOM_ROLE_CARD];
 }
 
 /** Saludo según la hora de Bogotá; el director técnico con tratamiento, como en el diseño. */

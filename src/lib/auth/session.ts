@@ -23,6 +23,8 @@ export type SessionContext = {
   accessExpiredAt: string | null;
   mustChangePassword: boolean;
   passwordExpired: boolean;
+  /** Módulos con permiso por roles adicionales (menú). */
+  customModules: string[];
 };
 
 export const getSessionContext = cache(async (): Promise<SessionContext | null> => {
@@ -48,6 +50,7 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
     accessExpiredAt: (ctx.access_expired_at as string | null) ?? null,
     mustChangePassword: ctx.must_change_password === true,
     passwordExpired: ctx.password_expired === true,
+    customModules: (ctx.custom_modules as string[] | undefined) ?? [],
   };
 });
 

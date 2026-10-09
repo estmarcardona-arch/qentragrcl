@@ -36,23 +36,8 @@ async function requireAdmin() {
   if (!allowed) throw new Error("FORBIDDEN_ROLE: solo el administrador del sistema");
 }
 
-const ROLES = [
-  "comercial",
-  "idi",
-  "bodega_aux",
-  "bodega_jefe",
-  "prod_aux",
-  "prod_coord",
-  "lab_aux",
-  "cc_jefe",
-  "aq_dir",
-  "dt",
-  "admin",
-  "master",
-  "aq_doc",
-  "gerencia",
-  "auditor",
-] as const satisfies readonly AppRole[];
+/** Código de rol (del sistema o adicional); la base valida que exista y esté activo. */
+const roleCode = z.string().regex(/^[a-z][a-z0-9_]{1,30}$/, "Código de rol no válido");
 
 const reason = z.string().trim().min(1, "El motivo es obligatorio").max(500);
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -82,7 +67,7 @@ const inviteSchema = z.object({
   jobTitle: z.string().trim().max(120).optional(),
   areaId: z.uuid().optional(),
   roles: z
-    .array(z.object({ role: z.enum(ROLES), expiresOn: isoDate.optional() }))
+    .array(z.object({ role: roleCode, expiresOn: isoDate.optional() }))
     .min(1, "Asigne al menos un rol"),
 });
 
@@ -92,22 +77,35 @@ export async function inviteUser(
   try {
     await requireAdmin();
     const data = inviteSchema.parse(input);
-    if (data.roles.some((r) => r.role === "auditor" && !r.expiresOn)) {
-      return {
-        ok: false,
-        code: "INVALID_FIELD",
-        ...ERROR_MESSAGES.INVALID_FIELD,
-        detail: "El auditor exige fecha de vencimiento",
-      };
-    }
     const supabase = await createClient();
+
+    // Roles existentes, activos y con vencimiento cuando el rol lo exige (antes de crear el usuario).
+    const { data: catalog } = await supabase
+      .from("roles")
+      .select("code, name, active, requires_expiry");
+    for (const r of data.roles) {
+      const info = catalog?.find((c) => c.code === r.role);
+      if (!info || !info.active) {
+        return { ok: false, code: "ROLE_RETIRED", ...ERROR_MESSAGES.ROLE_RETIRED, detail: r.role };
+      }
+      if (info.requires_expiry && !r.expiresOn) {
+        return {
+          ok: false,
+          code: "INVALID_FIELD",
+          ...ERROR_MESSAGES.INVALID_FIELD,
+          detail: `El rol «${info.name}» exige fecha de vencimiento`,
+        };
+      }
+    }
 
     // Combinaciones prohibidas antes de crear el usuario.
     const { data: rules } = await supabase
       .from("role_incompatibilities")
-      .select("role_a, role_b, rule_code, message");
-    const chosen = new Set(data.roles.map((r) => r.role));
-    const conflict = (rules ?? []).find((r) => chosen.has(r.role_a) && chosen.has(r.role_b));
+      .select("role_a, role_b, rule_code, message, active");
+    const chosen = new Set<string>(data.roles.map((r) => r.role));
+    const conflict = (rules ?? []).find(
+      (r) => r.active && chosen.has(r.role_a) && chosen.has(r.role_b),
+    );
     if (conflict) {
       return {
         ok: false,
@@ -245,7 +243,7 @@ export async function grantRole(input: {
     const supabase = await createClient();
     await callRpc(supabase, "admin_grant_role", {
       p_user: z.uuid().parse(input.userId),
-      p_role: z.enum(ROLES).parse(input.role),
+      p_role: roleCode.parse(input.role),
       p_expires_at: (input.expiresOn
         ? endOfDayBogota(isoDate.parse(input.expiresOn))
         : null) as string,
@@ -407,6 +405,143 @@ export async function updateSetting(input: {
       p_reason: reason.parse(input.reason),
     });
     revalidatePath("/admin/catalogos");
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Roles configurables (PRD 2.6, RF-07)
+// ---------------------------------------------------------------------------
+const roleOptions = z.object({
+  name: z.string().trim().min(2, "El nombre es obligatorio").max(80),
+  description: z.string().trim().max(400).default(""),
+  requiresExpiry: z.boolean().default(false),
+  readOnly: z.boolean().default(false),
+});
+
+export async function createRole(input: {
+  code: string;
+  name: string;
+  description: string;
+  requiresExpiry: boolean;
+  readOnly: boolean;
+  reason: string;
+}): Promise<AdminResult<{ code: string }>> {
+  try {
+    await requireAdmin();
+    const opts = roleOptions.parse(input);
+    const supabase = await createClient();
+    const code = (await callRpc(supabase, "admin_create_role", {
+      p_code: input.code.trim().toLowerCase(),
+      p_name: opts.name,
+      p_description: opts.description,
+      p_requires_expiry: opts.requiresExpiry,
+      p_read_only: opts.readOnly,
+      p_reason: reason.parse(input.reason),
+    })) as string;
+    log.info("admin.role_created", { code });
+    revalidatePath("/admin/catalogos");
+    return { ok: true, code };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function updateRole(input: {
+  code: string;
+  name: string;
+  description: string;
+  requiresExpiry: boolean;
+  readOnly: boolean;
+  reason: string;
+}): Promise<AdminResult> {
+  try {
+    await requireAdmin();
+    const opts = roleOptions.parse(input);
+    const supabase = await createClient();
+    await callRpc(supabase, "admin_update_role", {
+      p_code: roleCode.parse(input.code),
+      p_name: opts.name,
+      p_description: opts.description,
+      p_requires_expiry: opts.requiresExpiry,
+      p_read_only: opts.readOnly,
+      p_reason: reason.parse(input.reason),
+    });
+    revalidatePath(`/admin/roles/${input.code}`);
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export type ModulePermission = {
+  module: string;
+  read: boolean;
+  create: boolean;
+  sign: boolean;
+  approve: boolean;
+};
+
+export async function setRolePermissions(input: {
+  code: string;
+  permissions: ModulePermission[];
+  reason: string;
+}): Promise<AdminResult<{ changed: number }>> {
+  try {
+    await requireAdmin();
+    const supabase = await createClient();
+    const changed = (await callRpc(supabase, "admin_set_role_permissions", {
+      p_code: roleCode.parse(input.code),
+      p_permissions: input.permissions as never,
+      p_reason: reason.parse(input.reason),
+    })) as number;
+    log.info("admin.role_permissions", { code: input.code, changed });
+    revalidatePath(`/admin/roles/${input.code}`);
+    return { ok: true, changed };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function setRoleIncompatibilities(input: {
+  code: string;
+  others: string[];
+  reason: string;
+}): Promise<AdminResult> {
+  try {
+    await requireAdmin();
+    const supabase = await createClient();
+    await callRpc(supabase, "admin_set_role_incompatibilities", {
+      p_code: roleCode.parse(input.code),
+      p_others: input.others.map((o) => roleCode.parse(o)),
+      p_reason: reason.parse(input.reason),
+    });
+    revalidatePath(`/admin/roles/${input.code}`);
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/** Retirar («eliminar») o reactivar un rol adicional. */
+export async function setRoleActive(input: {
+  code: string;
+  active: boolean;
+  reason: string;
+}): Promise<AdminResult> {
+  try {
+    await requireAdmin();
+    const supabase = await createClient();
+    await callRpc(supabase, "admin_set_role_active", {
+      p_code: roleCode.parse(input.code),
+      p_active: input.active,
+      p_reason: reason.parse(input.reason),
+    });
+    log.info("admin.role_active", { code: input.code, active: input.active });
+    revalidatePath("/admin/catalogos");
+    revalidatePath(`/admin/roles/${input.code}`);
     return { ok: true };
   } catch (e) {
     return fail(e);

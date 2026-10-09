@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { navForRoles, NAV_BY_ROLE } from "./navigation";
-import { ROLE_LABELS, type AppRole } from "./roles";
+import { SYSTEM_ROLES } from "./roles";
 
 // RF-02 · cada rol ve solo sus secciones.
 describe("RF-02 · menú por rol", () => {
   it("todos los roles tienen menú y empiezan por Inicio", () => {
-    for (const role of Object.keys(ROLE_LABELS) as AppRole[]) {
+    for (const role of SYSTEM_ROLES) {
       expect(NAV_BY_ROLE[role][0]).toBe("inicio");
     }
   });
@@ -24,9 +24,7 @@ describe("RF-02 · menú por rol", () => {
   });
 
   it("solo el administrador ve Administración", () => {
-    const withAdmin = (Object.keys(NAV_BY_ROLE) as AppRole[]).filter((r) =>
-      NAV_BY_ROLE[r].includes("administracion"),
-    );
+    const withAdmin = SYSTEM_ROLES.filter((r) => NAV_BY_ROLE[r].includes("administracion"));
     expect(withAdmin).toEqual(["admin"]);
   });
 
@@ -54,5 +52,12 @@ describe("RF-02 · menú por rol", () => {
         .filter((n) => n.stage === null)
         .map((n) => n.key),
     ).toEqual(["inicio", "administracion"]);
+  });
+
+  it("RF-07: un rol adicional ve las secciones de los módulos donde tiene permiso", () => {
+    const keys = navForRoles(["consulta_trazabilidad"], ["trazabilidad_auditoria"]).map(
+      (n) => n.key,
+    );
+    expect(keys).toEqual(["inicio", "trazabilidad", "auditoria"]);
   });
 });

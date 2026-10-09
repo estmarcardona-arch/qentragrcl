@@ -5,7 +5,7 @@ import { createClient } from "@/lib/db/server";
 import { ERROR_MESSAGES, toAppError } from "@/lib/errors";
 import { log } from "@/lib/log";
 import { callRpc } from "@/lib/rpc";
-import { ROLE_LABELS, type AppRole } from "@/lib/auth/roles";
+import { roleLabel, type AppRole } from "@/lib/auth/roles";
 import type { SignatureMeaning } from "./meanings";
 
 // Acciones de servidor de los componentes GxP. Toda regla vive en la base (sign_record, check_sod,
@@ -49,7 +49,7 @@ export async function getSigner(): Promise<Signer> {
     if (!ctx?.full_name) return null;
     return {
       fullName: ctx.full_name,
-      roleLabel: ctx.job_title ?? (ctx.roles ?? []).map((r) => ROLE_LABELS[r]).join(" · "),
+      roleLabel: ctx.job_title ?? (ctx.roles ?? []).map((r) => roleLabel(r)).join(" · "),
     };
   } catch {
     return null;

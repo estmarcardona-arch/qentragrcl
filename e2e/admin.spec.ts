@@ -171,16 +171,18 @@ test.describe("RF-04 / RF-06 · catálogos y matriz", () => {
     await loginOk(page, ADMIN);
     await page.goto("/admin/catalogos?tab=matriz");
     const table = page.getByTestId("permission-matrix");
-    const header = await table.locator("thead th").allInnerTexts();
-    expect(header.map((h) => h.trim())).toEqual(["Módulo", ...prd.roles]);
+    // Columnas de los roles del sistema (las de roles adicionales son configurables, PRD 2.6).
+    const header = await table.locator('thead th[data-role][data-system="true"]').allInnerTexts();
+    expect(header.map((h) => h.trim())).toEqual(prd.roles);
     const rows = await table
       .locator("tbody tr")
       .evaluateAll((trs) =>
-        trs.map((tr) =>
-          Array.from(tr.querySelectorAll("th, td")).map((c) =>
+        trs.map((tr) => [
+          (tr.querySelector("th")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+          ...Array.from(tr.querySelectorAll('td[data-system="true"]')).map((c) =>
             (c.textContent ?? "").replace(/\s+/g, " ").trim(),
           ),
-        ),
+        ]),
       );
     expect(rows).toEqual(prd.rows.map((r) => [r.module, ...r.cells.map((c) => c.text)]));
   });
@@ -222,5 +224,58 @@ test.describe("RF-04 / RF-06 · catálogos y matriz", () => {
     ).toBeVisible();
     const row = page.getByRole("row", { name: /Verificación independiente en dispensación/ });
     await expect(row.getByRole("cell")).toHaveCount(2);
+  });
+});
+
+test.describe("RF-07 · roles configurables", () => {
+  test.skip(!hasSeedUsers, "Requiere los usuarios de la semilla");
+
+  test("RF-07 · crear un rol, configurar permisos con funciones reservadas bloqueadas y retirarlo", async ({
+    page,
+  }, info) => {
+    const code = `e2e_${info.project.name}_${Date.now()}`.slice(0, 31);
+    await loginOk(page, ADMIN);
+    await page.goto("/admin/catalogos?tab=roles");
+    await expect(page.getByText("Permisos y restricciones de los roles (PRD 2.6)")).toBeVisible();
+    await expect(page.getByText(/reservado a dt/)).toBeVisible();
+
+    await page.getByRole("button", { name: "Crear rol" }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByLabel("Código").fill(code);
+    await dialog.getByLabel("Nombre").fill("Consulta E2E");
+    await confirmWithReason(page, "Prueba E2E de rol adicional", "Crear rol");
+    await expect(page).toHaveURL(new RegExp(`/admin/roles/${code}$`));
+
+    // Funciones reservadas: no se pueden marcar.
+    await expect(page.getByLabel("A en Liberación final del lote")).toBeDisabled();
+    await expect(page.getByLabel("C en Usuarios, catálogos, perfiles")).toBeDisabled();
+    // Configurar lectura de trazabilidad.
+    await page.getByLabel("L en Trazabilidad / Auditoría (consulta)").check();
+    await page.getByRole("button", { name: /Guardar permisos \(1\)/ }).click();
+    await confirmWithReason(page, "Consulta de trazabilidad", "Guardar permisos");
+    await expect(page.getByLabel("L en Trazabilidad / Auditoría (consulta)")).toBeChecked();
+    await expect(page.getByText(`${code} · v2`)).toBeVisible();
+
+    // La matriz muestra la columna del rol adicional.
+    await page.goto("/admin/catalogos?tab=matriz");
+    await expect(
+      page.getByTestId("permission-matrix").locator(`th[data-role="${code}"]`),
+    ).toBeVisible();
+
+    // Retirar (no tiene usuarios).
+    await page.goto(`/admin/roles/${code}`);
+    await page.getByRole("button", { name: "Retirar rol" }).click();
+    await confirmWithReason(page, "Fin de la prueba E2E", "Retirar rol");
+    await expect(page.getByText("Rol retirado: no se asigna ni da permisos.")).toBeVisible();
+  });
+
+  test("RF-07 · los roles del sistema son de solo lectura", async ({ page }) => {
+    await loginOk(page, ADMIN);
+    await page.goto("/admin/roles/dt");
+    await expect(page.getByText(/Rol del sistema \(PRD 2\.1\)/)).toBeVisible();
+    await expect(page.getByLabel("A en Liberación final del lote")).toBeDisabled();
+    await expect(page.getByLabel("A en Liberación final del lote")).toBeChecked();
+    await expect(page.getByRole("button", { name: /Guardar permisos/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Retirar rol" })).toHaveCount(0);
   });
 });
