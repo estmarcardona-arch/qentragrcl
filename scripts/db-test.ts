@@ -82,7 +82,9 @@ async function run() {
         await client.query(readFileSync(join(migrationsDir, m), "utf8"));
         console.log(`(transacción) aplicada ${m}`);
       } catch (e) {
-        console.error(`FALLIDO  migración ${m}: ${e instanceof Error ? e.message : String(e)}`);
+        console.error(
+          `FALLIDO  migración ${m}: ${e instanceof Error ? e.message : String(e)}${(e as { position?: string }).position ? ` (posición ${(e as { position?: string }).position})` : ""}`,
+        );
         await client.query("rollback").catch(() => undefined);
         await client.end();
         process.exit(1);

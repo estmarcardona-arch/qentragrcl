@@ -44,14 +44,26 @@ export function formatPercent(value: number, decimals = 1): string {
   return `${formatNumber(value, decimals)} %`;
 }
 
+/** Una fecha sin hora (AAAA-MM-DD, columnas date) no se corre de día por la zona horaria. */
+function dateOnly(value: Date | string): string[] | null {
+  if (typeof value !== "string") return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  return m ? [m[1], m[2], m[3]] : null;
+}
+
 /** Fecha de pantalla: DD/MM/AAAA */
 export function formatDate(value: Date | string): string {
+  const d = dateOnly(value);
+  if (d) return `${d[2]}/${d[1]}/${d[0]}`;
   const p = parts(value);
   return `${p.day}/${p.month}/${p.year}`;
 }
 
 /** Fecha de encabezado de documento controlado: DD-MM-AAAA (PRD 2.5.3) */
 export function formatDocumentDate(value: Date | string): string {
+  if (typeof value === "string" && !/^\d{4}-\d{2}-\d{2}/.test(value)) return value;
+  const d = dateOnly(value);
+  if (d) return `${d[2]}-${d[1]}-${d[0]}`;
   const p = parts(value);
   return `${p.day}-${p.month}-${p.year}`;
 }

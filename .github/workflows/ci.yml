@@ -86,6 +86,7 @@ jobs:
         env:
           # La base local tiene la semilla (usuarios del Prompt 0B) y el hook de bloqueo activo.
           E2E_SEED_USERS: "1"
+          E2E_SEED_DOCS: "1"
           E2E_AUTH_HOOK: "1"
           E2E_ADMIN_API: "1"
           E2E_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres

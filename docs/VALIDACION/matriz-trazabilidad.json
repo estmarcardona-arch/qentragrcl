@@ -1,5 +1,5 @@
 {
-  "etapa_actual": "E2",
+  "etapa_actual": "E2B",
   "orden_etapas": ["E0", "E1", "E2", "E2B", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11"],
   "requisitos": [
     {
@@ -282,152 +282,365 @@
     {
       "id": "RF-05",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Usuario master: plantillas de proceso como versiones nuevas en borrador, con motivo; no edita versiones aprobadas",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-92",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Listado maestro (v_master_list) exportable, un documento una vez con su versión vigente, incluye externos",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0014_document_management.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/auth/navigation.test.ts"
+        }
+      ]
     },
     {
       "id": "RF-93",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Solicitud de crear, modificar o anular con plantilla editable; solo aq_doc genera el código PPP-TT-NNN / PPP-TT-NNN-LL-##",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-94",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Estandarización con lista de chequeo y revisor de redacción; devolución con observaciones",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0014_document_management.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-95",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Revisión y aprobación por ruta; cuadro Actualizado/Revisado/Aprobado; la anterior pasa a obsoleta",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-96",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Distribución, copias controladas y recolección (RECALL_PENDING)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-97",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Capacitación con cuestionario (80 %), constancia y confirmación de lectura; TRAINING_REQUIRED configurable",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-98",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Vigencia por tipo (3 años, anual, registro sanitario, validación), semáforo e indicador de vencidos por proceso",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0014_document_management.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-99",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Anulación: jefe de área solicita, aq_dir decide, recolección de copias, OBSOLETO y retención",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-100",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Control de cambios con origen e impacto; cambio técnico en un formato exige revisar el procedimiento padre",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-101",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Congelación de versión: solo versiones vigentes en OP o lote (assert_document_effective)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-102",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Firma corta y buenas prácticas: correcciones con asterisco y aviso a partir de 6 correcciones",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0006_corrections_numbering.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-103",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Marca de copia controlada / no controlada / OBSOLETO con usuario y fecha de descarga",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-19",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Crear una OP con un documento no vigente → DOCUMENT_NOT_EFFECTIVE",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-20",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "master edita una versión aprobada → RECORD_LOCKED",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-23",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "El autor o master revisa o aprueba su versión → SOD_VIOLATION",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-25",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Ejecutar un paso sin la capacitación aprobada (regla activa) → TRAINING_REQUIRED",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-26",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Otro rol crea un documento controlado → FORBIDDEN_ROLE",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-28",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Solicitar un código sin ser aq_doc → FORBIDDEN_ROLE",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-29",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "El autor aprueba su versión → SOD_VIOLATION; el revisor aprueba la que revisó → permitido",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-30",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Publicar un formato con cambio técnico sin revisar el padre → PARENT_DOCUMENT_REVIEW_REQUIRED",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-31",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Cuestionario con 70 % → TRAINING_NOT_PASSED; con 85 % → constancia",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-32",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Anular sin recoger una de las 4 copias → RECALL_PENDING",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-33",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Preliminar con «generalmente» y redacción no infinitiva → STYLE_CHECK_FAILED con observaciones",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0014_document_management.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/documentos.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-34",
       "etapa": "E2B",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Documento con registro sanitario que vence el 30/09/2030 → revisión 30/09/2030",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0014_document_management.test.sql"
+        }
+      ]
     },
     {
       "id": "AC-35",

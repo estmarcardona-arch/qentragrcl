@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   ChartColumn,
   ClipboardCheck,
@@ -21,7 +22,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { StatusBadge } from "@/components/gxp/status-badge";
+import { hasAnyRole } from "@/lib/auth/roles";
 import { requireSession } from "@/lib/auth/session";
+import { createClient } from "@/lib/db/server";
 import { cardsForRoles, greeting, isoWeek, type CardIcon } from "@/lib/dashboard/cards";
 import { TIME_ZONE, formatDate, formatTime } from "@/lib/format";
 
@@ -67,6 +70,18 @@ export default async function InicioPage() {
   const weekday = parts.weekday.charAt(0).toUpperCase() + parts.weekday.slice(1);
   const week = isoWeek(Number(parts.year), Number(parts.month), Number(parts.day));
   const cards = cardsForRoles(ctx.roles);
+  // Indicador anual del SGD (PRD 2.5.8): % de documentos vencidos por proceso, en los paneles de AQ y gerencia.
+  const showOverdue = hasAnyRole(ctx.roles, ["aq_dir", "aq_doc", "gerencia"]);
+  const overdue = showOverdue
+    ? ((
+        await (
+          await createClient()
+        )
+          .from("v_documents_overdue_by_process")
+          .select("*")
+          .order("process_code")
+      ).data ?? [])
+    : [];
 
   return (
     <main className="grid content-start gap-[22px] px-8 pt-7 pb-9 max-[1279px]:px-4">
@@ -121,6 +136,44 @@ export default async function InicioPage() {
           );
         })}
       </section>
+      {showOverdue ? (
+        <section
+          aria-labelledby="vencidos"
+          className="grid gap-3 rounded-[10px] border border-border bg-surface p-4"
+          data-testid="dashboard-overdue"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="vencidos" className="text-card-title">
+              % de documentos vencidos por proceso
+            </h2>
+            <Link href="/documentos" className="text-sm font-medium">
+              Ver el listado maestro
+            </Link>
+          </div>
+          {overdue.length === 0 ? (
+            <p className="text-sm text-text-secondary">Aún no hay documentos codificados.</p>
+          ) : (
+            <ul className="flex flex-wrap gap-2">
+              {overdue.map((o) => {
+                const bad = Number(o.overdue) > 0;
+                return (
+                  <li
+                    key={o.process_code}
+                    data-process={o.process_code}
+                    className={`grid min-w-[120px] gap-0.5 rounded-lg border px-3 py-2 ${bad ? "border-q-bad-bd bg-q-bad-bg" : "border-border"}`}
+                  >
+                    <span className="font-mono text-xs font-semibold">{o.process_code}</span>
+                    <b className="text-lg">{String(o.overdue_pct ?? 0).replace(".", ",")} %</b>
+                    <span className={`text-xs ${bad ? "text-q-bad-fg" : "text-q-ok-fg"}`}>
+                      {o.overdue} de {o.total} · {bad ? "Con vencidos" : "Al día"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      ) : null}
     </main>
   );
 }

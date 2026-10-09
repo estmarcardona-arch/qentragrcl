@@ -41,15 +41,20 @@ describe("RF-02 · menú por rol", () => {
     ]);
   });
 
-  it("en E2 están habilitados Inicio, Cambios de roles (quien solicita o aprueba) y Administración", () => {
+  it("en E3 están habilitados Inicio, Documentos, Cambios de roles y Administración según el rol", () => {
     const enabled = (roles: string[]) =>
       navForRoles(roles)
         .filter((n) => n.stage === null)
         .map((n) => n.key);
-    expect(enabled(["prod_aux"])).toEqual(["inicio"]);
-    expect(enabled(["dt"])).toEqual(["inicio", "cambios_roles"]);
-    expect(enabled(["aq_dir"])).toEqual(["inicio", "cambios_roles"]);
+    expect(enabled(["prod_aux"])).toEqual(["inicio", "documentos"]);
+    expect(enabled(["dt"])).toEqual(["inicio", "documentos", "cambios_roles"]);
+    expect(enabled(["aq_dir"])).toEqual(["inicio", "documentos", "cambios_roles"]);
     expect(enabled(["admin"])).toEqual(["inicio", "cambios_roles", "administracion"]);
+  });
+
+  it("RF-92: todos los roles con acceso al SGD ven Documentos; el administrador no (matriz 2.2)", () => {
+    const withDocs = SYSTEM_ROLES.filter((r) => NAV_BY_ROLE[r].includes("documentos"));
+    expect(withDocs).toEqual(SYSTEM_ROLES.filter((r) => r !== "admin"));
   });
 
   it("D-39/D-40: solo Administración, Calidad, Dirección técnica y el auditor ven los cambios de roles", () => {

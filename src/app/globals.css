@@ -113,6 +113,12 @@
   --color-tram-firmada-bg: var(--tram-firmada-bg);
   --color-tram-firmada-fg: var(--tram-firmada-fg);
   --color-tram-firmada-bd: var(--tram-firmada-bd);
+  --color-tram-preliminar-bg: var(--tram-preliminar-bg);
+  --color-tram-preliminar-fg: var(--tram-preliminar-fg);
+  --color-tram-preliminar-bd: var(--tram-preliminar-bd);
+  --color-tram-obsoleto-bg: var(--tram-obsoleto-bg);
+  --color-tram-obsoleto-fg: var(--tram-obsoleto-fg);
+  --color-tram-obsoleto-bd: var(--tram-obsoleto-bd);
 
   /* C. Severidad de desviación */
   --color-sev-menor-bg: var(--sev-menor-bg);
@@ -243,6 +249,13 @@
   --tram-firmada-bg: #112f55;
   --tram-firmada-fg: #ffffff;
   --tram-firmada-bd: #112f55;
+  /* Estados del SGD (Prompt 2C): preliminar y obsoleto, en neutro. */
+  --tram-preliminar-bg: #f1f4f8;
+  --tram-preliminar-fg: #38424f;
+  --tram-preliminar-bd: #7c8a9d;
+  --tram-obsoleto-bg: #eef1f5;
+  --tram-obsoleto-fg: #4d596b;
+  --tram-obsoleto-bd: #b6c1ce;
 
   /* C. Severidad */
   --sev-menor-bg: #f1ecfa;

@@ -105,6 +105,36 @@ export const ERROR_MESSAGES = {
     rule: "El nuevo valor es igual al vigente.",
     action: "Escriba un valor distinto o cancele la corrección.",
   },
+  STYLE_CHECK_FAILED: {
+    rule: "El preliminar no cumple la estandarización (estructura o redacción).",
+    action: "Corrija las observaciones y vuelva a enviarlo a estandarización.",
+  },
+  NOT_STANDARDIZED: {
+    rule: "El preliminar no ha pasado la estandarización.",
+    action: "Registre la lista de chequeo y el revisor de redacción antes de asignar el código.",
+  },
+  ROUTE_INCOMPLETE: {
+    rule: "La ruta de aprobación no está completa.",
+    action: "Obtenga primero las firmas de revisión y aprobación.",
+  },
+  RECALL_PENDING: {
+    rule: "Hay copias distribuidas sin recoger.",
+    action:
+      "Registre la recolección de cada copia en «Copias y distribución» y vuelva a intentarlo.",
+  },
+  PARENT_DOCUMENT_REVIEW_REQUIRED: {
+    rule: "Un cambio técnico en un formato exige revisar su procedimiento padre.",
+    action:
+      "Registre la revisión del procedimiento padre (sin cambio o nueva versión) en el control de cambios.",
+  },
+  TRAINING_REQUIRED: {
+    rule: "Falta aprobar la capacitación del documento vigente que rige este paso.",
+    action: "Presente el cuestionario en «Mis capacitaciones» y regrese a este paso.",
+  },
+  TRAINING_NOT_PASSED: {
+    rule: "No aprobó el cuestionario: el puntaje está por debajo del mínimo.",
+    action: "Repase el documento y presente el cuestionario de nuevo.",
+  },
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_MESSAGES;

@@ -1,4 +1,4 @@
--- E1 · Correcciones sin borrado (DI-4, DI-12, AC-35) y numeración sin saltos (DI-9).
+-- RF-102 · E1 · Correcciones sin borrado (DI-4, DI-12, AC-35) y numeración sin saltos (DI-9).
 begin;
 select plan(14);
 

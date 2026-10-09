@@ -23,6 +23,7 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | `@commitlint/cli` | 21.2.3 | desarrollo |
 | `@commitlint/config-conventional` | 21.2.3 | desarrollo |
 | `@playwright/test` | 1.64.0 | desarrollo |
+| `@react-pdf/renderer` | 4.9.0 | producción |
 | `@supabase/ssr` | 0.12.7 | producción |
 | `@supabase/supabase-js` | 2.117.3 | producción |
 | `@tailwindcss/turbopack` | 4.3.3 | desarrollo |

@@ -31,6 +31,7 @@
     "seed:remote": "tsx scripts/seed-remote.ts"
   },
   "dependencies": {
+    "@react-pdf/renderer": "4.9.0",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.117.3",
     "@tanstack/react-table": "9.2.6",

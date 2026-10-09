@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E2**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E2B**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -16,36 +16,39 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | RF-04 | E2 | Catálogos y perfiles regulatorios (líneas, marcas, áreas, unidades); cambiar un perfil no altera lotes existentes | pgtap: `supabase/tests/0008_areas_catalogs.test.sql`<br>pgtap: `supabase/tests/0010_permission_matrix.test.sql`<br>unitaria: `src/lib/admin/prd-matrix.test.ts`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
 | RF-06 | E2 | Catálogo de áreas con Aseguramiento de la calidad como dueña del SGD; solo aq_doc crea documentos controlados | pgtap: `supabase/tests/0008_areas_catalogs.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
 | AC-11 | E2 | Auditor vencido inicia sesión → rechazado | pgtap: `supabase/tests/0009_admin_users.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
-| RF-07 | E2 | Roles configurables (PRD 2.6): crear, configurar permisos e incompatibilidades y retirar roles adicionales | pgtap: `supabase/tests/0012_configurable_roles.test.sql`<br>e2e: `e2e/admin.spec.ts`<br>unitaria: `src/lib/auth/navigation.test.ts` | Cubierto |
+| RF-07 | E2 | Roles configurables (PRD 2.6): solicitar crear, configurar y retirar roles adicionales con aprobación de Calidad (D-39); permisos de roles del sistema con doble aprobación (D-40) | pgtap: `supabase/tests/0012_configurable_roles.test.sql`<br>pgtap: `supabase/tests/0013_role_change_approvals.test.sql`<br>e2e: `e2e/admin.spec.ts`<br>unitaria: `src/lib/auth/navigation.test.ts` | Cubierto |
 | AC-36 | E2 | Rol adicional con lectura de trazabilidad: el usuario obtiene solo ese permiso | pgtap: `supabase/tests/0012_configurable_roles.test.sql` | Cubierto |
 | AC-37 | E2 | Dar una función reservada a un rol adicional → RESERVED_PERMISSION | pgtap: `supabase/tests/0012_configurable_roles.test.sql` | Cubierto |
 | AC-38 | E2 | Retirar un rol en uso / un rol del sistema → ROLE_IN_USE / SYSTEM_ROLE_LOCKED | pgtap: `supabase/tests/0012_configurable_roles.test.sql` | Cubierto |
-| RF-05 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-92 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-93 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-94 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-95 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-96 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-97 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-98 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-99 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-100 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-101 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-102 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-103 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-19 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-20 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-23 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-25 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-26 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-28 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-29 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-30 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-31 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-32 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-33 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-34 | E2B | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-35 | E2B | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Etapa futura |
+| AC-39 | E2 | Rol adicional: no existe mientras está pendiente; autoaprobación → SOD_VIOLATION; aq_dir aprueba y se crea | pgtap: `supabase/tests/0013_role_change_approvals.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| AC-40 | E2 | Rol del sistema: una aprobación no aplica; misma persona dos veces → SOD_VIOLATION; aq_dir + dt aplican y S-04 marca la celda | pgtap: `supabase/tests/0013_role_change_approvals.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| AC-41 | E2 | Quitar al dt la liberación final → RESERVED_PERMISSION (candado) | pgtap: `supabase/tests/0013_role_change_approvals.test.sql`<br>e2e: `e2e/admin.spec.ts` | Cubierto |
+| RF-05 | E2B | Usuario master: plantillas de proceso como versiones nuevas en borrador, con motivo; no edita versiones aprobadas | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-92 | E2B | Listado maestro (v_master_list) exportable, un documento una vez con su versión vigente, incluye externos | pgtap: `supabase/tests/0014_document_management.test.sql`<br>e2e: `e2e/documentos.spec.ts`<br>unitaria: `src/lib/auth/navigation.test.ts` | Cubierto |
+| RF-93 | E2B | Solicitud de crear, modificar o anular con plantilla editable; solo aq_doc genera el código PPP-TT-NNN / PPP-TT-NNN-LL-## | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-94 | E2B | Estandarización con lista de chequeo y revisor de redacción; devolución con observaciones | pgtap: `supabase/tests/0014_document_management.test.sql`<br>pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-95 | E2B | Revisión y aprobación por ruta; cuadro Actualizado/Revisado/Aprobado; la anterior pasa a obsoleta | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-96 | E2B | Distribución, copias controladas y recolección (RECALL_PENDING) | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-97 | E2B | Capacitación con cuestionario (80 %), constancia y confirmación de lectura; TRAINING_REQUIRED configurable | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-98 | E2B | Vigencia por tipo (3 años, anual, registro sanitario, validación), semáforo e indicador de vencidos por proceso | pgtap: `supabase/tests/0014_document_management.test.sql`<br>pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-99 | E2B | Anulación: jefe de área solicita, aq_dir decide, recolección de copias, OBSOLETO y retención | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-100 | E2B | Control de cambios con origen e impacto; cambio técnico en un formato exige revisar el procedimiento padre | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| RF-101 | E2B | Congelación de versión: solo versiones vigentes en OP o lote (assert_document_effective) | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| RF-102 | E2B | Firma corta y buenas prácticas: correcciones con asterisco y aviso a partir de 6 correcciones | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Cubierto |
+| RF-103 | E2B | Marca de copia controlada / no controlada / OBSOLETO con usuario y fecha de descarga | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-19 | E2B | Crear una OP con un documento no vigente → DOCUMENT_NOT_EFFECTIVE | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| AC-20 | E2B | master edita una versión aprobada → RECORD_LOCKED | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-23 | E2B | El autor o master revisa o aprueba su versión → SOD_VIOLATION | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-25 | E2B | Ejecutar un paso sin la capacitación aprobada (regla activa) → TRAINING_REQUIRED | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| AC-26 | E2B | Otro rol crea un documento controlado → FORBIDDEN_ROLE | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-28 | E2B | Solicitar un código sin ser aq_doc → FORBIDDEN_ROLE | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-29 | E2B | El autor aprueba su versión → SOD_VIOLATION; el revisor aprueba la que revisó → permitido | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| AC-30 | E2B | Publicar un formato con cambio técnico sin revisar el padre → PARENT_DOCUMENT_REVIEW_REQUIRED | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| AC-31 | E2B | Cuestionario con 70 % → TRAINING_NOT_PASSED; con 85 % → constancia | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-32 | E2B | Anular sin recoger una de las 4 copias → RECALL_PENDING | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-33 | E2B | Preliminar con «generalmente» y redacción no infinitiva → STYLE_CHECK_FAILED con observaciones | pgtap: `supabase/tests/0014_document_management.test.sql`<br>pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
+| AC-34 | E2B | Documento con registro sanitario que vence el 30/09/2030 → revisión 30/09/2030 | pgtap: `supabase/tests/0014_document_management.test.sql` | Cubierto |
+| AC-35 | E2B | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Cubierto |
 | RF-10 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-11 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-12 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
