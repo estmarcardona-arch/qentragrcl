@@ -2,6 +2,17 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E3] Sistema de gestión documental y plantillas (PRD F2B) — 09/10/2026
+
+### Agregado
+
+- Migración 0014: tipos y niveles de documento (12 tipos, incluido PC), rutas de aprobación (técnica y administrativa), documentos controlados y versiones, solicitudes, estandarización, distribución y control de copias, control de cambios, anulaciones, capacitación (cuestionario con respuestas fuera del alcance del navegador, asignaciones, intentos y constancias), descargas, etapas y plantillas de proceso, listado maestro `v_master_list` e indicador de vencidos por proceso. Columnas de ciclo de vida en firmas: la publicación fija fechas sin romper la huella firmada.
+- Migración 0015: RPC con SOD y bitácora: `request_document`, `save_document_draft`, `submit_for_standardization`, `run_style_check` y `style_observations` (revisor de redacción), `request_document_code` (solo aq_doc, código sin saltos), `submit_for_review`, `review_document`, `approve_document` (el autor no revisa ni aprueba; el revisor sí aprueba), `publish_document`, `issue_copy`, `recall_copy`, `log_document_download`, `register_change_request`, `set_parent_review`, `decide_annulment`, `close_annulment`, `assign_training`, `register_training_attempt`, `acknowledge_read`, `assert_training`, `assert_document_effective` y `save_template_draft`.
+- Migración 0016: la regla de capacitación queda en «avisar» por defecto (D-19) y la configuración del SGD se valida.
+- Pantallas S-43 a S-49: listado maestro con filtros, anidación, semáforo de vigencia, indicador y exportación a Excel; solicitud con plantilla editable; estandarización con lista de chequeo y revisor de redacción; creación del código; detalle del documento con encabezado controlado, versiones, flujo, cuadro de firmas, copias, bitácora y lotes; capacitación y constancia; control de cambios y anulaciones; plantillas de proceso con edición maestra y comparación. PDF del documento controlado y de la constancia (`@react-pdf/renderer` 4.9.0). Indicador en los paneles de Aseguramiento de la calidad y Gerencia.
+- Semilla del Prompt 0B: listado maestro, solicitudes SD-2026-0011, SC-2026-0005 y AN-2026-0002, capacitación y plantillas.
+- Pruebas: pgTAP 0014 (32) y 0015 (73); E2E del ciclo completo y de la semilla.
+
 ## [E2] Administración — 07/10/2026
 
 ### Agregado

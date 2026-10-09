@@ -1,7 +1,7 @@
 import { isSystemRole, type SystemRole } from "./roles";
 
 // Menú lateral por rol (Prompt 0 y Prompt 1; diseño S-02). Desde E2: «Inicio», «Administración» y
-// «Cambios de roles» (aprobación de cambios de rol, D-39/D-40);
+// «Cambios de roles» (aprobación de cambios de rol, D-39/D-40); desde E3, «Documentos» (SGD);
 // las demás secciones se habilitan en la etapa que las construye.
 
 export type NavKey =
@@ -31,7 +31,7 @@ export type NavItem = {
 export const NAV_ITEMS: Record<NavKey, NavItem> = {
   inicio: { key: "inicio", label: "Inicio", href: "/inicio", stage: null },
   aprobaciones: { key: "aprobaciones", label: "Aprobaciones", href: "/aprobaciones", stage: "E3" },
-  documentos: { key: "documentos", label: "Documentos", href: "/documentos", stage: "E2B" },
+  documentos: { key: "documentos", label: "Documentos", href: "/documentos", stage: null },
   idi: { key: "idi", label: "I+D", href: "/idi/briefs", stage: "E3" },
   bodega: { key: "bodega", label: "Bodega", href: "/bodega/inventario", stage: "E4" },
   produccion: { key: "produccion", label: "Producción", href: "/produccion/lotes", stage: "E6" },
@@ -133,7 +133,7 @@ export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
     "auditoria",
     "cambios_roles",
   ],
-  admin: ["inicio", "documentos", "auditoria", "cambios_roles", "administracion"],
+  admin: ["inicio", "auditoria", "cambios_roles", "administracion"],
   master: ["inicio", "documentos", "idi", "desviaciones", "trazabilidad"],
   aq_doc: ["inicio", "documentos", "desviaciones", "trazabilidad"],
   gerencia: ["inicio", "aprobaciones", "documentos", "idi", "trazabilidad"],

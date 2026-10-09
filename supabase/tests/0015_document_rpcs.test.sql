@@ -298,6 +298,8 @@ reset role;
 -- =====================================================================
 -- G. Capacitación (RF-97, AC-25, AC-31)
 -- =====================================================================
+-- D-19: la regla se activa para probar AC-25 (por defecto solo avisa).
+update public.app_settings set value = '"bloquear"' where key = 'training_enforcement';
 select pg_temp.login_as('b1000000-0000-4000-8000-000000000001');
 select throws_like($$ select public.assign_training(pg_temp.v('v1'), array['b1000000-0000-4000-8000-000000000001'::uuid], '2026-10-12') $$,
   '%FORBIDDEN_ROLE%', 'la capacitación la asigna aq_doc');

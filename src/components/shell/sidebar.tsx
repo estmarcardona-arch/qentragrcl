@@ -28,7 +28,8 @@ export function Sidebar({ items, roleLabel }: SidebarProps) {
           const isActive =
             pathname === item.href ||
             pathname.startsWith(`${item.href}/`) ||
-            (item.key === "administracion" && pathname.startsWith("/admin"));
+            (item.key === "administracion" && pathname.startsWith("/admin")) ||
+            (item.key === "documentos" && pathname.startsWith("/master"));
           const base =
             "flex h-10 items-center gap-3 rounded-md px-2.5 text-sm leading-5 max-[1279px]:h-11 max-[1279px]:justify-center max-[1279px]:px-0";
           if (item.stage) {

@@ -1,7 +1,7 @@
 -- E3 · Gestión documental: estructura, RLS, tipos, vigencias (RF-98, AC-34), listado maestro (RF-92),
 -- indicador de vencidos por proceso y revisor de redacción (RF-94, AC-33). Fecha de referencia: 05/10/2026.
 begin;
-select plan(30);
+select plan(32);
 
 insert into app_private.test_clock (now_override) values ('2026-10-05 12:00:00-05');
 
@@ -42,6 +42,7 @@ select is((select roles from public.approval_route_steps s join public.approval_
   'D-24: los administrativos los aprueba Gerencia o Dirección técnica');
 select ok((select allow_reviewer_as_approver from public.approval_routes where code = 'tecnica'), 'el revisor puede aprobar');
 select is((select count(*)::int from public.stage_definitions), 5, 'etapas del proceso del PRD 2.4');
+select is(public.get_setting('training_enforcement') #>> '{}', 'avisar', 'D-19: por defecto la capacitación solo avisa (regla configurable)');
 
 -- Vigencias (RF-98, AC-34).
 select is(public.compute_review_due_date((select id from public.document_types where type_code = 'PR'), '2025-04-17', null),
@@ -62,8 +63,8 @@ select is(public.document_validity('2028-04-17', 'anulado'), 'obsoleto', 'un anu
 -- Listado maestro e indicador (RF-92): un documento aparece una vez, con su versión vigente.
 select pg_temp.test_user('valentina@p.test', 'Valentina Cruz', '{aq_doc}', p_id => 'b0000000-0000-4000-8000-000000000001');
 insert into public.controlled_documents (id, code, title, type_id, process_id, status, next_review_date)
-values ('c0000000-0000-4000-8000-000000000001', 'MTO-PR-001', 'Procedimiento de mantenimiento de prueba',
-        (select id from public.document_types where type_code = 'PR'), (select id from public.organizational_areas where code = 'MTO'),
+values ('c0000000-0000-4000-8000-000000000001', 'TH-MN-901', 'Manual de prueba de talento humano',
+        (select id from public.document_types where type_code = 'MN'), (select id from public.organizational_areas where code = 'TH'),
         'vigente', '2026-05-15');
 insert into public.document_versions (id, document_id, version_no, status, author_id, issue_date, review_due_date)
 values ('d0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-000000000001', 1, 'obsoleto',
@@ -75,20 +76,22 @@ values ('d0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-0000000
 update public.controlled_documents set current_version_id = 'd0000000-0000-4000-8000-000000000002'
 where id = 'c0000000-0000-4000-8000-000000000001';
 select throws_like($$ delete from public.document_versions where id = 'd0000000-0000-4000-8000-000000000003' $$, '%RECORD_LOCKED%', 'DI-10: las versiones no se borran');
-select is((select count(*)::int from public.v_master_list where code = 'MTO-PR-001'), 1, 'RF-92: un documento aparece una sola vez');
-select is((select version_label || ' ' || validity || ' · en curso v' || open_version_no from public.v_master_list where code = 'MTO-PR-001'),
+select is((select count(*)::int from public.v_master_list where code = 'TH-MN-901'), 1, 'RF-92: un documento aparece una sola vez');
+select is((select version_label || ' ' || validity || ' · en curso v' || open_version_no from public.v_master_list where code = 'TH-MN-901'),
   '02 vencido · en curso v3', 'RF-92: muestra la versión vigente, su semáforo y la versión en curso');
-select is((select overdue_pct from public.v_documents_overdue_by_process where process_code = 'MTO'), 100.0,
+select is((select overdue_pct from public.v_documents_overdue_by_process where process_code = 'TH'), 100.0,
   'indicador: % de documentos vencidos por proceso');
 
 -- Lectura: el administrador no ve el SGD (matriz 2.2); el auditor sí.
 select pg_temp.test_user('admin@p.test', 'Tomás Herrera', '{admin}', p_id => 'b0000000-0000-4000-8000-000000000002');
 select pg_temp.test_user('ines@p.test', 'Inés Valencia', '{auditor}', p_id => 'b0000000-0000-4000-8000-000000000003');
 select pg_temp.login_as('b0000000-0000-4000-8000-000000000002');
-select is((select count(*)::int from public.v_master_list where code = 'MTO-PR-001'), 0, 'el administrador no lee el SGD');
+select is((select count(*)::int from public.v_master_list where code = 'TH-MN-901'), 0, 'el administrador no lee el SGD');
+select throws_like($$ select public.admin_update_setting('training_enforcement', '"siempre"', 'Prueba') $$, '%INVALID_FIELD%',
+  'D-19: la regla de capacitación solo admite «avisar» o «bloquear»');
 reset role;
 select pg_temp.login_as('b0000000-0000-4000-8000-000000000003');
-select is((select count(*)::int from public.v_master_list where code = 'MTO-PR-001'), 1, 'el auditor lee el listado maestro');
+select is((select count(*)::int from public.v_master_list where code = 'TH-MN-901'), 1, 'el auditor lee el listado maestro');
 reset role;
 
 -- Revisor de redacción (RF-94, AC-33).

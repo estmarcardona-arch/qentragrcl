@@ -17,9 +17,11 @@ export function Topbar(props: TopbarProps) {
   const pathname = usePathname();
   const section = pathname.startsWith("/admin")
     ? NAV_ITEMS.administracion.label
-    : (Object.values(NAV_ITEMS).find(
-        (n) => pathname === n.href || pathname.startsWith(`${n.href}/`),
-      )?.label ?? "Inicio");
+    : pathname.startsWith("/master")
+      ? NAV_ITEMS.documentos.label
+      : (Object.values(NAV_ITEMS).find(
+          (n) => pathname === n.href || pathname.startsWith(`${n.href}/`),
+        )?.label ?? "Inicio");
   return (
     <header className="flex h-[60px] shrink-0 items-center gap-4 border-b border-border bg-surface px-6 max-[1279px]:h-16 max-[1279px]:px-4">
       <span className="text-sm leading-5 font-semibold">{section}</span>

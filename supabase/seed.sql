@@ -320,9 +320,9 @@ begin
   select s.tid, s.n, s.label, s.text, s.params::jsonb, s.equipment, s.verify, s.checklist, v_gabriela
   from (values
     ('e3000000-0000-4000-8000-000000000001'::uuid, 1, '1', 'Área libre de materiales de lote anterior', '[]', null::text, true, true),
-    ('e3000000-0000-4000-8000-000000000001', 2, '2', 'Rótulos de limpieza de equipos y utensilios verificados', '[]', null, true, true),
-    ('e3000000-0000-4000-8000-000000000001', 3, '3', 'Documentos del lote anterior retirados de la línea', '[]', null, true, true),
-    ('e3000000-0000-4000-8000-000000000001', 4, '4', 'Equipos con calibración y limpieza vigentes', '[]', null, true, true)
+    ('e3000000-0000-4000-8000-000000000001', 2, '2', 'Equipos limpios y con estado vigente', '[]', null, true, true),
+    ('e3000000-0000-4000-8000-000000000001', 3, '3', 'Documentación del lote anterior retirada', '[]', null, true, true),
+    ('e3000000-0000-4000-8000-000000000001', 4, '4', 'Materiales conciliados', '[]', null, true, true)
   ) as s(tid, n, label, text, params, equipment, verify, checklist);
 
   -- Fabricación v03 (11 pasos) y v04 (borrador con el paso nuevo 5B).
@@ -331,21 +331,21 @@ begin
   select t.tid, s.n + case when t.v4 and s.n > 5 then 1 else 0 end, s.label, s.text, s.params::jsonb, s.equipment, s.verify, false, v_gabriela
   from (values ('e3000000-0000-4000-8000-000000000002'::uuid, false), ('e3000000-0000-4000-8000-000000000003', true)) as t(tid, v4),
   (values
-    (1, '1', 'Verificar el despeje de línea y la limpieza del tanque', '[]', 'TQ-101', true),
-    (2, '2', 'Cargar el agua purificada al tanque', '[{"name": "Cantidad", "unit": "kg", "min": 1884, "max": 1884, "frequency": "una vez"}]', 'TQ-101', true),
-    (3, '3', 'Calentar la fase acuosa', '[{"name": "Temperatura", "unit": "°C", "min": 70, "max": 75, "frequency": "una vez"}]', 'TQ-101', false),
-    (4, '4', 'Adicionar la glicerina y el poloxámero 184 con agitación', '[{"name": "Velocidad de agitación", "unit": "rpm", "min": 300, "max": 400, "frequency": "una vez"}]', 'TQ-101', true),
-    (5, '5', 'Preparar la fase oleosa', '[]', 'TQ-101', false),
-    (6, '6', 'Incorporar la fase oleosa con homogeneización', '[{"name": "Tiempo", "unit": "min", "min": 10, "max": 15, "frequency": "una vez"}]', 'HM-02', true),
-    (7, '7', 'Enfriar el granel', '[{"name": "Temperatura", "unit": "°C", "min": 30, "max": 35, "frequency": "una vez"}]', 'TQ-101', false),
-    (8, '8', 'Adicionar el fenoxietanol y la etilhexilglicerina', '[]', 'TQ-101', true),
-    (9, '9', 'Adicionar el extracto de manzanilla y el perfume', '[]', 'TQ-101', true),
-    (10, '10', 'Ajustar el pH con ácido cítrico', '[{"name": "pH", "unit": "", "min": 5.0, "max": 6.0, "frequency": "una vez"}]', 'TQ-101', true),
-    (11, '11', 'Tomar la muestra para control de calidad', '[]', null, true)
+    (1, '1', 'Verificar despeje de línea y limpieza de equipos', '[]', null::text, true),
+    (2, '2', 'Cargar agua purificada MP-001', '[{"name": "Cantidad", "unit": "kg", "min": 1884, "max": 1884, "frequency": "por lote"}]', 'TQ-101', false),
+    (3, '3', 'Calentar fase acuosa a 70–75 °C', '[{"name": "Temperatura", "unit": "°C", "min": 70, "max": 75, "frequency": "cada 30 min"}]', 'TQ-101', false),
+    (4, '4', 'Disolver glicerina y poloxámero', '[]', null, false),
+    (5, '5', 'Calentar fase oleosa a 70–75 °C', '[{"name": "Temperatura", "unit": "°C", "min": 70, "max": 75, "frequency": "cada 30 min"}]', 'TQ-101', false),
+    (6, '6', 'Homogeneizar a 3.000 rpm por 15 min', '[{"name": "Velocidad", "unit": "rpm", "min": 3000, "max": 3000, "frequency": "15 min"}]', 'HM-02', false),
+    (7, '7', 'Enfriar a 35 °C y agregar perfume', '[{"name": "Temperatura", "unit": "°C", "min": 35, "max": 35, "frequency": "una vez"}]', 'TQ-101', false),
+    (8, '8', 'Agregar fenoxietanol y etilhexilglicerina', '[]', null, true),
+    (9, '9', 'Ajustar pH', '[{"name": "pH", "unit": "", "min": 5.0, "max": 6.0, "frequency": "una vez"}]', null, false),
+    (10, '10', 'Tomar muestra para control de calidad', '[]', null, false),
+    (11, '11', 'Transferir granel con rótulo', '[{"name": "Granel", "unit": "kg", "min": null, "max": null, "frequency": "una vez"}]', null, false)
   ) as s(n, label, text, params, equipment, verify);
   insert into public.process_template_steps (template_id, order_no, label, text, params, requires_equipment,
     requires_verification, checklist_item, created_by)
-  values ('e3000000-0000-4000-8000-000000000003', 6, '5B', 'Medir temperatura de fase oleosa cada 10 minutos',
+  values ('e3000000-0000-4000-8000-000000000003', 6, '5B', 'Medir temperatura de fase oleosa cada 10 minutos (70–75 °C)',
     '[{"name": "Temperatura de fase oleosa", "unit": "°C", "min": 70, "max": 75, "frequency": "cada 10 min"}]', 'TQ-101', false, false, v_gabriela);
 
   insert into public.process_template_steps (template_id, order_no, label, text, params, requires_equipment,
@@ -360,9 +360,9 @@ begin
   from public.document_versions dv where dv.id = t.document_version_id and dv.status = 'vigente';
 
   -- Numeración: los próximos códigos siguen a los del Prompt 0B.
-  update public.numbering_sequences set last_value = 11, year = 2026 where key = 'document_request';
-  update public.numbering_sequences set last_value = 5, year = 2026 where key = 'document_change_request';
-  update public.numbering_sequences set last_value = 2, year = 2026 where key = 'document_annulment';
-  update public.numbering_sequences set last_value = v_n, year = 2026 where key = 'training_certificate';
-  update public.numbering_sequences set last_value = 1 where key = 'external_document';
+  update public.numbering_sequences set last_value = greatest(last_value, 11), year = 2026 where key = 'document_request';
+  update public.numbering_sequences set last_value = greatest(last_value, 5), year = 2026 where key = 'document_change_request';
+  update public.numbering_sequences set last_value = greatest(last_value, 2), year = 2026 where key = 'document_annulment';
+  update public.numbering_sequences set last_value = greatest(last_value, v_n), year = 2026 where key = 'training_certificate';
+  update public.numbering_sequences set last_value = greatest(last_value, 1) where key = 'external_document';
 end $$;

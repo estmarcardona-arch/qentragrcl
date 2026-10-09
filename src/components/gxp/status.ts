@@ -4,6 +4,7 @@ import {
   CircleCheck,
   CircleMinus,
   CircleX,
+  Check,
   Clock,
   Circle,
   Eye,
@@ -86,6 +87,50 @@ export const STATUSES = {
     label: "Firmada",
     icon: PenLine,
     className: "bg-tram-firmada-bg text-tram-firmada-fg ring-tram-firmada-bd",
+  },
+
+  // B2. Ciclo de un documento controlado (SGD, Prompt 2C)
+  preliminar: {
+    family: "tramite",
+    label: "Preliminar",
+    icon: CircleMinus,
+    className: "bg-tram-preliminar-bg text-tram-preliminar-fg ring-tram-preliminar-bd",
+  },
+  en_estandarizacion: {
+    family: "tramite",
+    label: "En estandarización",
+    icon: PenLine,
+    className: "bg-tram-revision-bg text-tram-revision-fg ring-tram-revision-bd",
+  },
+  codificado: {
+    family: "tramite",
+    label: "Codificado",
+    icon: Lock,
+    className: "bg-tram-revision-bg text-tram-revision-fg ring-tram-revision-bd",
+  },
+  doc_en_revision: {
+    family: "tramite",
+    label: "En revisión",
+    icon: Eye,
+    className: "bg-tram-en-curso-bg text-tram-en-curso-fg ring-tram-en-curso-bd",
+  },
+  en_aprobacion: {
+    family: "tramite",
+    label: "En aprobación",
+    icon: PenLine,
+    className: "bg-tram-completada-bg text-tram-completada-fg ring-tram-completada-bd",
+  },
+  publicado: {
+    family: "tramite",
+    label: "Vigente",
+    icon: Check,
+    className: "bg-tram-firmada-bg text-tram-firmada-fg ring-tram-firmada-bd",
+  },
+  obsoleto: {
+    family: "tramite",
+    label: "Obsoleto",
+    icon: CircleMinus,
+    className: "bg-tram-obsoleto-bg text-tram-obsoleto-fg ring-tram-obsoleto-bd",
   },
 
   // C. Severidad de desviación
