@@ -444,7 +444,8 @@ create or replace function public.request_document_code(
   p_version uuid,
   p_title text default null,
   p_route_id uuid default null,
-  p_regulatory_expiry date default null
+  p_regulatory_expiry date default null,
+  p_validity_rule text default null
 )
 returns jsonb
 language plpgsql
@@ -506,10 +507,10 @@ begin
 
     perform set_config('app.audit_reason', 'Asignación de código ' || v_code, true);
     insert into public.controlled_documents (code, origin, title, type_id, process_id, parent_document_id, parent_code,
-      sub_type, sub_number, status, regulatory_expiry_date, route_id, default_distribution)
+      sub_type, sub_number, status, regulatory_expiry_date, validity_rule, route_id, default_distribution)
     values (v_code, 'interno', v_title, v_type.id, v_area.id, v_parent.id, v_parent.code,
       case when v_parent.id is not null then v_type.type_code end, case when v_parent.id is not null then v_n end,
-      'en_elaboracion', p_regulatory_expiry,
+      'en_elaboracion', p_regulatory_expiry, p_validity_rule,
       coalesce(p_route_id, v_type.default_route_id,
                (select id from public.approval_routes where code = case when v_area.process_code in ('ADM', 'TH') then 'administrativa' else 'tecnica' end)),
       v_req.requested_distribution)
@@ -523,6 +524,9 @@ begin
     end if;
     if p_route_id is not null then
       update public.controlled_documents set route_id = p_route_id where id = v_doc.id;
+    end if;
+    if p_validity_rule is not null then
+      update public.controlled_documents set validity_rule = p_validity_rule where id = v_doc.id;
     end if;
     update public.document_versions set status = 'codificado' where id = p_version;
   end if;
@@ -692,7 +696,7 @@ begin
     end if;
   end if;
 
-  v_due := public.compute_review_due_date(v_doc.type_id, v_issue, v_doc.regulatory_expiry_date);
+  v_due := public.compute_review_due_date(v_doc.type_id, v_issue, v_doc.regulatory_expiry_date, v_doc.validity_rule);
   perform set_config('app.audit_reason', 'Publicación de ' || v_doc.code || ' v' || lpad(v.version_no::text, 2, '0'), true);
   perform set_config('app.signing_record', 'document_versions:' || p_version, true);
   update public.document_versions
@@ -1326,7 +1330,7 @@ revoke execute on function public.request_document(text, uuid, uuid, uuid, uuid,
 revoke execute on function public.save_document_draft(uuid, jsonb, text, boolean) from public, anon;
 revoke execute on function public.submit_for_standardization(uuid) from public, anon;
 revoke execute on function public.run_style_check(uuid, jsonb) from public, anon;
-revoke execute on function public.request_document_code(uuid, text, uuid, date) from public, anon;
+revoke execute on function public.request_document_code(uuid, text, uuid, date, text) from public, anon;
 revoke execute on function public.submit_for_review(uuid, text) from public, anon;
 revoke execute on function public.review_document(uuid, text, text) from public, anon;
 revoke execute on function public.approve_document(uuid, text, text) from public, anon;
@@ -1349,7 +1353,7 @@ grant execute on function public.request_document(text, uuid, uuid, uuid, uuid, 
 grant execute on function public.save_document_draft(uuid, jsonb, text, boolean) to authenticated;
 grant execute on function public.submit_for_standardization(uuid) to authenticated;
 grant execute on function public.run_style_check(uuid, jsonb) to authenticated;
-grant execute on function public.request_document_code(uuid, text, uuid, date) to authenticated;
+grant execute on function public.request_document_code(uuid, text, uuid, date, text) to authenticated;
 grant execute on function public.submit_for_review(uuid, text) to authenticated;
 grant execute on function public.review_document(uuid, text, text) to authenticated;
 grant execute on function public.approve_document(uuid, text, text) to authenticated;

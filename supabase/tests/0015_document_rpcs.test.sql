@@ -167,8 +167,8 @@ reset role;
 -- =====================================================================
 -- C. Cambio técnico de un formato (RF-100, AC-30) y recolección de copias (RF-96)
 -- =====================================================================
-select pg_temp.fixture_doc('c1000000-0000-4000-8000-000000000003', 'd1000000-0000-4000-8000-000000000003', 'PRD-PR-003-FR-01', 'FR', 'PRD',
-  'b1000000-0000-4000-8000-000000000002', 'vigente', 3, 'PRD-PR-003');
+select pg_temp.fixture_doc('c1000000-0000-4000-8000-000000000003', 'd1000000-0000-4000-8000-000000000003', 'MTO-PR-003-FR-01', 'FR', 'MTO',
+  'b1000000-0000-4000-8000-000000000002', 'vigente', 3, 'MTO-PR-003');
 insert into public.document_distribution (version_id, area_id, delivered_by)
 select 'd1000000-0000-4000-8000-000000000003', id, 'b1000000-0000-4000-8000-000000000002'
 from public.organizational_areas where code in ('PRD', 'CC');
@@ -184,7 +184,7 @@ select lives_ok($$ select public.save_document_draft(pg_temp.v('v4'),
 reset role;
 select pg_temp.login_as('b1000000-0000-4000-8000-000000000002');
 select public.run_style_check(pg_temp.v('v4'));
-select is(public.request_document_code(pg_temp.v('v4')) ->> 'code', 'PRD-PR-003-FR-01', 'una modificación conserva el código');
+select is(public.request_document_code(pg_temp.v('v4')) ->> 'code', 'MTO-PR-003-FR-01', 'una modificación conserva el código');
 reset role;
 select pg_temp.login_as('b1000000-0000-4000-8000-000000000005');
 select public.submit_for_review(pg_temp.v('v4'), 'Clave-Prueba-2026');
@@ -198,12 +198,12 @@ select pg_temp.login_as('b1000000-0000-4000-8000-000000000004');
 select public.approve_document(pg_temp.v('v4'), 'Clave-Prueba-2026');
 reset role;
 select pg_temp.login_as('b1000000-0000-4000-8000-000000000002');
-select throws_like($$ select public.publish_document(pg_temp.v('v4')) $$, '%PARENT_DOCUMENT_REVIEW_REQUIRED%PRD-PR-003%',
+select throws_like($$ select public.publish_document(pg_temp.v('v4')) $$, '%PARENT_DOCUMENT_REVIEW_REQUIRED%MTO-PR-003%',
   'AC-30: no se publica sin revisar el procedimiento padre');
 reset role;
 select pg_temp.login_as('b1000000-0000-4000-8000-000000000003');
 select lives_ok($$ select public.set_parent_review((select change_request_id from public.document_versions where id = pg_temp.v('v4')),
-    'sin_cambio', 'El procedimiento PRD-PR-003 no requiere cambios') $$, 'calidad registra la revisión del padre');
+    'sin_cambio', 'El procedimiento MTO-PR-003 no requiere cambios') $$, 'calidad registra la revisión del padre');
 reset role;
 select pg_temp.login_as('b1000000-0000-4000-8000-000000000002');
 select throws_like($$ select public.publish_document(pg_temp.v('v4')) $$, '%RECALL_PENDING%',
@@ -220,8 +220,8 @@ select is((select status from public.document_change_requests where id = (select
 -- =====================================================================
 -- D. Edición maestra de plantillas (RF-05, AC-20)
 -- =====================================================================
-select pg_temp.fixture_doc('c1000000-0000-4000-8000-000000000005', 'd1000000-0000-4000-8000-000000000005', 'PRD-PR-004-FR-01', 'FR', 'PRD',
-  'b1000000-0000-4000-8000-000000000002', 'vigente', 2, 'PRD-PR-004');
+select pg_temp.fixture_doc('c1000000-0000-4000-8000-000000000005', 'd1000000-0000-4000-8000-000000000005', 'MTO-PR-004-FR-01', 'FR', 'MTO',
+  'b1000000-0000-4000-8000-000000000002', 'vigente', 2, 'MTO-PR-004');
 update public.stage_definitions set governing_document_id = 'c1000000-0000-4000-8000-000000000005' where code = 'envase';
 insert into public.process_templates (id, stage_id, document_version_id)
 values ('e1000000-0000-4000-8000-000000000005', (select id from public.stage_definitions where code = 'envase'), 'd1000000-0000-4000-8000-000000000005');
@@ -251,8 +251,8 @@ select throws_like($$ update public.process_template_steps set text = 'x' where 
 -- =====================================================================
 -- E. Anulación con recolección de copias (RF-99, AC-32)
 -- =====================================================================
-select pg_temp.fixture_doc('c1000000-0000-4000-8000-000000000006', 'd1000000-0000-4000-8000-000000000006', 'ADM-PR-002-FR-04', 'FR', 'ADM',
-  'b1000000-0000-4000-8000-000000000002', 'vigente', 1, 'ADM-PR-002');
+select pg_temp.fixture_doc('c1000000-0000-4000-8000-000000000006', 'd1000000-0000-4000-8000-000000000006', 'TH-PR-002-FR-04', 'FR', 'TH',
+  'b1000000-0000-4000-8000-000000000002', 'vigente', 1, 'TH-PR-002');
 insert into public.document_distribution (version_id, area_id, delivered_by, recalled_at, recalled_by)
 select 'd1000000-0000-4000-8000-000000000006', a.id, 'b1000000-0000-4000-8000-000000000002',
        case when a.code <> 'ADM' then now() end, case when a.code <> 'ADM' then 'b1000000-0000-4000-8000-000000000002'::uuid end

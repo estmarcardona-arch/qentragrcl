@@ -1,7 +1,7 @@
 -- E3 · Gestión documental: estructura, RLS, tipos, vigencias (RF-98, AC-34), listado maestro (RF-92),
 -- indicador de vencidos por proceso y revisor de redacción (RF-94, AC-33). Fecha de referencia: 05/10/2026.
 begin;
-select plan(29);
+select plan(30);
 
 insert into app_private.test_clock (now_override) values ('2026-10-05 12:00:00-05');
 
@@ -50,6 +50,8 @@ select is(public.compute_review_due_date((select id from public.document_types w
   '2026-10-30'::date, 'especificación: revisión anual');
 select is(public.compute_review_due_date((select id from public.document_types where type_code = 'FT'), '2026-08-25', '2030-09-30'),
   '2030-09-30'::date, 'AC-34: la ficha técnica vence con el registro sanitario (30/09/2030)');
+select is(public.compute_review_due_date((select id from public.document_types where type_code = 'IN'), '2026-08-25', '2030-09-30', 'registro_sanitario'),
+  '2030-09-30'::date, 'AC-34: el instructivo de manufactura vence con la notificación sanitaria');
 select is(public.compute_review_due_date((select id from public.document_types where type_code = 'EP'), '2026-08-25', '2027-03-31'),
   '2027-03-31'::date, 'la especificación de producto toma también la vigencia del registro si es más cercana');
 select is(public.document_validity('2026-05-15', 'vigente'), 'vencido', 'revisión vencida');

@@ -211,6 +211,7 @@ create table public.controlled_documents (
   current_version_id uuid,
   next_review_date date,
   regulatory_expiry_date date,
+  validity_rule text check (validity_rule in ('periodo', 'registro_sanitario', 'validacion_tecnica')),
   route_id uuid references public.approval_routes (id),
   default_distribution uuid[] not null default '{}',
   external_issuer text,
@@ -228,6 +229,8 @@ create table public.controlled_documents (
 comment on table public.controlled_documents is
   'Documentos controlados (PRD 6.3). El código lo asigna solo aq_doc (RF-93). parent_code = código del procedimiento '
   'del que cuelga un subdocumento (puede no estar registrado aún en la plataforma).';
+comment on column public.controlled_documents.validity_rule is
+  'Regla de vigencia propia del documento (p. ej. instructivo de manufactura = registro sanitario); nula = la del tipo.';
 comment on column public.controlled_documents.regulatory_expiry_date is
   'Vencimiento del registro o notificación sanitaria (o de la validación de la técnica) que fija la revisión (2.5.8, AC-34).';
 
@@ -654,7 +657,8 @@ grant execute on function public.bogota_today() to authenticated;
 -- Fecha de revisión por la regla del tipo (AC-34): periodo → emisión + meses; registro sanitario o
 -- validación → vencimiento del registro; un periodo con registro (p. ej. especificación de producto)
 -- toma la fecha más cercana.
-create or replace function public.compute_review_due_date(p_type_id uuid, p_issue_date date, p_regulatory_expiry date)
+create or replace function public.compute_review_due_date(
+  p_type_id uuid, p_issue_date date, p_regulatory_expiry date, p_rule text default null)
 returns date
 language plpgsql
 stable
@@ -662,13 +666,15 @@ set search_path = ''
 as $$
 declare
   v_type public.document_types;
+  v_rule text;
   v_period date;
 begin
   select * into v_type from public.document_types where id = p_type_id;
   if not found or p_issue_date is null then
     return null;
   end if;
-  if v_type.validity_rule in ('registro_sanitario', 'validacion_tecnica') then
+  v_rule := coalesce(p_rule, v_type.validity_rule);
+  if v_rule in ('registro_sanitario', 'validacion_tecnica') then
     return coalesce(p_regulatory_expiry, (p_issue_date + make_interval(months => coalesce(v_type.review_period_months, 36)))::date);
   end if;
   v_period := (p_issue_date + make_interval(months => coalesce(v_type.review_period_months, 36)))::date;
@@ -676,7 +682,7 @@ begin
 end;
 $$;
 
-grant execute on function public.compute_review_due_date(uuid, date, date) to authenticated;
+grant execute on function public.compute_review_due_date(uuid, date, date, text) to authenticated;
 
 create or replace function public.document_validity(p_review_date date, p_status text)
 returns text
