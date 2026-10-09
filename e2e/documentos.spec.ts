@@ -326,6 +326,10 @@ test.describe("RF-92 · listado maestro de la semilla (Prompt 0B)", () => {
   test("S-47 · seguimiento: 12 de 14 aprobaron y Diego tiene 70 %", async ({ page }) => {
     await loginOk(page, VALENTINA);
     await page.goto("/documentos/capacitacion?vista=seguimiento");
+    await page
+      .getByRole("navigation", { name: "Capacitaciones" })
+      .getByRole("link", { name: /PRD-PR-003-FR-01 v03/ })
+      .click();
     await expect(page.getByRole("heading", { name: "12 de 14 aprobaron" })).toBeVisible();
     await expect(
       page.getByTestId("training-follow").locator('tr[data-person="Diego Cárdenas"]'),

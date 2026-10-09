@@ -3,6 +3,7 @@ import { expect, type Page } from "@playwright/test";
 // Usuarios ficticios de supabase/seed.sql (Prompt 0B). Solo existen en la base local/CI.
 export const DEV_PASSWORD = "Grufarcol.Dev.2026";
 export const USERS = {
+  camila: "camila.ortega@grufarcol.test",
   diego: "diego.cardenas@grufarcol.test",
   marta: "marta.quintero@grufarcol.test",
   paola: "paola.mejia@grufarcol.test",

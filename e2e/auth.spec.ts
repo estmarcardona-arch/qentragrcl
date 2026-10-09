@@ -77,7 +77,8 @@ test.describe("RF-01 / RF-02 · sesión iniciada", () => {
 
   test("RF-01 · bloqueo tras 5 intentos fallidos", async ({ page }, info) => {
     test.skip(process.env.E2E_AUTH_HOOK !== "1", "Requiere el hook de bloqueo de Supabase Auth");
-    const user = info.project.name === "tablet" ? USERS.gabriela : USERS.marcela;
+    // Usuarios que ninguna otra prueba usa: quedan bloqueados 15 minutos.
+    const user = info.project.name === "tablet" ? USERS.camila : USERS.marcela;
     for (let i = 0; i < 5; i++) {
       await login(page, user, `Clave.Equivocada.${i}`);
       await expect(page.getByRole("alert").filter({ hasText: GENERIC })).toBeVisible();
