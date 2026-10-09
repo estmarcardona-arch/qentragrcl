@@ -366,3 +366,278 @@ begin
   update public.numbering_sequences set last_value = greatest(last_value, v_n), year = 2026 where key = 'training_certificate';
   update public.numbering_sequences set last_value = greatest(last_value, 1) where key = 'external_document';
 end $$;
+
+-- =====================================================================================
+-- E4 · Documentos maestros de producto (Prompt 0B, v1.0 y v1.1)
+-- Materiales, productos PRD-001 y PRD-014, brief BR-2026-0011, prototipos P-0007 (reformular),
+-- P-0008 (descartado) y P-0007-1 (aprobado), estudios de estabilidad, fórmula v3 (IDI-FM-001,
+-- código supuesto D-49), especificación IDI-EP-007 v02, instructivo IDI-IN-012 v03 y costos.
+-- Valores intermedios de las lecturas, funciones de las materias primas, métodos de análisis y
+-- códigos de los materiales de envase son ilustrativos (ficticios).
+-- =====================================================================================
+do $$
+declare
+  v_camila constant uuid := 'a1000000-0000-4000-8000-000000000001';
+  v_sebastian constant uuid := 'a1000000-0000-4000-8000-000000000002';
+  v_natalia constant uuid := 'a1000000-0000-4000-8000-000000000007';
+  v_ricardo constant uuid := 'a1000000-0000-4000-8000-000000000008';
+  v_lucia constant uuid := 'a1000000-0000-4000-8000-000000000009';
+  v_esteban constant uuid := 'a1000000-0000-4000-8000-000000000010';
+  v_marcela constant uuid := 'a1000000-0000-4000-8000-000000000015';
+  v_valentina constant uuid := 'a1000000-0000-4000-8000-000000000014';
+  v_prd uuid := 'e4000000-0000-4000-8000-000000000001';
+  v_p200 uuid := 'e4000000-0000-4000-8000-000000000011';
+  v_p400 uuid := 'e4000000-0000-4000-8000-000000000012';
+  v_brief uuid := 'e4000000-0000-4000-8000-000000000101';
+  v_p7 uuid := 'e4000000-0000-4000-8000-000000000201';
+  v_p8 uuid := 'e4000000-0000-4000-8000-000000000202';
+  v_p71 uuid := 'e4000000-0000-4000-8000-000000000203';
+  v_protocol uuid;
+  v_study uuid;
+  v_test record;
+  v_tp text;
+  v_r int;
+  v_off interval;
+  v_start timestamptz;
+  v_doc uuid := 'e4000000-0000-4000-8000-000000000301';
+  v_ver uuid := 'e4000000-0000-4000-8000-000000000302';
+  v_formula uuid := 'e4000000-0000-4000-8000-000000000303';
+  v_spec uuid;
+  v_instr uuid;
+  v_cs uuid;
+begin
+  if exists (select 1 from public.products where code = 'PRD-001')
+     or not exists (select 1 from public.controlled_documents where code = 'CC-PC-001') then
+    return;
+  end if;
+  select current_version_id into v_protocol from public.controlled_documents where code = 'CC-PC-001';
+
+  insert into public.materials (code, name, type, unit, default_function, requires_coa) values
+    ('MP-001', 'Agua purificada', 'mp', 'kg', 'Vehículo', true),
+    ('MP-014', 'Glicerina', 'mp', 'kg', 'Humectante', true),
+    ('MP-022', 'Poloxámero 184', 'mp', 'kg', 'Tensoactivo suave', true),
+    ('MP-031', 'Fenoxietanol', 'mp', 'kg', 'Conservante', true),
+    ('MP-040', 'Extracto de manzanilla', 'mp', 'kg', 'Activo calmante', true),
+    ('MP-032', 'Etilhexilglicerina', 'mp', 'kg', 'Coconservante', true),
+    ('MP-055', 'Ácido cítrico', 'mp', 'kg', 'Regulador de pH', true),
+    ('MP-060', 'Perfume', 'mp', 'kg', 'Fragancia', true),
+    ('EN-PET-200', 'Envase PET 200 mL', 'envase', 'und', null, false),
+    ('EN-PET-400', 'Envase PET 400 mL', 'envase', 'und', null, false),
+    ('EN-TAPA-FT', 'Tapa flip-top', 'envase', 'und', null, false),
+    ('EM-ETQ-200', 'Etiqueta 200 mL', 'empaque', 'und', null, false),
+    ('EM-ETQ-400', 'Etiqueta 400 mL', 'empaque', 'und', null, false),
+    ('EM-CAJA-200', 'Caja 200 mL', 'empaque', 'und', null, false),
+    ('EM-CAJA-400', 'Caja 400 mL', 'empaque', 'und', null, false);
+
+  insert into public.products (id, code, name, line_id, titular, sanitary_registration, sanitary_registration_expires, shelf_life_months)
+  values (v_prd, 'PRD-001', 'Loción micelar ClariPlus', (select id from public.product_lines where code = 'COS'),
+          'GRUFARCOL S.A.S.', 'NSO-FICT-2025-01234', '2030-09-30', 24),
+         ('e4000000-0000-4000-8000-000000000002', 'PRD-014', 'Suspensión oral Ibuprofeno 100 mg/5 mL',
+          (select id from public.product_lines where code = 'MED'), 'GRUFARCOL S.A.S.', null, null, null);
+  insert into public.product_presentations (id, product_id, code, name, net_content, unit) values
+    (v_p200, v_prd, '200', '200 mL', 200, 'mL'), (v_p400, v_prd, '400', '400 mL', 400, 'mL');
+  update public.controlled_documents set regulatory_expiry_date = '2030-09-30' where code in ('IDI-IN-012', 'IDI-EP-007');
+
+  -- Brief BR-2026-0011 (aprobado por el Dr. Gaviria).
+  insert into public.briefs (id, code, product_id, execution_date, project_name, project_type, product_category, justification,
+    sources_description, sensorial, target, channels, margin_pct, suggested_price_by_presentation, legal_requirements,
+    implementation_costs, recommendations, status, created_by, updated_by)
+  values (v_brief, 'BR-2026-0011', v_prd, '2026-06-15', 'Loción micelar ClariPlus 400 mL', 'nuevo_portafolio', 'cosmetico',
+    'Ampliar la línea de higiene facial con un producto para piel sensible',
+    'Estudio de góndola en 12 farmacias y 2 tiendas en línea, junio 2026',
+    '{"aroma": "suave", "color": "incoloro", "apariencia": "translúcida"}',
+    '{"estrato": "3–5", "rango_edad": "25–45 años", "sexo": "Mujeres", "ingresos": "2 a 6 salarios mínimos", "para_quien": "Mujeres de 25 a 45 años con piel sensible", "psicograficos": "Busca rutinas simples y productos suaves", "actitud_compra": "Compara precio y componentes", "frecuencia_consumo": "Mensual"}',
+    array['cadenas', 'subtiendas'], 45,
+    '[{"presentation": "400 mL", "price": 28900}, {"presentation": "200 mL", "price": 17900}]',
+    'Notificación sanitaria obligatoria; rotulado según norma vigente', 'Moldes y artes de etiqueta', 'Lanzar primero en farmacias',
+    'aprobado', v_camila, v_esteban);
+  insert into public.brief_competitors (brief_id, order_no, manufacturer, product_name, container, cap_type, label_type, claims, actives,
+    price, net_content_ml, aroma, color, appearance, created_by) values
+    (v_brief, 1, 'Lumia', 'Agua micelar sensible', 'PET transparente', 'Flip-top', 'Autoadhesiva',
+     'Sin perfume agresivo, dermatológicamente probado', 'Glicerina', 32500, 400, null, null, null, v_camila),
+    (v_brief, 2, 'Dermia', 'Solución micelar', 'PET', 'Rosca', 'Envolvente', 'Hipoalergénica', 'Manzanilla', 26900, 400, null, null, null, v_camila),
+    (v_brief, 3, 'Pura', 'Micelar facial', 'Vidrio', 'Bomba dosificadora', 'Serigrafiada', null, null, 41000, 250, null, null, null, v_camila);
+  insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature, signer_name,
+    reauth_method, signed_at, created_by, updated_by)
+  select s.uid, 'briefs', v_brief, s.m::public.signature_meaning, s.role,
+    public.record_hash(app_private.signable_row('briefs', (select to_jsonb(b) from public.briefs b where b.id = v_brief))),
+    coalesce(sr.short_signature, p.full_name), p.full_name, 'password', s.at, s.uid, s.uid
+  from (values (v_camila, 'actualizo', 'comercial', timestamptz '2026-06-15 16:00-05'),
+               (v_esteban, 'aprobo', 'dt', timestamptz '2026-06-18 10:00-05')) as s(uid, m, role, at)
+  join public.profiles p on p.id = s.uid left join public.signature_registry sr on sr.user_id = s.uid;
+  update public.briefs set locked_at = '2026-06-18 10:00-05' where id = v_brief;
+
+  -- Prototipos.
+  insert into public.formula_prototypes (id, brief_id, code, parent_prototype_id, iteration_no, product_type, target_description, benefit,
+    concept, draft_instruction, status, status_reason, approved_at, created_by, updated_by) values
+    (v_p7, v_brief, 'P-0007', null, 0, 'Loción micelar · cosmético', 'Mujeres 25–45 años con piel sensible',
+     'Limpieza suave con efecto calmante', 'Loción micelar con extracto de manzanilla',
+     '1. Calentar fase acuosa a 70–75 °C.\n2. Disolver glicerina.\n3. Enfriar y agregar el extracto.', 'reformular',
+     'Separación de fase a los 7 días, calentamiento', null, v_sebastian, v_ricardo),
+    (v_p8, v_brief, 'P-0008', null, 0, 'Loción micelar · cosmético', 'Mismo público', 'Limpieza suave sin enjuague',
+     'Loción micelar sin extracto', '', 'descartado', 'Descartado frente a P-0007', null, v_sebastian, v_sebastian),
+    (v_p71, v_brief, 'P-0007-1', v_p7, 1, 'Loción micelar · cosmético', 'Mismo público',
+     'Limpieza suave, estable en calentamiento y enfriamiento', 'Mejora de P-0007 con poloxámero 1,5 %',
+     '1. Calentar fase acuosa a 70–75 °C.\n2. Disolver glicerina y poloxámero.\n3. Enfriar a 35 °C y agregar perfume.', 'aprobado',
+     null, '2026-08-25 11:00-05', v_sebastian, v_esteban);
+  insert into public.prototype_items (prototype_id, material_id, pct, function, order_no, created_by)
+  select v.pid, m.id, v.pct, m.default_function, v.n, v_sebastian
+  from (values
+    (v_p71, 'MP-001', 94.20, 1), (v_p71, 'MP-014', 3.00, 2), (v_p71, 'MP-022', 1.50, 3), (v_p71, 'MP-031', 0.80, 4),
+    (v_p71, 'MP-040', 0.30, 5), (v_p71, 'MP-032', 0.10, 6), (v_p71, 'MP-055', 0.05, 7), (v_p71, 'MP-060', 0.05, 8),
+    (v_p7, 'MP-001', 95.70, 1), (v_p7, 'MP-014', 3.00, 2), (v_p7, 'MP-031', 0.80, 3), (v_p7, 'MP-040', 0.30, 4),
+    (v_p7, 'MP-032', 0.10, 5), (v_p7, 'MP-060', 0.10, 6),
+    (v_p8, 'MP-001', 96.00, 1), (v_p8, 'MP-014', 3.00, 2), (v_p8, 'MP-031', 0.80, 3), (v_p8, 'MP-032', 0.10, 4), (v_p8, 'MP-060', 0.10, 5)
+  ) as v(pid, code, pct, n) join public.materials m on m.code = v.code;
+  insert into public.prototype_approvals (prototype_id, approver_role, approver, approver_name, reason, reauth_method, decided_at, created_by) values
+    (v_p71, 'gerencia', v_marcela, 'Marcela Duarte', 'Conforme Gerencia', 'password', '2026-08-24 15:00-05', v_marcela),
+    (v_p71, 'dt', v_esteban, 'Dr. Esteban Gaviria', 'Conforme Dirección técnica', 'password', '2026-08-25 11:00-05', v_esteban);
+
+  -- Estudios de estabilidad: P-0007 (cerrado anticipadamente «No cumple») y P-0007-1 (cumple).
+  for v_study, v_start in
+    select * from (values ('e4000000-0000-4000-8000-000000000401'::uuid, timestamptz '2026-07-01 08:00-05'),
+                          ('e4000000-0000-4000-8000-000000000402'::uuid, timestamptz '2026-07-20 08:00-05')) as s(id, st)
+  loop
+    insert into public.stability_studies (id, prototype_id, protocol_document_version_id, start_date, end_date, status, created_by)
+    values (v_study, case when v_study = 'e4000000-0000-4000-8000-000000000401' then v_p7 else v_p71 end, v_protocol,
+            v_start, v_start + interval '30 days', 'en_curso', v_sebastian);
+    insert into public.stability_tests (study_id, test_type, required, condition_min, condition_max, unit, replicates, lab, external_lab_name,
+      report_file, sample_volume_ml, method, created_by)
+    values (v_study, 'calentamiento', true, 42, 48, '°C', 3, 'interno', null, null, null, null, v_sebastian),
+           (v_study, 'enfriamiento', true, 0, 8, '°C', 3, 'interno', null, null, null, null, v_sebastian),
+           (v_study, 'microbiologica', true, null, null, 'UFC/g', 1, 'externo', 'Laboratorio Externo Andino',
+            case when v_study = 'e4000000-0000-4000-8000-000000000402' then 'IM-2026-0188' end, null, null, v_sebastian),
+           (v_study, 'viscosidad', true, null, null, 'mPa·s', 3, 'interno', null, null,
+            case when v_study = 'e4000000-0000-4000-8000-000000000402' then 300 end, null, v_sebastian),
+           (v_study, 'densidad', true, null, null, 'g/mL', 1, 'interno', null, null, null, 'picnometro', v_sebastian);
+    for v_test in select * from public.stability_tests where study_id = v_study loop
+      foreach v_tp in array case when v_test.test_type in ('calentamiento', 'enfriamiento')
+                                 then array['0h', '12h', '24h', '3d', '7d', '15d', '30d'] else array['0h', '30d'] end loop
+        v_off := case v_tp when '0h' then interval '0' when '12h' then interval '12 hours' when '24h' then interval '24 hours'
+                           when '3d' then interval '3 days' when '7d' then interval '7 days' when '15d' then interval '15 days'
+                           else interval '30 days' end;
+        for v_r in 1 .. v_test.replicates loop
+          insert into public.stability_readings (test_id, time_point, replicate, due_at, unit, created_by)
+          values (v_test.id, v_tp, v_r, v_start + v_off, v_test.unit, v_sebastian);
+        end loop;
+      end loop;
+    end loop;
+  end loop;
+
+  -- Lecturas de P-0007-1 (todas) y de P-0007 (hasta los 7 días; separación de fase en calentamiento a los 7 d).
+  update public.stability_readings r set
+    recorded_at = r.due_at + interval '1 hour', recorded_by = v_natalia, locked_at = r.due_at + interval '1 hour',
+    temperature = case t.test_type
+      when 'calentamiento' then case when r.time_point = '0h' then (array[45.1, 44.8, 45.3])[r.replicate]
+                                     when r.time_point = '30d' then (array[45.0, 45.2, 44.9])[r.replicate] else 45.0 + (r.replicate - 2) * 0.1 end
+      when 'enfriamiento' then case when r.time_point = '0h' then (array[4.2, 4.0, 4.3])[r.replicate]
+                                    when r.time_point = '30d' then (array[4.1, 4.3, 4.0])[r.replicate] else 4.1 end end,
+    ph = case t.test_type
+      when 'calentamiento' then case when r.time_point = '0h' then (array[5.6, 5.6, 5.5])[r.replicate]
+                                     when r.time_point = '30d' then (array[5.4, 5.5, 5.4])[r.replicate] else 5.5 end
+      when 'enfriamiento' then case when r.time_point = '30d' then (array[5.6, 5.5, 5.6])[r.replicate] else 5.6 end end,
+    organoleptic = case when t.test_type in ('calentamiento', 'enfriamiento')
+      then '{"aspecto": "líquido translúcido", "color": "incoloro", "olor": "característico", "cambio": false}'::jsonb end,
+    analytes = case when t.test_type = 'microbiologica'
+      then '{"mesofilos": {"qualifier": "<", "value": 10}, "pseudomonas": "ausente", "staphylococcus": "ausente", "ecoli": "ausente"}'::jsonb end,
+    value = case t.test_type
+      when 'viscosidad' then case when r.time_point = '0h' then (array[11.8, 12.0, 11.9])[r.replicate] else (array[11.6, 11.7, 11.8])[r.replicate] end
+      when 'densidad' then case when r.time_point = '0h' then 1.004 else 1.003 end end,
+    in_range = case when t.test_type in ('calentamiento', 'enfriamiento') then true end
+  from public.stability_tests t
+  where t.id = r.test_id and t.study_id = 'e4000000-0000-4000-8000-000000000402';
+
+  update public.stability_readings r set
+    recorded_at = r.due_at + interval '1 hour', recorded_by = v_natalia, locked_at = r.due_at + interval '1 hour',
+    temperature = case when t.test_type = 'calentamiento' then 45.0 + (r.replicate - 2) * 0.1 else 4.1 end,
+    ph = 5.6, in_range = true,
+    organoleptic = case when t.test_type = 'calentamiento' and r.time_point = '7d'
+      then '{"aspecto": "separación de fase", "color": "incoloro", "olor": "característico", "cambio": true}'::jsonb
+      else '{"aspecto": "líquido translúcido", "color": "incoloro", "olor": "característico", "cambio": false}'::jsonb end
+  from public.stability_tests t
+  where t.id = r.test_id and t.study_id = 'e4000000-0000-4000-8000-000000000401'
+    and t.test_type in ('calentamiento', 'enfriamiento') and r.time_point in ('0h', '12h', '24h', '3d', '7d');
+
+  update public.stability_studies set status = 'cerrado_anticipado', result = 'no_cumple',
+    early_close_reason = 'Separación de fase a los 7 días, calentamiento', closed_by = v_ricardo,
+    closed_at = '2026-07-08 10:00-05', locked_at = '2026-07-08 10:00-05'
+  where id = 'e4000000-0000-4000-8000-000000000401';
+  update public.stability_studies set status = 'completo', result = 'cumple', conclusions = 'Sin cambios organolépticos; pH, viscosidad y microbiología estables a los 30 días.',
+    closed_by = v_ricardo, closed_at = '2026-08-19 16:00-05', locked_at = '2026-08-19 16:00-05'
+  where id = 'e4000000-0000-4000-8000-000000000402';
+  insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature, signer_name,
+    reason, reauth_method, signed_at, created_by, updated_by)
+  select v_ricardo, 'stability_studies', s.id, 'aprobo', 'cc_jefe',
+    public.record_hash(app_private.signable_row('stability_studies', to_jsonb(s))),
+    coalesce((select short_signature from public.signature_registry where user_id = v_ricardo), 'Ricardo Peña'), 'Ricardo Peña',
+    s.early_close_reason, 'password', s.closed_at, v_ricardo, v_ricardo
+  from public.stability_studies s where s.id in ('e4000000-0000-4000-8000-000000000401', 'e4000000-0000-4000-8000-000000000402');
+
+  -- Fórmula v3 (IDI-FM-001), vigente desde el 25-08-2026 y con la vigencia del registro sanitario.
+  insert into public.controlled_documents (id, code, title, type_id, process_id, status, validity_rule, regulatory_expiry_date,
+    route_id, created_by, updated_by)
+  values (v_doc, 'IDI-FM-001', 'Fórmula maestra ClariPlus', (select id from public.document_types where type_code = 'FM'),
+    (select id from public.organizational_areas where code = 'IDI'), 'en_elaboracion', 'registro_sanitario', '2030-09-30',
+    (select id from public.approval_routes where code = 'tecnica'), v_valentina, v_valentina);
+  insert into public.document_versions (id, document_id, version_no, status, author_id, content, content_hash, change_description,
+    issue_date, review_due_date, effective_at, created_by, updated_by)
+  values (v_ver, v_doc, 3, 'vigente', v_sebastian, pg_temp.seed_content('Fórmula maestra ClariPlus', false),
+    public.record_hash(pg_temp.seed_content('Fórmula maestra ClariPlus', false)), 'Fórmula v3 desde el prototipo P-0007-1',
+    '2026-08-25', '2030-09-30', '2026-08-25 13:00-05', v_sebastian, v_sebastian);
+  insert into public.formulas (id, document_version_id, product_id, prototype_id, batch_size, created_by)
+  values (v_formula, v_ver, v_prd, v_p71, 2000, v_sebastian);
+  insert into public.formula_items (formula_id, material_id, pct, function, order_no, created_by)
+  select v_formula, material_id, pct, function, order_no, v_sebastian from public.prototype_items where prototype_id = v_p71;
+  update public.formulas set locked_at = '2026-08-25 12:00-05' where id = v_formula;
+  update public.document_versions set locked_at = '2026-08-25 12:00-05' where id = v_ver;
+  insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature, signer_name,
+    group_key, reauth_method, signed_at, created_by, updated_by)
+  select s.uid, 'document_versions', v_ver, s.m::public.signature_meaning, s.role,
+    public.record_hash(app_private.signable_row('document_versions', (select to_jsonb(v) from public.document_versions v where v.id = v_ver))),
+    coalesce(sr.short_signature, p.full_name), p.full_name, v_doc::text, 'password', s.at, s.uid, s.uid
+  from (values (v_sebastian, 'actualizo', 'idi', timestamptz '2026-08-25 08:00-05'), (v_lucia, 'reviso', 'aq_dir', timestamptz '2026-08-25 09:00-05'),
+               (v_esteban, 'aprobo', 'dt', timestamptz '2026-08-25 11:30-05')) as s(uid, m, role, at)
+  join public.profiles p on p.id = s.uid left join public.signature_registry sr on sr.user_id = s.uid;
+  update public.controlled_documents set status = 'vigente', current_version_id = v_ver, next_review_date = '2030-09-30' where id = v_doc;
+  insert into public.document_distribution (version_id, area_id, delivered_at, delivered_by, created_by)
+  select v_ver, a.id, '2026-08-25 13:00-05', v_valentina, v_valentina from public.organizational_areas a where a.code in ('IDI', 'PRD');
+
+  -- Contenido de la especificación IDI-EP-007 v02 y del instructivo IDI-IN-012 v03 (versiones vigentes de la semilla de E3).
+  insert into public.specifications (document_version_id, scope, product_id, created_by)
+  select current_version_id, 'pt', v_prd, v_sebastian from public.controlled_documents where code = 'IDI-EP-007'
+  returning id into v_spec;
+  insert into public.spec_parameters (specification_id, order_no, name, method, min_value, max_value, unit, text_limit, created_by) values
+    (v_spec, 1, 'pH', 'Potenciometría', 5.0, 6.0, null, null, v_sebastian),
+    (v_spec, 2, 'Densidad', 'Picnometría', 0.990, 1.020, 'g/mL', null, v_sebastian),
+    (v_spec, 3, 'Aspecto', 'Visual', null, null, null, 'Líquido translúcido incoloro', v_sebastian),
+    (v_spec, 4, 'Olor', 'Organoléptico', null, null, null, 'Característico', v_sebastian),
+    (v_spec, 5, 'Recuento total de aerobios mesófilos', 'Recuento en placa', null, 100, 'UFC/g', '< 100 UFC/g', v_sebastian),
+    (v_spec, 6, 'Pseudomonas aeruginosa', 'Método microbiológico', null, null, null, 'Ausente', v_sebastian);
+  update public.specifications set locked_at = '2025-10-30 12:00-05' where id = v_spec;
+
+  insert into public.instructions (document_version_id, product_id, stage, created_by)
+  select current_version_id, v_prd, 'fabricacion', v_sebastian from public.controlled_documents where code = 'IDI-IN-012'
+  returning id into v_instr;
+  insert into public.instruction_steps (instruction_id, order_no, label, text, requires_equipment, requires_verification, params, created_by)
+  select v_instr, s.order_no, s.label, s.text, s.requires_equipment, s.requires_verification, s.params, v_sebastian
+  from public.process_template_steps s where s.template_id = 'e3000000-0000-4000-8000-000000000002';
+  update public.instructions set locked_at = '2026-08-25 12:00-05' where id = v_instr;
+
+  -- Hoja de costos de la fórmula v3 (lote de 2.000 kg; $ por kg y por unidad del Prompt 0B).
+  insert into public.cost_sheets (formula_id, batch_size, density, industrial_lot_units, created_by)
+  values (v_formula, 2000, 1, jsonb_build_object(v_p200::text, 5000, v_p400::text, 2500), v_sebastian)
+  returning id into v_cs;
+  insert into public.cost_sheet_lines (cost_sheet_id, kind, material_id, description, unit_cost, qty, unit, created_by)
+  select v_cs, 'ingrediente', m.id, m.name, v.cost, round(i.pct * 20, 4), 'kg', v_sebastian
+  from (values ('MP-001', 150), ('MP-014', 6800), ('MP-022', 38000), ('MP-031', 52000), ('MP-040', 95000),
+               ('MP-032', 140000), ('MP-055', 9500), ('MP-060', 380000)) as v(code, cost)
+  join public.materials m on m.code = v.code join public.formula_items i on i.material_id = m.id and i.formula_id = v_formula;
+  insert into public.cost_sheet_lines (cost_sheet_id, kind, presentation_id, description, unit_cost, qty, unit, created_by)
+  values (v_cs, 'envase', v_p200, 'Envase PET 200 mL', 650, 1, 'und', v_sebastian), (v_cs, 'tapa', v_p200, 'Tapa flip-top', 180, 1, 'und', v_sebastian),
+         (v_cs, 'etiqueta', v_p200, 'Etiqueta 200 mL', 120, 1, 'und', v_sebastian), (v_cs, 'caja', v_p200, 'Caja 200 mL', 150, 1, 'und', v_sebastian),
+         (v_cs, 'envase', v_p400, 'Envase PET 400 mL', 980, 1, 'und', v_sebastian), (v_cs, 'tapa', v_p400, 'Tapa flip-top', 180, 1, 'und', v_sebastian),
+         (v_cs, 'etiqueta', v_p400, 'Etiqueta 400 mL', 150, 1, 'und', v_sebastian), (v_cs, 'caja', v_p400, 'Caja 400 mL', 200, 1, 'und', v_sebastian);
+
+  update public.numbering_sequences set last_value = greatest(last_value, 11), year = 2026 where key = 'brief';
+  update public.numbering_sequences set last_value = greatest(last_value, 8) where key = 'prototype';
+end $$;
