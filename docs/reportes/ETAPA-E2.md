@@ -1,7 +1,7 @@
 # Reporte de etapa E2 — Administración
 
 **Fase del PRD:** F2 · **Rama:** `etapa/E2` · **Fecha:** 07/10/2026
-**Estado:** construida; RF-03, RF-04, RF-06 y AC-11 aprobados; la matriz de la interfaz coincide con el PRD (prueba automática); CI en verde. **Pendiente:** revisión del responsable y aprobación para integrar a `main`.
+**Estado:** construida; RF-03, RF-04, RF-06, RF-07, AC-11 y AC-36…38 aprobados; la matriz de la interfaz coincide con el PRD (prueba automática); CI en verde. **Pendiente:** revisión del responsable y aprobación para integrar a `main`.
 
 ## Puerta de salida
 
@@ -35,6 +35,17 @@ CI: [ejecución 37726544747](https://github.com/estmarcardona-arch/qentragrcl/ac
 | `/auth/confirmar`            | Verifica el enlace de un solo uso y abre la sesión                                                                                                                                                                          |
 | `/cuenta/contrasena`         | Crear o cambiar la contraseña con la política; obligatorio tras la invitación, el restablecimiento o la caducidad                                                                                                           |
 | S-01                         | Mensaje de AC-11: «Su acceso venció el DD/MM/AAAA. Solicite una ampliación a Administración.»                                                                                                                               |
+
+## Roles configurables (solicitud del responsable, 08/10/2026)
+
+El responsable pidió poder **crear y eliminar roles** desde Catálogos y configuración, con permisos y restricciones claros. El PRD no lo contemplaba (los 15 roles eran fijos); se actualizó a la **versión 1.5** (sección 2.6, RF-07, AC-36…38, D-39, D-40) y se construyó:
+
+| Pieza                                   | Detalle                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migración `0012_configurable_roles.sql` | Los roles pasan del tipo enumerado `app_role` a la tabla `roles` (se recrearon las 7 funciones y 4 políticas que dependían del tipo). Roles del sistema protegidos; funciones reservadas (`admin`, `dt`); matriz editable solo para roles adicionales; RPC para crear, configurar, declarar incompatibilidades y retirar o reactivar; vencimiento obligatorio por rol; la lectura de la bitácora sale del permiso de «Trazabilidad / Auditoría» |
+| S-04 «Roles y permisos»                 | Panel con lo que se puede configurar y las restricciones fijas; lista de roles (tipo, opciones, usuarios vigentes, estado, versión); crear rol; configuración por rol con la matriz L/C/F/A por módulo (funciones reservadas con candado), incompatibilidades, opciones y retiro                                                                                                                                                                |
+| «Eliminar» = retirar                    | Nada se borra: un rol se retira solo si nadie lo tiene vigente; su historial se conserva y puede reactivarse                                                                                                                                                                                                                                                                                                                                    |
+| Pruebas                                 | pgTAP `0012_configurable_roles` (24): RF-07, AC-36, AC-37, AC-38; E2E de creación, configuración, función reservada bloqueada, matriz con la columna nueva, retiro y rol del sistema en solo lectura                                                                                                                                                                                                                                            |
 
 ## Resultados de pruebas
 

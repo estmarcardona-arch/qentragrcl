@@ -179,6 +179,58 @@
       ]
     },
     {
+      "id": "RF-07",
+      "etapa": "E2",
+      "descripcion": "Roles configurables (PRD 2.6): crear, configurar permisos e incompatibilidades y retirar roles adicionales",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/admin.spec.ts"
+        },
+        {
+          "tipo": "unitaria",
+          "archivo": "src/lib/auth/navigation.test.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-36",
+      "etapa": "E2",
+      "descripcion": "Rol adicional con lectura de trazabilidad: el usuario obtiene solo ese permiso",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-37",
+      "etapa": "E2",
+      "descripcion": "Dar una función reservada a un rol adicional → RESERVED_PERMISSION",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-38",
+      "etapa": "E2",
+      "descripcion": "Retirar un rol en uso / un rol del sistema → ROLE_IN_USE / SYSTEM_ROLE_LOCKED",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0012_configurable_roles.test.sql"
+        }
+      ]
+    },
+    {
       "id": "RF-05",
       "etapa": "E2B",
       "descripcion": "Ver PRD_GRUFARCOL.md",

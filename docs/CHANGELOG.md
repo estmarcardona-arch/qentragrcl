@@ -12,6 +12,12 @@ Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en
 - Pantallas S-03 (usuarios y roles, alta por invitación con enlace de un solo uso, detalle con bitácora) y S-04 (áreas, líneas, perfiles lado a lado, catálogos, retención, marcas, matriz de solo lectura, configuración); crear y cambiar contraseña; restablecimiento por enlace.
 - Pruebas: pgTAP de RLS por catálogo, usuarios, AC-11 y matriz; E2E de administración, alta y baja, AC-11 y comparación de la matriz de S-04 con el PRD.
 
+### Agregado (solicitud del responsable, 08/10/2026)
+
+- PRD 1.5: sección 2.6 «Roles configurables», RF-07, AC-36…38, D-39 y D-40.
+- Migración 0012: los roles pasan de un tipo enumerado a la tabla `roles` (15 roles del sistema protegidos y roles adicionales); funciones reservadas (`reserved_permissions`); matriz editable solo para roles adicionales; `admin_create_role`, `admin_update_role`, `admin_set_role_permissions`, `admin_set_role_incompatibilities`, `admin_set_role_active` (retirar o reactivar); vencimiento obligatorio por rol; la lectura de la bitácora se deriva del permiso de «Trazabilidad / Auditoría».
+- S-04: pestaña «Roles y permisos» con el panel de permisos y restricciones, creación de roles y configuración por rol (permisos por módulo, incompatibilidades, opciones, retiro); la matriz muestra también los roles adicionales; el menú de un rol adicional se arma con sus permisos.
+
 ### Corregido
 
 - Migración 0011: `sign_record` valida registro, rol, orden y SOD antes de la contraseña; un rechazo por regla ya no consume intentos ni revierte el reinicio del contador. `practice_reauth` para la prueba en vivo.
