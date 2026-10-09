@@ -273,6 +273,7 @@ test.describe("RF-07 · roles configurables con aprobación (D-39, D-40)", () =>
   }, info) => {
     test.setTimeout(120_000);
     const code = `e2e_${info.project.name}_${Date.now()}`.slice(0, 31);
+    const name = `Consulta E2E ${info.project.name} ${Date.now()}`;
     await loginOk(page, ADMIN);
     await page.goto("/admin/catalogos?tab=roles");
     await expect(page.getByText("Permisos y restricciones de los roles (PRD 2.6)")).toBeVisible();
@@ -281,7 +282,7 @@ test.describe("RF-07 · roles configurables con aprobación (D-39, D-40)", () =>
     await page.getByRole("button", { name: "Crear rol" }).click();
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Código").fill(code);
-    await dialog.getByLabel("Nombre").fill("Consulta E2E");
+    await dialog.getByLabel("Nombre").fill(name);
     await confirmWithReason(page, "Prueba E2E de rol adicional", "Solicitar rol");
     await expect(
       page.getByRole("status").filter({ hasText: /Solicitud CR-\d{4}-\d{4} enviada/ }),
@@ -290,7 +291,7 @@ test.describe("RF-07 · roles configurables con aprobación (D-39, D-40)", () =>
     const mine = page.getByTestId("role-change").filter({ hasText: code });
     await expect(mine).toContainText("Pendiente de aprobación");
     await expect(mine.getByRole("button", { name: "Aprobar" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: `Configurar Consulta E2E` })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: `Configurar ${name}` })).toHaveCount(0);
 
     await decideAs(browser, USERS.lucia, code, "Aprobar");
 
@@ -344,13 +345,21 @@ test.describe("RF-07 · roles configurables con aprobación (D-39, D-40)", () =>
     const cell = "L en Paquete técnico (lista de verificación de expediente)";
     const propose = async (why: string) => {
       await page.goto("/admin/roles/comercial");
+      // Un intento anterior interrumpido pudo dejar una solicitud pendiente: se anula.
+      if (await page.getByRole("heading", { name: "Solicitud pendiente" }).isVisible()) {
+        await page.getByRole("button", { name: "Anular solicitud" }).click();
+        await confirmWithReason(page, "Limpieza de un intento E2E anterior", "Anular solicitud");
+        await page.reload();
+      }
       await page.getByLabel(cell).click();
       await page.getByRole("button", { name: /Solicitar cambio de permisos \(1\)/ }).click();
       await confirmWithReason(page, why, "Solicitar cambio");
       await expect(page.getByRole("heading", { name: "Solicitud pendiente" })).toBeVisible();
     };
     await propose("Comercial consulta el paquete técnico (E2E)");
-    await expect(page.getByText("Doble aprobación")).toBeVisible();
+    await expect(
+      page.getByTestId("role-change").getByText("Doble aprobación", { exact: true }),
+    ).toBeVisible();
 
     await decideAs(browser, USERS.lucia, "comercial", "Aprobar");
     await page.reload();
