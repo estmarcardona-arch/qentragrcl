@@ -112,7 +112,7 @@ El responsable resolvió que **crear o cambiar un rol pasa por Aseguramiento de 
 - El envío automático de correos depende de un SMTP corporativo (D-37).
 - Pestaña de proveedores de maquila (Prompt 2): la tabla `external_parties` es de E4.
 - Los menús de los roles del sistema siguen la tabla fija del PRD; un permiso ajustado con doble aprobación cambia `has_module_permission`, pero no agrega secciones al menú (las secciones se habilitan en sus etapas).
-- En la nube faltan tres ajustes del panel de Supabase (`docs/ENTORNOS.md`): longitud mínima 12, vencimiento de enlaces 24 h y registro público desactivado.
+- Ajustes del panel de Supabase en la nube (longitud mínima 12, vencimiento de enlaces 24 h, registro público desactivado): aplicados y verificados el 08/10/2026.
 - Para usar el alta y el restablecimiento en local y en Vercel hace falta `SUPABASE_SERVICE_ROLE_KEY` (solo servidor).
 
 ## Preguntas abiertas
