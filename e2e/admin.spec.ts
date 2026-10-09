@@ -251,7 +251,9 @@ test.describe("RF-07 · roles configurables", () => {
     await expect(page.getByLabel("C en Usuarios, catálogos, perfiles")).toBeDisabled();
     // Configurar lectura de trazabilidad.
     await page.getByLabel("L en Trazabilidad / Auditoría (consulta)").check();
-    await page.getByRole("button", { name: /Guardar permisos \(1\)/ }).click();
+    const save = page.getByRole("button", { name: /Guardar permisos \(1\)/ });
+    await expect(save, `botón de guardar permisos en ${page.url()}`).toBeEnabled();
+    await save.click();
     await confirmWithReason(page, "Consulta de trazabilidad", "Guardar permisos");
     await expect(page.getByLabel("L en Trazabilidad / Auditoría (consulta)")).toBeChecked();
     await expect(page.getByText(`${code} · v2`)).toBeVisible();
@@ -264,7 +266,9 @@ test.describe("RF-07 · roles configurables", () => {
 
     // Retirar (no tiene usuarios).
     await page.goto(`/admin/roles/${code}`);
-    await page.getByRole("button", { name: "Retirar rol" }).click();
+    const retire = page.getByRole("button", { name: "Retirar rol" });
+    await expect(retire, `botón de retirar en ${page.url()}`).toBeEnabled();
+    await retire.click();
     await confirmWithReason(page, "Fin de la prueba E2E", "Retirar rol");
     await expect(page.getByText("Rol retirado: no se asigna ni da permisos.")).toBeVisible();
   });
