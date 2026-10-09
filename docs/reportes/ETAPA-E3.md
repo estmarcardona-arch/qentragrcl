@@ -1,7 +1,7 @@
 # Reporte de etapa E3 — Sistema de gestión documental y plantillas
 
 **Fase del PRD:** F2B (el responsable la nombró E3; en la matriz de trazabilidad conserva la clave E2B, ver D-44) · **Rama:** `etapa/E3` · **Fecha:** 09/10/2026
-**Estado:** construida. AC-19, 20, 23, 25, 26, 28, 29, 30, 31, 32, 33 y 34 aprobados en pgTAP; ciclo completo aprobado en E2E. **Pendiente:** revisión del responsable, aplicar 0016 y decidir la carga de la semilla documental en la nube (ver «Datos en la nube»).
+**Estado:** construida. AC-19, 20, 23, 25, 26, 28, 29, 30, 31, 32, 33 y 34 aprobados en pgTAP; ciclo completo aprobado en E2E. **Pendiente:** revisión y aprobación del responsable para integrar a `main`. Migraciones 0014, 0015 y 0016 aplicadas en la nube.
 
 ## Puerta de salida
 
@@ -13,7 +13,7 @@
 
 ## Qué se construyó
 
-### Migraciones (aplicadas al proyecto de desarrollo: 0014 y 0015; 0016 pendiente de su confirmación)
+### Migraciones (aplicadas al proyecto de desarrollo: 0014, 0015 y 0016)
 
 | Migración                      | Contenido                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -76,9 +76,9 @@
 
 ## Datos en la nube
 
-- La semilla documental del Prompt 0B **no está cargada en la nube**; la CI la verifica sobre su base local.
-- Las corridas locales de la E2E crearon documentos de prueba en la base de desarrollo (GLG-PR-001…005, MTO-PR-001…005, SD-2026-0001…0015, AN-2026-0001…0003). Algunos chocan con códigos de la semilla (GLG-PR-004, SD-2026-0010/0011, AN-2026-0002). La E2E ahora usa el proceso MTO para no volver a chocar.
-- Para ver el 0B en la vista previa hay que decidir cómo dejar limpia esa parte de la base de desarrollo (ver mensaje al responsable).
+- **Decisión del responsable (09/10/2026): la nube se deja como está.** La semilla documental del Prompt 0B no se carga en la base de desarrollo; el listado maestro del 0B se verifica en la CI (base local con semilla).
+- La base de desarrollo conserva los documentos ficticios que crearon las corridas locales de la E2E (GLG-PR-001…005, MTO-PR-001…006 y dos preliminares sin código, todos «Procedimiento de prueba E2E…»). Algunos códigos coinciden con los de la semilla (GLG-PR-004, SD-2026-0010/0011, AN-2026-0002), por lo que la semilla no puede cargarse sobre esa base sin limpiarla antes.
+- La E2E del ciclo usa ahora el proceso MTO y la semilla ajusta los consecutivos sin retroceder (`greatest`).
 
 ## Deuda técnica y notas
 
