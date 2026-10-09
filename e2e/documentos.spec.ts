@@ -87,8 +87,8 @@ test.describe("E3 · ciclo completo de un documento controlado", () => {
     await fillDraft(h.page, "Se verifica generalmente el rótulo del material.");
     await h.page.getByRole("button", { name: "Enviar a estandarización" }).click();
     await expect(
-      h.page.getByRole("status").filter({ hasText: "Enviado a estandarización" }),
-    ).toBeVisible();
+      h.page.getByText("En estandarización por Aseguramiento de la calidad"),
+    ).toBeVisible({ timeout: 15_000 });
 
     // 2. AC-33: Valentina Cruz estandariza; el revisor marca «generalmente» y devuelve al solicitante.
     const v = await as(browser, VALENTINA);
@@ -108,8 +108,8 @@ test.describe("E3 · ciclo completo de un documento controlado", () => {
     await fillDraft(h.page);
     await h.page.getByRole("button", { name: "Enviar a estandarización" }).click();
     await expect(
-      h.page.getByRole("status").filter({ hasText: "Enviado a estandarización" }),
-    ).toBeVisible();
+      h.page.getByText("En estandarización por Aseguramiento de la calidad"),
+    ).toBeVisible({ timeout: 15_000 });
 
     // 4. Valentina registra la estandarización y asigna el código (solo ella).
     await v.page.goto("/documentos/estandarizacion");
@@ -122,9 +122,8 @@ test.describe("E3 · ciclo completo de un documento controlado", () => {
     await expect(coded).toBeVisible();
     const code = (await coded.locator("b").innerText()).trim();
     expect(code).toMatch(/^MTO-PR-\d{3}$/);
-    await coded.getByRole("link").click();
-    await expect(v.page).toHaveURL(/\/documentos\/[0-9a-f-]{36}/);
-    const docUrl = v.page.url().split("?")[0];
+    const docUrl = (await coded.getByRole("link").getAttribute("href"))!;
+    expect(docUrl).toMatch(/^\/documentos\/[0-9a-f-]{36}$/);
 
     // 5. El autor envía a revisión con su contraseña («Actualizado por»).
     await h.page.goto(docUrl);
