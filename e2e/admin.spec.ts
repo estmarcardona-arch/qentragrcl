@@ -20,11 +20,19 @@ async function confirmWithReason(
   button: string | RegExp,
 ) {
   const dialog = page.getByRole("dialog");
-  await expect(
-    dialog,
-    `no se abrió el diálogo para «${String(button)}» en ${page.url()}`,
-  ).toBeVisible();
-  await dialog.getByLabel(/Motivo/).fill(reason);
+  const field = dialog.locator("#admin-reason");
+  try {
+    await field.waitFor({ state: "visible", timeout: 10_000 });
+  } catch {
+    const count = await dialog.count();
+    const text = count
+      ? (await dialog.first().innerText()).replace(/\s+/g, " ").slice(0, 400)
+      : "(sin diálogo)";
+    throw new Error(
+      `Paso «${String(button)}» en ${page.url()}: ${count} diálogo(s); contenido: ${text}`,
+    );
+  }
+  await field.fill(reason);
   await dialog.getByRole("button", { name: button }).click();
   await expect(dialog).toBeHidden();
 }
