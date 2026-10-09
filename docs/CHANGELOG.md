@@ -2,6 +2,10 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [Documentación] PRD 1.7 — 09/10/2026
+
+- Sección Producción del PRD reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con la secuencia de 23 documentos del paquete técnico; RF-30…39 agrupados en bloques A–F (mismos números); RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; AC-14 ajustado. Preguntas nuevas D-45…D-48.
+
 ## [E3] Sistema de gestión documental y plantillas (PRD F2B) — 09/10/2026
 
 ### Agregado
