@@ -38,9 +38,9 @@ export function RoleRestrictions({ reserved }: { reserved: ReservedPermission[] 
         Permisos y restricciones de los roles (PRD 2.6)
       </h3>
       <div className="grid grid-cols-2 gap-4 text-sm max-[1279px]:grid-cols-1">
-        <div className="grid gap-1.5">
+        <div className="grid content-start gap-1.5">
           <b className="font-semibold">Se puede configurar en un rol adicional</b>
-          <ul className="grid list-disc gap-1 pl-5 text-text-strong">
+          <ul className="grid list-disc content-start gap-1 pl-5 text-text-strong">
             <li>
               Permisos por módulo de la matriz: L (leer), C (crear o editar borrador), F (firmar), A
               (aprobar).
@@ -50,9 +50,9 @@ export function RoleRestrictions({ reserved }: { reserved: ReservedPermission[] 
             <li>Solo lectura: el rol admite únicamente L.</li>
           </ul>
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid content-start gap-1.5">
           <b className="font-semibold">Restricciones fijas</b>
-          <ul className="grid list-disc gap-1 pl-5 text-text-strong">
+          <ul className="grid list-disc content-start gap-1 pl-5 text-text-strong">
             {reserved.map((r) => (
               <li key={`${r.module_name}-${r.permission}`}>
                 {PERM[r.permission]} en «{r.module_name}»: reservado a{" "}
