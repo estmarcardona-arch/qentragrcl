@@ -210,20 +210,25 @@ test.describe("E4 · semilla de documentos maestros (Prompt 0B)", () => {
     await expect(page.getByTestId("sum")).toContainText("Suma 100,00 %");
   });
 
-  test("RF-17 · los costos son visibles para I+D y confidenciales para Producción", async ({
+  test("RF-17 · los costos solo los ven I+D, Dirección técnica y Gerencia (PRD 1.8)", async ({
     browser,
   }) => {
-    const s = await as(browser, USERS.sebastian);
-    await s.page.goto("/idi/costos");
-    await expect(s.page.getByRole("heading", { level: 1, name: "Costos" })).toBeVisible();
-    await expect(s.page.getByText("PRD-001").first()).toBeVisible();
-    await s.close();
-    const d = await as(browser, USERS.diego);
-    await d.page.goto("/idi/costos");
-    await expect(
-      d.page.getByText(/No tiene acceso a I\+D|Los costos son confidenciales/),
-    ).toBeVisible();
-    await d.close();
+    for (const email of [USERS.sebastian, ESTEBAN, USERS.marcela]) {
+      const u = await as(browser, email);
+      await u.page.goto("/idi/costos");
+      await expect(u.page.getByRole("heading", { level: 1, name: "Costos" })).toBeVisible();
+      await expect(u.page.getByText("PRD-001").first()).toBeVisible();
+      await u.close();
+    }
+    for (const email of [USERS.camila, USERS.paola, USERS.diego]) {
+      const u = await as(browser, email);
+      await u.page.goto("/idi/costos");
+      await expect(
+        u.page.getByText(/No tiene acceso a I\+D|Los costos son confidenciales/),
+        `${email} no ve los costos`,
+      ).toBeVisible();
+      await u.close();
+    }
   });
 
   test("RF-14 · la bandeja de aprobación es de quien firma", async ({ browser }) => {

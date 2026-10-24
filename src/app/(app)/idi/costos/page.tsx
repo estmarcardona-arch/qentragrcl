@@ -11,12 +11,12 @@ export const metadata: Metadata = { title: "Costos · GRUFARCOL eBR" };
 // S-37 · Costos por fórmula (RF-17). Confidenciales: solo roles autorizados (AC-09).
 export default async function CostsPage() {
   const a = await getRdAccess();
-  if (!a.protoRead) {
+  if (!a.costRead) {
     return (
       <main className="mx-auto grid w-full max-w-xl px-6 py-16">
         <NoPermissionState
           title="Los costos son confidenciales"
-          text="Solo los roles autorizados ven las hojas de costos (RF-17)."
+          text="Solo I+D, Dirección técnica y Gerencia ven las hojas de costos (RF-17)."
         />
       </main>
     );

@@ -5,7 +5,8 @@ import { createClient } from "@/lib/db/server";
 import { callRpc } from "@/lib/rpc";
 import type { DocTab } from "@/components/documents/documents-tabs";
 
-// Acceso a I+D según la matriz 2.2: Brief; Fórmula / Especificación / Instructivo; Prototipos, estabilidad y costos.
+// Acceso a I+D según la matriz 2.2: Brief; Fórmula / Especificación / Instructivo; Prototipos y estabilidad;
+// Costos de fórmula (PRD 1.8).
 export async function getRdAccess() {
   const ctx = await requireSession();
   const supabase = await createClient();
@@ -16,16 +17,28 @@ export async function getRdAccess() {
         p_permission: permission,
       }).catch(() => false),
     );
-  const [briefRead, briefCreate, briefApprove, protoRead, protoCreate, masterRead, masterCreate] =
-    await Promise.all([
-      perm("brief", "read"),
-      perm("brief", "create"),
-      perm("brief", "approve"),
-      perm("prototipos_estabilidad_y_costos", "read"),
-      perm("prototipos_estabilidad_y_costos", "create"),
-      perm("formula_especificacion_instructivo", "read"),
-      perm("formula_especificacion_instructivo", "create"),
-    ]);
+  const [
+    briefRead,
+    briefCreate,
+    briefApprove,
+    protoRead,
+    protoCreate,
+    masterRead,
+    masterCreate,
+    costRead,
+    costCreate,
+  ] = await Promise.all([
+    perm("brief", "read"),
+    perm("brief", "create"),
+    perm("brief", "approve"),
+    perm("prototipos_estabilidad_y_costos", "read"),
+    perm("prototipos_estabilidad_y_costos", "create"),
+    perm("formula_especificacion_instructivo", "read"),
+    perm("formula_especificacion_instructivo", "create"),
+    // Costos confidenciales: fila «Costos de fórmula» (PRD 1.8, RF-17).
+    perm("costos_de_formula", "read"),
+    perm("costos_de_formula", "create"),
+  ]);
   const roles = ctx.roles;
   return {
     ctx,
@@ -37,7 +50,9 @@ export async function getRdAccess() {
     protoCreate,
     masterRead,
     masterCreate,
-    canAny: briefRead || protoRead || masterRead,
+    costRead,
+    costCreate,
+    canAny: briefRead || protoRead || masterRead || costRead,
     isIdi: roles.includes("idi"),
     canRecord: roles.some((r) => ["lab_aux", "idi", "cc_jefe"].includes(r)),
     canClose: roles.some((r) => ["cc_jefe", "idi"].includes(r)),
@@ -66,6 +81,6 @@ export function rdTabs(a: RdAccess): DocTab[] {
     });
     t.push({ href: "/idi/instructivos", label: "Instructivos", match: ["/idi/instructivos"] });
   }
-  if (a.protoRead) t.push({ href: "/idi/costos", label: "Costos", match: ["/idi/costos"] });
+  if (a.costRead) t.push({ href: "/idi/costos", label: "Costos", match: ["/idi/costos"] });
   return t;
 }
