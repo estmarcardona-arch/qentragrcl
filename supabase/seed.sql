@@ -641,3 +641,201 @@ begin
   update public.numbering_sequences set last_value = greatest(last_value, 11), year = 2026 where key = 'brief';
   update public.numbering_sequences set last_value = greatest(last_value, 8) where key = 'prototype';
 end $$;
+
+-- =====================================================================================
+-- E5 · Bodegas y calidad de insumos (Prompt 0B: BODEGAS, LOTES DE INSUMO y TRASLADO TR-2026-0007)
+-- Terceros, 9 bodegas (8 con estructura: 276 ubicaciones; BOD-EXT-02 sin estructura, D-50), lotes de
+-- insumo con su kardex y liberación, y TR-2026-0007 en tránsito. Las cantidades de envase, los saldos
+-- intermedios y las fechas de recepción que el 0B no da son ilustrativos (ficticios).
+-- =====================================================================================
+do $$
+declare
+  v_marta constant uuid := 'a1000000-0000-4000-8000-000000000003';
+  v_hernan constant uuid := 'a1000000-0000-4000-8000-000000000004';
+  v_diego constant uuid := 'a1000000-0000-4000-8000-000000000005';
+  v_natalia constant uuid := 'a1000000-0000-4000-8000-000000000007';
+  v_ricardo constant uuid := 'a1000000-0000-4000-8000-000000000008';
+  v_lucia constant uuid := 'a1000000-0000-4000-8000-000000000009';
+  v_qa uuid;
+  v_iv uuid;
+  v_maq uuid;
+  v_sur uuid;
+  v_wh uuid;
+  v_w record;
+  v_l record;
+  v_lot uuid;
+  v_tr uuid;
+begin
+  if exists (select 1 from public.warehouses where code = 'BOD-MP')
+     or not exists (select 1 from public.materials where code = 'MP-014') then
+    return;
+  end if;
+
+  -- Terceros: proveedores y maquila (calificación registrada por Lucía Barrera, D-17).
+  insert into public.external_parties (name, kind, contact, created_by, updated_by)
+  values ('Química Andina S.A.S.', 'proveedor', 'Compras · Bogotá', v_hernan, v_hernan) returning id into v_qa;
+  insert into public.external_parties (name, kind, contact, created_by, updated_by)
+  values ('Insumos del Valle Ltda.', 'proveedor', 'Ventas · Cali', v_hernan, v_hernan) returning id into v_iv;
+  insert into public.external_parties (name, kind, address, qualified, qualification_expires, qualification_ref, qualified_by, qualified_at,
+    created_by, updated_by)
+  values ('Maquilas del Norte S.A.S.', 'maquilador', 'Zona industrial norte', true, '2027-03-31', 'Auditoría de calificación AUD-2026-03',
+    v_lucia, '2026-03-31 10:00-05', v_hernan, v_hernan) returning id into v_maq;
+  insert into public.external_parties (name, kind, qualified, qualification_expires, qualification_ref, qualified_by, qualified_at,
+    created_by, updated_by)
+  values ('Almacenes del Sur', 'almacenamiento', true, '2026-09-30', 'Auditoría de calificación AUD-2025-09', v_lucia,
+    '2025-09-30 10:00-05', v_hernan, v_hernan) returning id into v_sur;
+
+  -- Bodegas (código, nombre, función, prefijo, estantes × pisos × posiciones, tipos permitidos).
+  for v_w in
+    select * from (values
+      ('BOD-MP', 'Bodega de materias primas', 'materias_primas', 'MP', 6, 4, 2, array['materia_prima'], false, null::uuid),
+      ('BOD-ME', 'Bodega de material de envase', 'material_envase', 'ME', 4, 3, 4, array['material_envase'], false, null),
+      ('BOD-EM', 'Bodega de material de empaque', 'material_empaque', 'EM', 3, 3, 4, array['material_empaque'], false, null),
+      ('BOD-GR', 'Bodega de granel', 'granel', 'GR', 2, 2, 2, array['granel'], false, null),
+      ('BOD-PT', 'Bodega de producto terminado', 'producto_terminado', 'PT', 8, 4, 3, array['producto_terminado'], false, null),
+      ('BOD-RE', 'Bodega de rechazo', 'rechazo', 'RE', 1, 2, 4,
+        array['materia_prima', 'material_envase', 'material_empaque', 'granel', 'producto_terminado'], true, null),
+      ('BOD-DV', 'Bodega de devolución', 'devolucion', 'DV', 1, 2, 4,
+        array['materia_prima', 'material_envase', 'material_empaque', 'granel', 'producto_terminado'], false, null),
+      ('BOD-EXT-01', 'Bodega externa — Maquilas del Norte S.A.S.', 'material_envase', 'EXT-01', 2, 3, 4,
+        array['material_envase', 'granel', 'producto_terminado'], false, v_maq),
+      ('BOD-EXT-02', 'Bodega externa — Almacenes del Sur', 'material_envase', 'EXT-02', 0, 0, 0,
+        array['material_envase'], false, v_sur)
+    ) as t(code, name, func, prefix, racks, levels, positions, allowed, secured, party)
+  loop
+    insert into public.warehouses (code, name, function, site_type, external_party_id, location_prefix, secured, status,
+      address, created_by, updated_by)
+    values (v_w.code, v_w.name, v_w.func, case when v_w.party is null then 'interna' else 'externa' end, v_w.party, v_w.prefix,
+      v_w.secured, 'activa', case when v_w.party is not null then 'Dirección por completar' end, v_hernan, v_hernan)
+    returning id into v_wh;
+    insert into public.warehouse_allowed_types (warehouse_id, material_class, created_by)
+    select v_wh, a, v_hernan from unnest(v_w.allowed) a;
+    if v_w.racks > 0 then
+      perform app_private.generate_locations(v_wh, v_w.racks, v_w.levels, v_w.positions);
+    end if;
+    if v_w.party is not null then
+      -- Aprobación de la bodega externa por Aseguramiento de la calidad (D-20).
+      insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature,
+        signer_name, reauth_method, signed_at, created_by, updated_by)
+      select v_lucia, 'warehouses', w.id, 'aprobo', 'aq_dir', public.record_hash(app_private.signable_row('warehouses', to_jsonb(w))),
+        coalesce(sr.short_signature, 'L. Barrera'), 'Lucía Barrera', 'password', '2026-04-02 09:00-05', v_lucia, v_lucia
+      from public.warehouses w left join public.signature_registry sr on sr.user_id = v_lucia where w.id = v_wh;
+    end if;
+  end loop;
+  -- Zonas: el estante E01 de materias primas es de cuarentena (D-16); los demás quedan como zona general.
+  update public.racks set zone = 'cuarentena'
+  where code = 'E01' and warehouse_id = (select id from public.warehouses where code = 'BOD-MP');
+
+  -- Lotes de insumo: el kardex conserva las fechas del 0B (hora del servidor desactivada solo en la carga).
+  alter table public.inventory_movements disable trigger inventory_movements_set_metadata;
+  alter table public.lot_status_history disable trigger lot_status_history_set_metadata;
+  alter table public.lot_tests disable trigger lot_tests_set_metadata;
+  for v_l in
+    select * from (values
+      ('MP-2026-0187', 'MP-014', 'GLI-2509-A', date '2027-09-30', 40.0, 'kg', 'qa', timestamptz '2026-09-15 09:10-05', 'aprobado', null::text,
+        'MP-E03-P2-01', 40.0, 'L-2610-018', 'SD-2026-0042 · Dispensó Diego Cárdenas; verificó Paola Mejía', timestamptz '2026-10-05 09:25-05',
+        null::text, null::timestamptz, null::text),
+      ('MP-2026-0204', 'MP-014', 'GLI-2511-B', date '2027-12-31', 120.0, 'kg', 'qa', timestamptz '2026-09-22 09:10-05', 'aprobado', null,
+        'MP-E03-P2-02', 20.0, 'L-2610-018', 'SD-2026-0042 · Dispensó Diego Cárdenas; verificó Paola Mejía', timestamptz '2026-10-05 09:25-05',
+        null, null, null),
+      ('MP-2026-0198', 'MP-031', 'FEN-2510-C', date '2028-03-15', 50.0, 'kg', 'qa', timestamptz '2026-10-05 08:40-05', 'cuarentena', null,
+        'MP-E01-P1-02', 0, null, null, null, null, null, null),
+      ('MP-2026-0171', 'MP-060', 'PER-2409-A', date '2026-09-30', 5.0, 'kg', 'iv', timestamptz '2025-10-02 10:00-05', 'aprobado', null,
+        'MP-E05-P1-01', 2.0, 'L-2609-041', 'Dispensación del lote L-2609-041', timestamptz '2026-09-22 08:30-05',
+        'RE-E01-P1-02', timestamptz '2026-10-01 08:00-05', 'Vencido el 30/09/2026: a la bodega de rechazo'),
+      ('MP-2026-0190', 'MP-022', 'POL-2508-B', date '2026-12-28', 100.0, 'kg', 'qa', timestamptz '2026-08-20 09:00-05', 'aprobado', null,
+        'MP-E02-P1-01', 30.0, 'L-2609-041', 'Dispensación del lote L-2609-041', timestamptz '2026-09-22 08:30-05', null, null, null),
+      ('MP-2026-0192', 'MP-055', 'ACC-2509-A', date '2028-05-31', 25.0, 'kg', 'iv', timestamptz '2026-09-25 09:00-05', 'rechazado',
+        'Pureza fuera de especificación', 'MP-E01-P2-01', 0, null, null, null,
+        'RE-E01-P1-01', timestamptz '2026-09-29 15:00-05', 'Rechazado por Control de calidad: a la bodega de rechazo'),
+      ('MP-2026-0185', 'MP-040', 'MAN-2506-A', date '2026-10-25', 20.0, 'kg', 'qa', timestamptz '2026-07-10 09:00-05', 'aprobado', null,
+        'MP-E04-P1-01', 6.0, 'L-2609-041', 'Dispensación del lote L-2609-041', timestamptz '2026-09-22 08:30-05', null, null, null),
+      ('MP-2026-0188', 'MP-032', 'ETI-2507-C', date '2026-11-28', 10.0, 'kg', 'qa', timestamptz '2026-07-28 09:00-05', 'aprobado', null,
+        'MP-E04-P1-02', 2.0, 'L-2609-041', 'Dispensación del lote L-2609-041', timestamptz '2026-09-22 08:30-05', null, null, null),
+      ('ME-2026-0031', 'EN-PET-400', 'ENV-2510-A', date '2031-10-31', 3000.0, 'und', 'qa', timestamptz '2026-10-01 11:00-05', 'aprobado', null,
+        'ME-E02-P3-04', 0, null, null, null, null, null, null)
+    ) as t(code, mat, slot, expiry, qty, unit, sup, received, status, reason, loc, used, used_ref, used_note, used_at,
+           move_to, move_at, move_reason)
+  loop
+    insert into public.material_lots (material_id, internal_code, supplier_id, supplier_lot, expiry_date, qty_received, unit,
+      received_at, received_by, coa_ref, observations, status, status_reason, sampled_at, sampled_by, released_at, released_by,
+      created_by, updated_by)
+    values ((select id from public.materials where code = v_l.mat), v_l.code, case v_l.sup when 'qa' then v_qa else v_iv end,
+      v_l.slot, v_l.expiry, v_l.qty, v_l.unit, v_l.received, v_marta, 'CoA-' || v_l.slot || '.pdf', 'Envase íntegro, sin daños visibles.',
+      v_l.status, v_l.reason,
+      case when v_l.status <> 'cuarentena' then v_l.received + interval '1 day' end,
+      case when v_l.status <> 'cuarentena' then v_natalia end,
+      case when v_l.status <> 'cuarentena' then v_l.received + interval '3 days' end,
+      case when v_l.status <> 'cuarentena' then v_ricardo end, v_marta, v_marta)
+    returning id into v_lot;
+    -- Sin especificación de materia prima vigente: la liberación revisa el CoA (D-52).
+    insert into public.lot_tests (lot_id, order_no, name, method, acceptance, result_value, conforming, recorded_by, recorded_at,
+      created_at, created_by, updated_by)
+    values (v_lot, 1, 'Certificado de análisis del proveedor', 'Revisión documental del CoA', 'Conforme con la especificación del proveedor',
+      case v_l.status when 'aprobado' then 'CoA revisado: conforme' when 'rechazado' then 'Pureza 97,1 % (mín. 99,5 %)' end,
+      case v_l.status when 'aprobado' then true when 'rechazado' then false end,
+      case when v_l.status <> 'cuarentena' then v_natalia end,
+      case when v_l.status <> 'cuarentena' then v_l.received + interval '1 day' end, v_l.received, v_marta, v_marta);
+    insert into public.lot_status_history (lot_id, from_status, to_status, reason, created_at, created_by, updated_by)
+    values (v_lot, null, 'cuarentena', 'Recepción', v_l.received, v_marta, v_marta);
+    insert into public.inventory_movements (lot_id, type, qty, to_location_id, ref_table, ref_id, ref_code, reason, created_at, created_by, updated_by)
+    values (v_lot, 'recepcion', v_l.qty, (select id from public.storage_locations where code = v_l.loc), 'material_lots', v_lot, v_l.code,
+            'Recibido en cuarentena · CoA adjunto', v_l.received, v_marta, v_marta);
+    if v_l.status <> 'cuarentena' then
+      insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature,
+        signer_name, reason, reauth_method, signed_at, created_by, updated_by)
+      select v_ricardo, 'material_lots', ml.id, case v_l.status when 'aprobado' then 'libero' else 'reviso' end::public.signature_meaning,
+        'cc_jefe', public.record_hash(app_private.signable_row('material_lots', to_jsonb(ml))), coalesce(sr.short_signature, 'R. Peña'),
+        'Ricardo Peña', v_l.reason, 'password', v_l.received + interval '3 days', v_ricardo, v_ricardo
+      from public.material_lots ml left join public.signature_registry sr on sr.user_id = v_ricardo where ml.id = v_lot;
+      insert into public.lot_status_history (lot_id, from_status, to_status, reason, signature_id, created_at, created_by, updated_by)
+      values (v_lot, 'cuarentena', v_l.status, v_l.reason,
+        (select id from public.signatures where record_table = 'material_lots' and record_id = v_lot),
+        v_l.received + interval '3 days', v_ricardo, v_ricardo);
+    end if;
+    if v_l.used > 0 then
+      insert into public.inventory_movements (lot_id, type, qty, from_location_id, ref_code, reason, created_at, created_by, updated_by)
+      values (v_lot, 'dispensacion', v_l.used, (select id from public.storage_locations where code = v_l.loc), v_l.used_ref,
+              v_l.used_note, v_l.used_at, v_diego, v_diego);
+    end if;
+    -- El rechazado y el vencido pasan a la bodega de rechazo (D-16).
+    if v_l.move_to is not null then
+      insert into public.inventory_movements (lot_id, type, qty, from_location_id, to_location_id, reason, created_at, created_by, updated_by)
+      values (v_lot, 'traslado', v_l.qty - v_l.used, (select id from public.storage_locations where code = v_l.loc),
+              (select id from public.storage_locations where code = v_l.move_to), v_l.move_reason, v_l.move_at, v_hernan, v_hernan);
+    end if;
+  end loop;
+
+  -- TR-2026-0007: 1.500 envases PET 400 mL (ENV-2510-A) de BOD-ME a BOD-EXT-01, en tránsito.
+  insert into public.stock_transfers (code, from_warehouse_id, to_warehouse_id, reason, status, dispatched_by, dispatched_at,
+    approved_by, approved_at, created_at, created_by, updated_by)
+  values ('TR-2026-0007', (select id from public.warehouses where code = 'BOD-ME'), (select id from public.warehouses where code = 'BOD-EXT-01'),
+    'Envío a maquila para llenado', 'borrador', v_marta, '2026-10-05 09:40-05', null, null, '2026-10-05 09:00-05', v_marta, v_marta)
+  returning id into v_tr;
+  insert into public.stock_transfer_lines (transfer_id, lot_id, qty, from_location_id, created_by)
+  values (v_tr, (select id from public.material_lots where internal_code = 'ME-2026-0031'), 1500,
+          (select id from public.storage_locations where code = 'ME-E02-P3-04'), v_marta);
+  update public.stock_transfers set status = 'despachado', approved_by = v_hernan, approved_at = '2026-10-05 10:05-05' where id = v_tr;
+  insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature,
+    signer_name, reauth_method, signed_at, created_by, updated_by)
+  select s.uid, 'stock_transfers', v_tr, s.meaning::public.signature_meaning, s.role,
+    public.record_hash(app_private.signable_row('stock_transfers', to_jsonb(t))), coalesce(sr.short_signature, p.full_name),
+    p.full_name, 'password', s.at, s.uid, s.uid
+  from public.stock_transfers t,
+    (values (v_marta, 'ejecuto', 'bodega_aux', timestamptz '2026-10-05 09:40-05'),
+            (v_hernan, 'aprobo', 'bodega_jefe', timestamptz '2026-10-05 10:05-05')) as s(uid, meaning, role, at)
+  join public.profiles p on p.id = s.uid left join public.signature_registry sr on sr.user_id = s.uid
+  where t.id = v_tr;
+  insert into public.inventory_movements (lot_id, type, qty, from_location_id, ref_table, ref_id, ref_code, reason, created_at,
+    created_by, updated_by)
+  values ((select id from public.material_lots where internal_code = 'ME-2026-0031'), 'envio_externo', 1500,
+    (select id from public.storage_locations where code = 'ME-E02-P3-04'), 'stock_transfers', v_tr, 'TR-2026-0007',
+    'Envío a maquila para llenado', '2026-10-05 10:05-05', v_hernan, v_hernan);
+  alter table public.inventory_movements enable trigger inventory_movements_set_metadata;
+  alter table public.lot_status_history enable trigger lot_status_history_set_metadata;
+  alter table public.lot_tests enable trigger lot_tests_set_metadata;
+
+  update public.numbering_sequences set last_value = greatest(last_value, 204), year = 2026 where key = 'lot_mp';
+  update public.numbering_sequences set last_value = greatest(last_value, 31), year = 2026 where key = 'lot_me';
+  update public.numbering_sequences set last_value = greatest(last_value, 7), year = 2026 where key = 'stock_transfer';
+end $$;

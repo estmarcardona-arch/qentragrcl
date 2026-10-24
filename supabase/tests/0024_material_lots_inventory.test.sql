@@ -55,8 +55,8 @@ select throws_like($$ select public.receive_material_lot(jsonb_build_object('mat
     'supplier_id', pg_temp.v('sup'), 'supplier_lot', 'FEN-1', 'qty', 50, 'expiry_date', '2028-03-15', 'coa_ref', 'CoA-1'),
     pg_temp.loc('TM-E02-P1-01')) $$,
   '%LOCATION_RULE_VIOLATION%cuarentena%', 'D-16: un lote en cuarentena no va a la zona de aprobados');
-select is((select code from public.suggest_locations('f7000000-0000-4000-8000-000000000001', 'cuarentena', 1)), 'TM-E01-P1-01',
-  'RF-20: se propone primero una ubicación libre de la zona de cuarentena');
+select is((select zone from public.suggest_locations('f7000000-0000-4000-8000-000000000001', 'cuarentena', 1)), 'cuarentena',
+  'RF-20: se propone primero una ubicación libre de la zona de cuarentena (con o sin la semilla)');
 select set_config('t.lot', (public.receive_material_lot(jsonb_build_object('material_id', 'f7000000-0000-4000-8000-000000000001',
     'supplier_id', pg_temp.v('sup'), 'supplier_lot', 'FEN-2510-C', 'qty', 50, 'expiry_date', '2028-03-15', 'coa_ref', 'CoA-FEN-2510-C'),
     pg_temp.loc('TM-E01-P1-02')) ->> 'id'), false);
