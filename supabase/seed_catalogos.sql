@@ -1,7 +1,8 @@
 -- Catálogos ficticios del Prompt 0B para el proyecto de desarrollo en la nube (decisión del responsable,
 -- 24/10/2026): materias primas y materiales de envase y empaque, productos PRD-001 y PRD-014 con sus
 -- presentaciones y el protocolo de estabilidad CC-PC-001 vigente. No carga briefs, prototipos, documentos
--- maestros ni el listado maestro. Idempotente: no duplica ni modifica lo que ya existe.
+-- maestros ni el listado maestro. Desde E5 agrega terceros y la estructura de las 9 bodegas (sin lotes).
+-- Idempotente: no duplica ni modifica lo que ya existe.
 -- Uso: npm run seed:remote -- --catalogos --confirmar
 do $$
 declare
@@ -81,5 +82,72 @@ begin
   update public.controlled_documents
   set status = 'vigente', current_version_id = v_ver, next_review_date = '2029-02-15'
   where id = v_doc;
+end;
+$$;
+
+-- E5 · Terceros y estructura de bodegas del Prompt 0B (sin lotes ni movimientos): 9 bodegas, 276 ubicaciones,
+-- estante E01 de materias primas en zona de cuarentena. Aprobación de las externas por Lucía Barrera (D-20).
+do $$
+declare
+  v_hernan constant uuid := 'a1000000-0000-4000-8000-000000000004';
+  v_lucia constant uuid := 'a1000000-0000-4000-8000-000000000009';
+  v_maq uuid;
+  v_sur uuid;
+  v_wh uuid;
+  v_w record;
+begin
+  if exists (select 1 from public.warehouses where code = 'BOD-MP') then
+    return;
+  end if;
+  insert into public.external_parties (name, kind, contact, created_by, updated_by) values
+    ('Química Andina S.A.S.', 'proveedor', 'Compras · Bogotá', v_hernan, v_hernan),
+    ('Insumos del Valle Ltda.', 'proveedor', 'Ventas · Cali', v_hernan, v_hernan)
+  on conflict (name) do nothing;
+  insert into public.external_parties (name, kind, address, qualified, qualification_expires, qualification_ref, qualified_by,
+    qualified_at, created_by, updated_by)
+  values ('Maquilas del Norte S.A.S.', 'maquilador', 'Zona industrial norte', true, '2027-03-31', 'Auditoría de calificación AUD-2026-03',
+    v_lucia, '2026-03-31 10:00-05', v_hernan, v_hernan),
+         ('Almacenes del Sur', 'almacenamiento', null, true, '2026-09-30', 'Auditoría de calificación AUD-2025-09',
+    v_lucia, '2025-09-30 10:00-05', v_hernan, v_hernan)
+  on conflict (name) do nothing;
+  select id into v_maq from public.external_parties where name = 'Maquilas del Norte S.A.S.';
+  select id into v_sur from public.external_parties where name = 'Almacenes del Sur';
+
+  for v_w in
+    select * from (values
+      ('BOD-MP', 'Bodega de materias primas', 'materias_primas', 'MP', 6, 4, 2, array['materia_prima'], false, null::uuid),
+      ('BOD-ME', 'Bodega de material de envase', 'material_envase', 'ME', 4, 3, 4, array['material_envase'], false, null),
+      ('BOD-EM', 'Bodega de material de empaque', 'material_empaque', 'EM', 3, 3, 4, array['material_empaque'], false, null),
+      ('BOD-GR', 'Bodega de granel', 'granel', 'GR', 2, 2, 2, array['granel'], false, null),
+      ('BOD-PT', 'Bodega de producto terminado', 'producto_terminado', 'PT', 8, 4, 3, array['producto_terminado'], false, null),
+      ('BOD-RE', 'Bodega de rechazo', 'rechazo', 'RE', 1, 2, 4,
+        array['materia_prima', 'material_envase', 'material_empaque', 'granel', 'producto_terminado'], true, null),
+      ('BOD-DV', 'Bodega de devolución', 'devolucion', 'DV', 1, 2, 4,
+        array['materia_prima', 'material_envase', 'material_empaque', 'granel', 'producto_terminado'], false, null),
+      ('BOD-EXT-01', 'Bodega externa — Maquilas del Norte S.A.S.', 'material_envase', 'EXT-01', 2, 3, 4,
+        array['material_envase', 'granel', 'producto_terminado'], false, v_maq),
+      ('BOD-EXT-02', 'Bodega externa — Almacenes del Sur', 'material_envase', 'EXT-02', 0, 0, 0, array['material_envase'], false, v_sur)
+    ) as t(code, name, func, prefix, racks, levels, positions, allowed, secured, party)
+  loop
+    insert into public.warehouses (code, name, function, site_type, external_party_id, location_prefix, secured, status, address,
+      created_by, updated_by)
+    values (v_w.code, v_w.name, v_w.func, case when v_w.party is null then 'interna' else 'externa' end, v_w.party, v_w.prefix,
+      v_w.secured, 'activa', case when v_w.party is not null then 'Dirección por completar' end, v_hernan, v_hernan)
+    returning id into v_wh;
+    insert into public.warehouse_allowed_types (warehouse_id, material_class, created_by)
+    select v_wh, a, v_hernan from unnest(v_w.allowed) a;
+    if v_w.racks > 0 then
+      perform app_private.generate_locations(v_wh, v_w.racks, v_w.levels, v_w.positions);
+    end if;
+    if v_w.party is not null then
+      insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature,
+        signer_name, reauth_method, signed_at, created_by, updated_by)
+      select v_lucia, 'warehouses', w.id, 'aprobo', 'aq_dir', public.record_hash(app_private.signable_row('warehouses', to_jsonb(w))),
+        coalesce(sr.short_signature, 'L. Barrera'), 'Lucía Barrera', 'password', '2026-04-02 09:00-05', v_lucia, v_lucia
+      from public.warehouses w left join public.signature_registry sr on sr.user_id = v_lucia where w.id = v_wh;
+    end if;
+  end loop;
+  update public.racks set zone = 'cuarentena'
+  where code = 'E01' and warehouse_id = (select id from public.warehouses where code = 'BOD-MP');
 end;
 $$;
