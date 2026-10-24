@@ -755,13 +755,17 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/idi.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0021_stability_signer_judgment.test.sql"
         }
       ]
     },
     {
       "id": "RF-17",
       "etapa": "E3",
-      "descripcion": "Hoja de costos con totales que coinciden con las líneas; visible solo a roles autorizados",
+      "descripcion": "Hoja de costos con totales que coinciden con las líneas; solo la ven I+D, Dirección técnica y Gerencia (PRD 1.8)",
       "pruebas": [
         {
           "tipo": "pgtap",
@@ -770,6 +774,10 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/idi.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0022_cost_permissions.test.sql"
         }
       ]
     },
@@ -804,6 +812,10 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/idi.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0021_stability_signer_judgment.test.sql"
         }
       ]
     },

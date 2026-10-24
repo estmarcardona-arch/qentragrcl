@@ -2,6 +2,19 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E4] Decisiones del responsable y pendientes — 24/10/2026
+
+### Cambiado
+
+- PRD 1.8: la fórmula maestra es el tipo documental `FM` (D-49 resuelta); D-13 resuelta; fila nueva «Costos de fórmula» en la matriz 2.2 (RF-17).
+- Migración 0021 (D-13): cerrar un estudio como «cumple» ya no exige criterios por producto; sin criterios, quien firma justifica el resultado en las conclusiones. Con criterios completos se siguen evaluando y la temperatura fuera de rango siempre lo impide. Diálogo de cierre y panel de criterios actualizados.
+- Migración 0022 (RF-17): solo I+D (elabora), Dirección técnica y Gerencia ven los costos; Comercial, Producción, Calidad, master y el auditor ya no. `can_read_costs` y `save_cost_sheet` usan el módulo nuevo.
+- CI: `actions/upload-artifact` v7 (Node 24); el diagnóstico de autenticación ya no imprime la respuesta con el token.
+
+### Corregido
+
+- E2E de roles configurables: la bandeja «Cambios de roles» se recarga hasta ver la solicitud (fallaba de forma intermitente con la CI cargada).
+
 ## [E4] Documentos maestros (PRD F3) — 24/10/2026
 
 ### Agregado
