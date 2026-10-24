@@ -247,6 +247,14 @@ export default async function PrototypePage({ params }: PageProps<"/idi/prototip
           now={now}
           canRecord={a.canRecord}
           canClose={a.canClose}
+          criteriaDefined={Boolean(
+            criteria &&
+            criteria.ph_max_variation != null &&
+            criteria.viscosity_max_variation_pct != null &&
+            criteria.micro_limits != null &&
+            criteria.organoleptic_changes_allowed != null &&
+            criteria.reading_window_hours != null,
+          )}
           signer={a.ctx.fullName}
           path={`/idi/prototipos/${p.id}`}
         />

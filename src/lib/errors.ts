@@ -148,10 +148,6 @@ export const ERROR_MESSAGES = {
     rule: "El estudio de estabilidad no está completo y conforme.",
     action: "Registre las lecturas obligatorias que faltan y cierre el estudio como «cumple».",
   },
-  STABILITY_CRITERIA_MISSING: {
-    rule: "El producto no tiene criterios de cumplimiento de estabilidad definidos.",
-    action: "Solicite a Control de calidad o I+D que registre los criterios del producto (D-13).",
-  },
   STABILITY_OUT_OF_CRITERIA: {
     rule: "Las lecturas del estudio están fuera de los criterios de cumplimiento.",
     action: "Cierre el estudio como «no cumple» con su motivo o revise los criterios del producto.",

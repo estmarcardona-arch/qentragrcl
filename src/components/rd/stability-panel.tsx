@@ -65,6 +65,7 @@ export function StabilityPanel({
   now,
   canRecord,
   canClose,
+  criteriaDefined,
   signer,
   path,
 }: {
@@ -75,6 +76,8 @@ export function StabilityPanel({
   now: string;
   canRecord: boolean;
   canClose: boolean;
+  /** D-13: sin criterios del producto, el «Cumple» se justifica en las conclusiones. */
+  criteriaDefined: boolean;
   signer: string;
   path: string;
 }) {
@@ -197,6 +200,7 @@ export function StabilityPanel({
         <CloseDialog
           study={study}
           canCumple={missing.length === 0}
+          criteriaDefined={criteriaDefined}
           signer={signer}
           path={path}
           onClose={() => {
@@ -640,18 +644,21 @@ function Field({
 function CloseDialog({
   study,
   canCumple,
+  criteriaDefined,
   signer,
   path,
   onClose,
 }: {
   study: StudyView;
   canCumple: boolean;
+  criteriaDefined: boolean;
   signer: string;
   path: string;
   onClose: () => void;
 }) {
   const [result, setResult] = useState<"cumple" | "no_cumple">(canCumple ? "cumple" : "no_cumple");
   const [conclusions, setConclusions] = useState("");
+  const justify = result === "cumple" && !criteriaDefined;
   return (
     <ReauthDialog
       open
@@ -702,8 +709,13 @@ function CloseDialog({
       </fieldset>
       <div className="grid gap-1.5">
         <Label htmlFor="close-concl" className="text-label uppercase">
-          Conclusiones
+          {justify ? "Conclusiones (obligatorias)" : "Conclusiones"}
         </Label>
+        {justify ? (
+          <span className="text-xs text-text-secondary">
+            El producto no tiene criterios de cumplimiento definidos (D-13): justifique el «Cumple».
+          </span>
+        ) : null}
         <Textarea
           id="close-concl"
           rows={2}

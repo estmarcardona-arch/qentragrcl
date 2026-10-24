@@ -179,7 +179,7 @@ select throws_like($$ select public.close_stability_study(pg_temp.v('st'), 'cump
 reset role;
 select pg_temp.login_as('b2000000-0000-4000-8000-000000000003');
 select throws_like($$ select public.close_stability_study(pg_temp.v('st'), 'cumple', null, null, 'Clave-Prueba-2026') $$,
-  '%STABILITY_CRITERIA_MISSING%', 'D-13: sin criterios definidos no se cierra como «cumple»');
+  '%INVALID_FIELD%justifique%', 'D-13 (0021): sin criterios definidos, «cumple» exige justificar en las conclusiones');
 select lives_ok($$ select public.set_stability_criteria('f2000000-0000-4000-8000-000000000001',
     '{"ph_max_variation": 0.5, "viscosity_max_variation_pct": 10, "micro_limits": {"mesofilos_max": 100, "ausentes": ["pseudomonas", "staphylococcus", "ecoli"]},
       "organoleptic_changes_allowed": false, "reading_window_hours": 100000}', 'Criterios de prueba') $$,
