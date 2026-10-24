@@ -24,8 +24,17 @@ async function sign(page: Page, button: RegExp | string, confirm: RegExp | strin
   await expect(dialog).toBeVisible();
   await dialog.locator("#reauth-password").fill(DEV_PASSWORD);
   await dialog.getByRole("button", { name: confirm }).click();
-  await expect(dialog).toBeHidden();
+  try {
+    await expect(dialog).toBeHidden({ timeout: 15_000 });
+  } catch {
+    // Diagnóstico: el diálogo sigue abierto con el mensaje de la regla que lo impidió.
+    const text = (await dialog.innerText()).replace(/\s+/g, " ").slice(0, 600);
+    throw new Error(`El diálogo de firma no se cerró. Diálogo: ${text}`);
+  }
 }
+
+/** Mensaje de error de la pantalla (excluye el anunciador de rutas de Next.js, que también es role=alert). */
+const ruleAlert = (page: Page, text: string) => page.getByRole("alert").filter({ hasText: text });
 
 async function newPrototype(
   page: Page,
@@ -115,7 +124,7 @@ test.describe("E4 · brief, prototipos y estabilidad preliminar", () => {
     ]);
     await expect(s.page.getByRole("heading", { level: 1 })).toContainText(/P-\d{4}/);
     await s.page.getByRole("button", { name: "Iniciar estudio de estabilidad" }).click();
-    await expect(s.page.getByRole("alert")).toContainText("al menos 2 prototipos");
+    await expect(ruleAlert(s.page, "al menos 2 prototipos")).toBeVisible();
 
     // 4. Con el segundo prototipo ya se inicia el estudio y se genera el cronograma (AC-18).
     await newPrototype(s.page, briefId, "Sin extracto", [
@@ -146,7 +155,7 @@ test.describe("E4 · brief, prototipos y estabilidad preliminar", () => {
     await n.page.locator("#r-vol").fill("200");
     for (const rep of [1, 2, 3]) await n.page.locator(`#r-${rep}-v`).fill("11.8");
     await n.page.getByRole("button", { name: "Registrar lectura de 0 h" }).click();
-    await expect(n.page.getByRole("alert")).toContainText("al menos 250 mL");
+    await expect(ruleAlert(n.page, "al menos 250 mL")).toBeVisible();
     await expect(n.page.getByRole("button", { name: "Registrar lectura de 0 h" })).toBeVisible();
     await n.page.locator("#r-vol").fill("300");
     await n.page.getByRole("button", { name: "Registrar lectura de 0 h" }).click();
