@@ -14,6 +14,9 @@ Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en
 ### Corregido
 
 - E2E de roles configurables: la bandeja «Cambios de roles» se recarga hasta ver la solicitud (fallaba de forma intermitente con la CI cargada).
+- E2E de bloqueo tras 5 intentos: usa un usuario desechable creado en la base de la CI; antes bloqueaba 15 minutos a Camila y Marcela, que también usan las pruebas de I+D.
+- E2E del brief: espera a que el formulario esté hidratado antes de llenarlo (la fecha se perdía de forma intermitente).
+- Nube: catálogos ficticios cargados (`supabase/seed_catalogos.sql`); migraciones 0021 y 0022 aplicadas.
 
 ## [E4] Documentos maestros (PRD F3) — 24/10/2026
 
