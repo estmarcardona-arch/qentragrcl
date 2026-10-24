@@ -30,9 +30,9 @@ export type NavItem = {
 
 export const NAV_ITEMS: Record<NavKey, NavItem> = {
   inicio: { key: "inicio", label: "Inicio", href: "/inicio", stage: null },
-  aprobaciones: { key: "aprobaciones", label: "Aprobaciones", href: "/aprobaciones", stage: "E3" },
+  aprobaciones: { key: "aprobaciones", label: "Aprobaciones", href: "/aprobaciones", stage: null },
   documentos: { key: "documentos", label: "Documentos", href: "/documentos", stage: null },
-  idi: { key: "idi", label: "I+D", href: "/idi/briefs", stage: "E3" },
+  idi: { key: "idi", label: "I+D", href: "/idi/briefs", stage: null },
   bodega: { key: "bodega", label: "Bodega", href: "/bodega/inventario", stage: "E4" },
   produccion: { key: "produccion", label: "Producción", href: "/produccion/lotes", stage: "E6" },
   calidad: { key: "calidad", label: "Calidad", href: "/calidad/supervision", stage: "E7" },

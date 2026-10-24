@@ -41,14 +41,20 @@ describe("RF-02 · menú por rol", () => {
     ]);
   });
 
-  it("en E3 están habilitados Inicio, Documentos, Cambios de roles y Administración según el rol", () => {
+  it("desde F3 se habilitan también Aprobaciones e I+D según el rol", () => {
     const enabled = (roles: string[]) =>
       navForRoles(roles)
         .filter((n) => n.stage === null)
         .map((n) => n.key);
     expect(enabled(["prod_aux"])).toEqual(["inicio", "documentos"]);
-    expect(enabled(["dt"])).toEqual(["inicio", "documentos", "cambios_roles"]);
-    expect(enabled(["aq_dir"])).toEqual(["inicio", "documentos", "cambios_roles"]);
+    expect(enabled(["dt"])).toEqual([
+      "inicio",
+      "aprobaciones",
+      "documentos",
+      "idi",
+      "cambios_roles",
+    ]);
+    expect(enabled(["aq_dir"])).toEqual(["inicio", "aprobaciones", "documentos", "cambios_roles"]);
     expect(enabled(["admin"])).toEqual(["inicio", "cambios_roles", "administracion"]);
   });
 
