@@ -1,7 +1,7 @@
 # Reporte de etapa E4 — Documentos maestros
 
 **Fase del PRD:** F3 (el responsable la nombra E4; en la matriz de trazabilidad conserva la clave E3, ver D-44) · **Rama:** `etapa/E4` · **Fecha:** 24/10/2026
-**Estado:** **lista para aprobación del responsable.** Migraciones 0017–0020 aplicadas en la nube; pgTAP en verde en la nube; CI en verde ([ejecución 40123794004](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/40123794004)).
+**Estado:** **cerrada**: aprobada por el responsable el 24/10/2026 e integrada a `main` ([PR #2](https://github.com/estmarcardona-arch/qentragrcl/pull/2)). Migraciones 0017–0020 aplicadas en la nube; pgTAP en verde en la nube; CI en verde ([ejecución 40123794004](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/40123794004)).
 
 ## Puerta de salida
 
