@@ -293,3 +293,23 @@
     color: var(--primary-hover);
   }
 }
+
+/* S-14 · Vista de impresión del rótulo: solo se imprime el rótulo (D-10: impresión desde el navegador). */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-label,
+  .print-label * {
+    visibility: visible;
+  }
+  .print-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  @page {
+    size: 100mm 70mm;
+    margin: 0;
+  }
+}
