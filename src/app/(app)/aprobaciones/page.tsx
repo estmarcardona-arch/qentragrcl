@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/gxp/status-badge";
 import { formatDate, formatNumber } from "@/lib/format";
 import { SECTIONS, VERSION_BADGE, type VersionStatus } from "@/lib/documents/labels";
 import { getRdAccess } from "@/lib/rd/access";
+import { callRpc } from "@/lib/rpc";
 
 export const metadata: Metadata = { title: "Aprobaciones · GRUFARCOL eBR" };
 
@@ -25,11 +26,12 @@ type VRow = {
   controlled_documents: { code: string; title: string } | null;
 };
 
-// S-10 · Bandeja de aprobación (RF-14): versiones del SGD en revisión o aprobación, prototipos por aprobar como fórmula
-// y briefs enviados. Quien creó una versión no la aprueba (SOD).
+// S-10 · Bandeja de aprobación (RF-14): versiones del SGD que le toca firmar al usuario según la ruta
+// (my_pending_versions), prototipos por aprobar como fórmula y briefs enviados. Quien creó una versión no la aprueba (SOD).
 export default async function ApprovalsPage({ searchParams }: PageProps<"/aprobaciones">) {
   const a = await getRdAccess();
-  const isApprover = a.ctx.roles.some((r) => APPROVER_ROLES.includes(r));
+  const pending = await callRpc(a.supabase, "my_pending_versions").catch(() => []);
+  const isApprover = a.ctx.roles.some((r) => APPROVER_ROLES.includes(r)) || pending.length > 0;
   if (!isApprover && !a.briefApprove) {
     return (
       <main className="mx-auto grid w-full max-w-xl px-6 py-16">
@@ -48,7 +50,10 @@ export default async function ApprovalsPage({ searchParams }: PageProps<"/aproba
         .select(
           "id, status, version_no, author_id, document_id, supersedes_id, change_description, updated_at, content, controlled_documents!document_versions_document_id_fkey(code, title)",
         )
-        .in("status", ["en_revision", "en_aprobacion"])
+        .in(
+          "id",
+          pending.map((p) => p.version_id),
+        )
         .order("updated_at"),
       a.protoRead
         ? a.supabase

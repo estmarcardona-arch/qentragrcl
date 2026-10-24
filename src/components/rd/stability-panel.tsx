@@ -355,7 +355,9 @@ function ReadingForm({
   const pendingTps = TIME_POINTS.filter((tp) =>
     readings.some((r) => r.time_point === tp && !r.recorded_at),
   );
-  const [tp, setTp] = useState<string>(pendingTps[0] ?? "");
+  const [chosen, setTp] = useState<string>(pendingTps[0] ?? "");
+  // Tras registrar un tiempo, la selección pasa al siguiente pendiente.
+  const tp = pendingTps.find((x) => x === chosen) ?? pendingTps[0] ?? "";
   const pendingReps = readings
     .filter((r) => r.time_point === tp && !r.recorded_at)
     .map((r) => r.replicate);

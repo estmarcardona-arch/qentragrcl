@@ -219,33 +219,24 @@ export async function startStudy(input: {
   }
 }
 
-/** Registra las repeticiones de un tiempo de una prueba (una llamada por repetición). */
+/** Registra las repeticiones de un tiempo de una prueba en una sola transacción: todas o ninguna. */
 export async function recordReadings(input: {
   testId: string;
   timePoint: string;
   readings: { replicate: number; values: Record<string, unknown> }[];
   path: string;
 }): Promise<RdResult<{ recorded: number }>> {
-  const supabase = await createClient();
-  let n = 0;
   try {
-    for (const r of input.readings) {
-      await callRpc(supabase, "record_stability_reading", {
-        p_test: uuid.parse(input.testId),
-        p_time_point: input.timePoint,
-        p_replicate: r.replicate,
-        p_values: r.values as never,
-      });
-      n++;
-    }
+    const supabase = await createClient();
+    const res = (await callRpc(supabase, "record_stability_readings", {
+      p_test: uuid.parse(input.testId),
+      p_time_point: input.timePoint,
+      p_readings: input.readings as never,
+    })) as { recorded: number };
     revalidatePath(input.path);
-    return { ok: true, recorded: n };
+    return { ok: true, recorded: Number(res.recorded) };
   } catch (e) {
-    revalidatePath(input.path);
-    const f = fail(e);
-    return n > 0 && !f.ok
-      ? { ...f, detail: `${f.detail ?? ""} (se registraron ${n} antes del error)` }
-      : f;
+    return fail(e);
   }
 }
 
