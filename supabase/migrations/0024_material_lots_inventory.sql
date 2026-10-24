@@ -347,7 +347,8 @@ as $$
 $$;
 revoke execute on function app_private.lot_rule_status(uuid) from public, anon, authenticated;
 
--- RF-20: ubicaciones libres y compatibles que se proponen al recibir (primero la zona que corresponde al estado).
+-- RF-20: ubicaciones libres y compatibles que se proponen al recibir: primero la bodega de la función del material y la
+-- zona que corresponde al estado; nunca las bodegas de rechazo o devolución para un lote que no lo es (D-16).
 create or replace function public.suggest_locations(p_material uuid, p_status text default 'cuarentena', p_limit int default 8)
 returns table (location_id uuid, code text, warehouse_code text, zone text)
 language sql
@@ -367,9 +368,12 @@ as $$
     and (sl.allowed_types is null or app_private.material_class(m.type) = any(sl.allowed_types))
     and not exists (select 1 from public.stock_by_location s where s.location_id = sl.id and s.qty > 0)
     and case p_status when 'rechazado' then w.function = 'rechazo'
-                      when 'cuarentena' then w.function <> 'rechazo' and r.zone <> 'aprobado'
-                      else w.function <> 'rechazo' and r.zone <> 'cuarentena' end
-  order by case when r.zone = case when p_status = 'cuarentena' then 'cuarentena' else 'aprobado' end then 0 else 1 end,
+                      when 'cuarentena' then w.function not in ('rechazo', 'devolucion') and r.zone <> 'aprobado'
+                      else w.function not in ('rechazo', 'devolucion') and r.zone <> 'cuarentena' end
+  -- Primero la bodega cuya función corresponde al material, luego la zona que corresponde al estado.
+  order by case when w.function = case m.type when 'mp' then 'materias_primas' when 'envase' then 'material_envase'
+                                              else 'material_empaque' end then 0 else 1 end,
+           case when r.zone = case when p_status = 'cuarentena' then 'cuarentena' else 'aprobado' end then 0 else 1 end,
            sl.code
   limit greatest(p_limit, 1);
 $$;
