@@ -2,6 +2,12 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [Seguridad] Dependencias — 24/10/2026
+
+- `next` y `eslint-config-next` 16.4.0 → 16.4.3: corrige una ejecución remota de código sin autenticación en la optimización de imágenes (`/_next/image`) y una denegación de servicio con acciones de servidor (aviso crítico; `next build` se detenía).
+- `zod` 4.6.5 → 4.6.7 (agotamiento de memoria con colecciones grandes) y `shadcn` 4.21.4 → 4.22.1 (dependencias vulnerables del CLI).
+- Lockfile: `undici`, `body-parser`, `fast-uri` e `ip-address` actualizadas dentro de sus rangos (`npm audit fix`, sin `--force`). `npm audit`: 0 vulnerabilidades.
+
 ## [Documentación] PRD 1.7 — 09/10/2026
 
 - Sección Producción del PRD reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con la secuencia de 23 documentos del paquete técnico; RF-30…39 agrupados en bloques A–F (mismos números); RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; AC-14 ajustado. Preguntas nuevas D-45…D-48.
