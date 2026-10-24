@@ -4363,6 +4363,13 @@ export type Database = {
         Returns: Json
       }
       log_session_event: { Args: { p_action: string }; Returns: undefined }
+      my_pending_versions: {
+        Args: never
+        Returns: {
+          step: string
+          version_id: string
+        }[]
+      }
       next_number: { Args: { p_key: string }; Returns: string }
       practice_reauth: { Args: { p_password: string }; Returns: Json }
       publish_document: {
@@ -4395,6 +4402,10 @@ export type Database = {
           p_time_point: string
           p_values: Json
         }
+        Returns: Json
+      }
+      record_stability_readings: {
+        Args: { p_readings: Json; p_test: string; p_time_point: string }
         Returns: Json
       }
       reference_now: { Args: never; Returns: string }
