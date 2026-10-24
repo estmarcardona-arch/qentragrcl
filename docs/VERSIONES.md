@@ -12,7 +12,7 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | Postgres (Supabase) | 17 | `supabase/config.toml` → `major_version` |
 | Chromium (Playwright) | Headless Shell 156.0.8078.4 | `npx playwright install chromium` |
 | shadcn/ui (CLI) | 4.22.1 | Estilo `radix-nova`, base Radix; colores reemplazados por los tokens del Prompt 0 |
-| GitHub Actions | checkout@v5 · setup-node@v5 · upload-artifact@v4 | `.github/workflows/ci.yml` |
+| GitHub Actions | checkout@v5 · setup-node@v5 · upload-artifact@v7 | `.github/workflows/ci.yml` |
 
 ## Paquetes npm
 

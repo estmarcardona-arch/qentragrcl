@@ -252,7 +252,16 @@ async function decideAs(
     await loginOk(page, email);
     await page.goto("/cambios-roles?estado=pendiente");
     const card = page.getByTestId("role-change").filter({ hasText: roleCode });
-    await expect(card, `solicitud pendiente de ${roleCode} para ${email}`).toBeVisible();
+    // La bandeja se lee al cargar: con la CI cargada se recarga hasta ver la solicitud.
+    try {
+      await expect(async () => {
+        if (!(await card.isVisible())) await page.reload();
+        await expect(card).toBeVisible({ timeout: 5_000 });
+      }).toPass({ timeout: 30_000 });
+    } catch {
+      const text = (await page.locator("main").innerText()).replace(/\s+/g, " ").slice(0, 600);
+      throw new Error(`Sin solicitud pendiente de ${roleCode} para ${email}. Pantalla: ${text}`);
+    }
     await card.getByRole("button", { name: decision }).click();
     const dialog = page.getByRole("dialog");
     await dialog.locator("#decision-reason").fill(`Decisión E2E de ${email}`);

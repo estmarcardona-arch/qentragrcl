@@ -47,6 +47,8 @@ Las ramas `etapa/*` generan despliegues de vista previa; `main` es el despliegue
 
 Con autorización del responsable (07/10/2026) se cargaron en el proyecto de la nube los 15 usuarios ficticios del Prompt 0B (`npm run seed:remote -- --confirmar`), con correos `@grufarcol.test` y la contraseña de desarrollo de `supabase/seed.sql`. Sirven para revisar pantallas; **nunca** deben existir en producción. El bloqueo de cuenta tras intentos fallidos no está activo en la nube (D-32, opción A).
 
+Con autorización del responsable (24/10/2026) se cargaron además los catálogos ficticios del Prompt 0B (`npm run seed:remote -- --catalogos --confirmar`, archivo `supabase/seed_catalogos.sql`): 15 materias primas y materiales de envase y empaque, los productos PRD-001 y PRD-014 con sus presentaciones y el protocolo de estabilidad CC-PC-001 vigente. Así la vista previa permite probar I+D (brief, prototipos y estabilidad) y servirá de base para Bodega. La nube **no** tiene el listado maestro, los briefs, los prototipos ni los documentos maestros de la semilla completa: esos solo existen en la CI.
+
 ## Ajustes de Supabase Auth en la nube (E2)
 
 En el panel de Supabase del proyecto (los valores locales están en `supabase/config.toml`):

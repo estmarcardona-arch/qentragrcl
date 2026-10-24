@@ -79,13 +79,18 @@ test.describe("E4 · brief, prototipos y estabilidad preliminar", () => {
     // 1. Camila (Comercial) elabora el brief, lo guarda y lo envía a I+D con su firma (RF-10).
     const c = await as(browser, USERS.camila);
     await c.page.goto("/idi/briefs/nuevo");
+    // El clic solo marca el tipo de proyecto cuando React ya hidrató el formulario: después ningún campo se pierde.
+    const projectType = c.page.getByRole("radio", { name: "Nuevo en el portafolio" });
+    await expect(async () => {
+      await projectType.click();
+      await expect(projectType).toHaveAttribute("aria-checked", "true", { timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
     await c.page.locator("#b-execution_date").fill("2026-10-24");
     await c.page.locator("#b-project_name").fill(project);
     await c.page
       .locator("#b-product")
       .selectOption({ label: "PRD-001 · Loción micelar ClariPlus" });
     await c.page.getByLabel("Cosmético", { exact: true }).check();
-    await c.page.getByRole("radio", { name: "Nuevo en el portafolio" }).click();
     await c.page.locator("#b-justification").fill("Ampliar la línea de higiene facial");
     await c.page.getByLabel("manufacturer 1").fill("Lumia");
     await c.page.getByLabel("product_name 1").fill("Agua micelar sensible");
@@ -94,6 +99,7 @@ test.describe("E4 · brief, prototipos y estabilidad preliminar", () => {
     await expect(c.page.getByTestId("competitors")).toContainText("$81,25");
     await c.page.getByLabel("Cadenas", { exact: true }).check();
     await c.page.locator("#b-margin_pct").fill("45");
+    await expect(c.page.locator("#b-execution_date")).toHaveValue("2026-10-24");
     await c.page.getByRole("button", { name: "Guardar borrador" }).click();
     await expect(c.page).toHaveURL(/\/idi\/briefs\/[0-9a-f-]{36}$/, { timeout: 15_000 });
     const briefId = c.page.url().split("/").pop()!;
@@ -210,20 +216,25 @@ test.describe("E4 · semilla de documentos maestros (Prompt 0B)", () => {
     await expect(page.getByTestId("sum")).toContainText("Suma 100,00 %");
   });
 
-  test("RF-17 · los costos son visibles para I+D y confidenciales para Producción", async ({
+  test("RF-17 · los costos solo los ven I+D, Dirección técnica y Gerencia (PRD 1.8)", async ({
     browser,
   }) => {
-    const s = await as(browser, USERS.sebastian);
-    await s.page.goto("/idi/costos");
-    await expect(s.page.getByRole("heading", { level: 1, name: "Costos" })).toBeVisible();
-    await expect(s.page.getByText("PRD-001").first()).toBeVisible();
-    await s.close();
-    const d = await as(browser, USERS.diego);
-    await d.page.goto("/idi/costos");
-    await expect(
-      d.page.getByText(/No tiene acceso a I\+D|Los costos son confidenciales/),
-    ).toBeVisible();
-    await d.close();
+    for (const email of [USERS.sebastian, ESTEBAN, USERS.marcela]) {
+      const u = await as(browser, email);
+      await u.page.goto("/idi/costos");
+      await expect(u.page.getByRole("heading", { level: 1, name: "Costos" })).toBeVisible();
+      await expect(u.page.getByText("PRD-001").first()).toBeVisible();
+      await u.close();
+    }
+    for (const email of [USERS.camila, USERS.paola, USERS.diego]) {
+      const u = await as(browser, email);
+      await u.page.goto("/idi/costos");
+      await expect(
+        u.page.getByText(/No tiene acceso a I\+D|Los costos son confidenciales/),
+        `${email} no ve los costos`,
+      ).toBeVisible();
+      await u.close();
+    }
   });
 
   test("RF-14 · la bandeja de aprobación es de quien firma", async ({ browser }) => {

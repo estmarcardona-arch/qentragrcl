@@ -1,6 +1,7 @@
-// Carga supabase/seed.sql (usuarios ficticios del Prompt 0B) en el proyecto de SUPABASE_DB_URL.
+// Carga supabase/seed.sql (usuarios ficticios del Prompt 0B) en el proyecto de SUPABASE_DB_URL; con
+// --catalogos carga solo supabase/seed_catalogos.sql (materiales, productos y protocolo de estabilidad).
 // Solo para el proyecto de desarrollo/pruebas y con autorización del responsable (AGENTS.md 9 y 14).
-// Es idempotente: no duplica usuarios ni roles. Exige --confirmar para ejecutarse.
+// Es idempotente: no duplica lo que ya existe. Exige --confirmar para ejecutarse.
 import { existsSync, readFileSync } from "node:fs";
 import { Client } from "pg";
 
@@ -15,10 +16,25 @@ if (!process.argv.includes("--confirmar")) {
   process.exit(1);
 }
 
+const catalogs = process.argv.includes("--catalogos");
+
 async function main() {
   const client = new Client({ connectionString: url });
   await client.connect();
   await client.query("begin");
+  if (catalogs) {
+    await client.query(readFileSync("supabase/seed_catalogos.sql", "utf8"));
+    const { rows } = await client.query<{ m: string; p: string; d: string }>(
+      `select (select count(*) from public.materials) as m, (select count(*) from public.products) as p,
+              (select status from public.controlled_documents where code = 'CC-PC-001') as d`,
+    );
+    await client.query("commit");
+    await client.end();
+    console.log(
+      `Catálogos aplicados: ${rows[0].m} materiales, ${rows[0].p} productos, CC-PC-001 ${rows[0].d}.`,
+    );
+    return;
+  }
   await client.query(readFileSync("supabase/seed.sql", "utf8"));
   const { rows } = await client.query<{ n: string }>(
     "select count(*) as n from public.profiles where email like '%@grufarcol.test'",

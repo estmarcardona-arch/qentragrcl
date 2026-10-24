@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.7 · **Fecha:** 09/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.8 · **Fecha:** 24/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -69,6 +69,9 @@ Un usuario puede tener varios roles, **pero la segregación de funciones se eval
 | Traslados y envíos a bodegas externas | — | — | C | C F A | — | L | — | L | L | L | — | — | — | L | L |
 | Sistema de gestión documental (SGD): solicitar, redactar, revisar, aprobar, codificar, publicar y anular documentos | C (autor) | C (autor) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa) | F A (revisa, aprueba y decide anulaciones) | A (documentos técnicos y administrativos) | — | C (autor) | **C F (estandariza, codifica, publica y custodia)** | A (documentos administrativos) | L |
 | Lectura y capacitación (leer, presentar cuestionario y obtener constancia) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | — | F (lee) | C (asigna y hace seguimiento) | F (lee) | L |
+| Costos de fórmula (hoja de costos; confidencial) | — | C | — | — | — | — | — | — | — | L | — | — | — | L | — |
+
+Los costos se rigen por la fila **Costos de fórmula** (desde la v1.8): la fila «Prototipos, estabilidad y costos» conserva su nombre porque su código es estable, pero ya no da acceso a los costos.
 
 La matriz anterior es la **línea base** de los roles del sistema. Sus permisos solo se ajustan en la plataforma con **doble aprobación** (2.6, D-40); la línea base se conserva y la pantalla S-04 marca las celdas ajustadas. Los roles adicionales (2.6) agregan columnas configurables.
 
@@ -105,7 +108,7 @@ El `master` es el usuario autorizado para **crear y modificar los documentos mae
 
 #### 2.5.1 Estructura documental y tipos
 
-Cinco niveles: **1 Normatividad · 2 Manuales · 3 Procedimientos · 4 Instructivos, técnicas y matrices · 5 Formatos**. Tipos (sigla): Manual `MN`, Plan `PL`, Procedimiento `PR`, Formato `FR`, Política `PO`, Programa `PG`, Especificación `EP`, Registro `RG`, Certificado `CE`, Instructivo `IN`, Ficha técnica `FT`, y **Protocolo `PC`** (estudios como la estabilidad, validaciones o mapeo de temperatura; sigla propuesta). Un **formato** es el documento en blanco; un **registro** es el formato diligenciado: en la plataforma, el registro de lote es la instancia de un formato.
+Cinco niveles: **1 Normatividad · 2 Manuales · 3 Procedimientos · 4 Instructivos, técnicas y matrices · 5 Formatos**. Tipos (sigla): Manual `MN`, Plan `PL`, Procedimiento `PR`, Formato `FR`, Política `PO`, Programa `PG`, Especificación `EP`, Registro `RG`, Certificado `CE`, Instructivo `IN`, Ficha técnica `FT`, **Fórmula maestra `FM`** (nivel 4; vigencia por registro sanitario; D-49) y **Protocolo `PC`** (estudios como la estabilidad, validaciones o mapeo de temperatura; sigla propuesta). Un **formato** es el documento en blanco; un **registro** es el formato diligenciado: en la plataforma, el registro de lote es la instancia de un formato.
 
 **Documentos externos** (contratos, catálogos, normas obligatorias, resoluciones): se registran con su emisor y su versión, sin firmas internas, pero con **control de su distribución**.
 
@@ -753,7 +756,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | S-34 | Vista del auditor invitado | `/auditoria/inicio` | auditor | RF-91 | 13 |
 | S-35 | Visor de bitácora (audit trail) | `/auditoria/bitacora` | aq_dir, auditor, admin | RF-90 | 13 |
 | S-36 | Prototipos de fórmula y estabilidad preliminar | `/idi/prototipos` | idi, lab_aux (lecturas), dt (L/A), cc_jefe | RF-15, RF-16 | 3B |
-| S-37 | Hoja de costos de la fórmula | `/idi/costos/[formulaId]` | idi, dt | RF-17 | 3B |
+| S-37 | Hoja de costos de la fórmula | `/idi/costos/[formulaId]` | idi, dt, gerencia | RF-17 | 3B |
 | S-38 | Solicitudes y documentos de la orden (PDF, rótulos, codificado, devoluciones) | `/produccion/ordenes/[id]/documentos` | prod_coord, dt, bodega_aux (L) | RF-38 | 5B |
 | S-39 | Limpieza de equipos y utensilios | `/produccion/lotes/[id]/limpieza` | prod_aux, prod_coord | RF-39 | 5B |
 | S-40 | Paquete técnico (lista de verificación y firmas) | `/liberacion/[batchId]/paquete` | prod_coord, aq_dir, dt | RF-83 | 12B |
@@ -902,7 +905,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 | D-10 | Impresoras de rótulos y formato de etiqueta | Bodega | S-14 |
 | D-11 | ¿Calidad asigna cada número de OP o define el formato y el sistema numera? | Aseguramiento de calidad | `numbering_sequences` |
 | D-12 | ¿Quién aprueba la OP? | Dirección técnica / Calidad | `approve_production_order` |
-| D-13 | Criterios de cumplimiento de la estabilidad preliminar (variación máxima aceptable de pH y viscosidad, límites microbiológicos, cambios organolépticos admisibles) y tolerancia de la ventana horaria de cada lectura; condiciones de la prueba por tipo de producto | I+D / Control de calidad | RF-16 |
+| D-13 | ~~Criterios de cumplimiento de la estabilidad preliminar (variación máxima aceptable de pH y viscosidad, límites microbiológicos, cambios organolépticos admisibles) y tolerancia de la ventana horaria de cada lectura; condiciones de la prueba por tipo de producto~~ **Resuelta (24/10/2026): los criterios por producto son opcionales; si están completos se evalúan, y si no, quien firma el «cumple» lo justifica en las conclusiones. La temperatura fuera de rango siempre lo impide** | I+D / Control de calidad | RF-16 |
 | D-14 | Qué documentos del paquete aplican por línea (cosmético / medicamento) | Garantía de calidad | RF-83 |
 | D-15 | Los procedimientos de elaboración y de registro y control de documentos fueron **recibidos y aplicados como base** (sin nombres ni códigos de la empresa de origen). Falta confirmar con GRUFARCOL: siglas de proceso (se propone `GCA, ADM, CC, PRD, MTO, TH, GLG, IDI`), sigla `PC` para protocolos, vigencias, cuadro de aprobadores | Aseguramiento de calidad | SGD (RF-92…103) |
 | D-16 | Reglas de ubicación por defecto: rechazado → bodega de rechazo, devolución → bodega de devolución, zonas de cuarentena por estante, FEFO por ubicación | Bodega / Calidad | RF-24 |
@@ -924,6 +927,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.8 | 24/10/2026 | Decisiones del responsable: la fórmula maestra es el tipo documental `FM` (D-49); D-13 resuelta (criterios de estabilidad opcionales, «cumple» justificado por quien firma); fila nueva «Costos de fórmula» en la matriz 2.2: solo I+D (C), Dirección técnica (L) y Gerencia (L) ven los costos (RF-17) |
 | 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado. Decisiones del responsable: el paso 23 cita RF-80 (D-45); supervisor = rol adicional o, si no existe, `prod_coord` (D-46); la inspección de producto terminado la firma el coordinador o el supervisor (D-47); tolerancia de la devolución 0 unidades por defecto (D-48) |
 | 1.6 | 08/10/2026 | Aprobación de cambios de rol (D-39, D-40 resueltas): todo cambio de rol es una solicitud del administrador que aprueba Aseguramiento de la calidad; los permisos de los roles del sistema se ajustan con doble aprobación (`aq_dir` y `dt`) y las funciones reservadas siguen con candado; línea base del PRD conservada y marcada en S-04; bandeja S-04B; AC-39…41; D-41 |
 | 1.5 | 08/10/2026 | Roles configurables (sección 2.6): el administrador crea, configura (permisos por módulo, incompatibilidades, vencimiento obligatorio, solo lectura) y retira roles adicionales; funciones reservadas (`admin`, `dt`, `aq_doc`); roles del sistema protegidos como línea base; RF-07; AC-36…38; D-39, D-40; S-04 ampliada |

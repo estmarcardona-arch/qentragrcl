@@ -343,12 +343,13 @@ export function CriteriaPanel({
         </h2>
         <StatusBadge
           status={defined ? "completada" : "pendiente"}
-          label={defined ? "Definidos" : "Por definir con Calidad (D-13)"}
+          label={defined ? "Definidos" : "Sin definir (decide quien firma)"}
         />
       </div>
       <p className="text-small text-text-secondary">
-        Sin criterios definidos no se puede cerrar un estudio como «Cumple». P. aeruginosa, S.
-        aureus y E. coli deben estar ausentes.
+        Opcionales (D-13): si están definidos se evalúan al cerrar el estudio como «Cumple»; si no,
+        quien firma lo justifica en las conclusiones. P. aeruginosa, S. aureus y E. coli deben estar
+        ausentes.
       </p>
       <div className="grid grid-cols-3 gap-3 max-[1279px]:grid-cols-1">
         {fields.map(([k, l]) => (

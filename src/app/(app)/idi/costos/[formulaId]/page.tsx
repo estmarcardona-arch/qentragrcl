@@ -13,12 +13,12 @@ export const metadata: Metadata = { title: "Hoja de costos · GRUFARCOL eBR" };
 export default async function CostSheetPage({ params }: PageProps<"/idi/costos/[formulaId]">) {
   const { formulaId } = await params;
   const a = await getRdAccess();
-  if (!a.protoRead) {
+  if (!a.costRead) {
     return (
       <main className="mx-auto grid w-full max-w-xl px-6 py-16">
         <NoPermissionState
           title="Los costos son confidenciales"
-          text="Solo los roles autorizados ven las hojas de costos (RF-17)."
+          text="Solo I+D, Dirección técnica y Gerencia ven las hojas de costos (RF-17)."
         />
       </main>
     );
@@ -79,7 +79,7 @@ export default async function CostSheetPage({ params }: PageProps<"/idi/costos/[
       </p>
       <CostSheetEditor
         formulaId={formulaId}
-        editable={a.protoCreate}
+        editable={a.costCreate}
         exists={Boolean(cs)}
         initial={{
           batchSize: Number(cs?.batch_size ?? f.batch_size),
