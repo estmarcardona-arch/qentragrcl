@@ -1,5 +1,5 @@
 {
-  "etapa_actual": "E2B",
+  "etapa_actual": "E3",
   "orden_etapas": ["E0", "E1", "E2", "E2B", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11"],
   "requisitos": [
     {
@@ -656,74 +656,190 @@
     {
       "id": "RF-10",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Brief con los campos del Documento Maestro §6.5, competencia en varias filas y estado borrador → enviado → aprobado",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-11",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Fórmula cualicuantitativa versionada sobre el SGD; no se envía si la suma ≠ 100 % (±0,001)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0019_master_documents.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-12",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Especificaciones por materia prima, granel y producto terminado; cada parámetro con método y límites",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0019_master_documents.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-13",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Instructivos por etapa y presentación; cada paso define equipo, verificación y valores a capturar",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0019_master_documents.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-14",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Aprobación de versiones con SOD-3: el creador no aprueba, la aprobada es inmutable y la anterior queda reemplazada; bandeja S-10 por ruta",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0019_master_documents.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0020_rd_readings_batch_inbox.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-15",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Prototipos P-NNNN y mejoras P-NNNN-n; mínimo 2 por brief para elegir",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-16",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Estabilidad preliminar: cinco pruebas, cronograma de 30 días, lecturas por tiempo (todas o ninguna) y cierre firmado",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0020_rd_readings_batch_inbox.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-17",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Hoja de costos con totales que coinciden con las líneas; visible solo a roles autorizados",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0019_master_documents.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-13",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Aprobar fórmula sin estabilidad completa y conforme o con menos de 2 prototipos → STABILITY_INCOMPLETE / MIN_PROTOTYPES",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0019_master_documents.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-16",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Cerrar como «cumple» con lecturas faltantes → STABILITY_INCOMPLETE",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-17",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Viscosidad con muestra de 200 mL → SAMPLE_TOO_SMALL",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0020_rd_readings_batch_inbox.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-18",
       "etapa": "E3",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "El cronograma crea lecturas a 0 h, 12 h, 24 h, 3, 7, 15 y 30 d; microbiología solo a 0 h y 30 d",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0018_briefs_prototypes_stability.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/idi.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-20",

@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E2B**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E3**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -49,18 +49,18 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-33 | E2B | Preliminar con «generalmente» y redacción no infinitiva → STYLE_CHECK_FAILED con observaciones | pgtap: `supabase/tests/0014_document_management.test.sql`<br>pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
 | AC-34 | E2B | Documento con registro sanitario que vence el 30/09/2030 → revisión 30/09/2030 | pgtap: `supabase/tests/0014_document_management.test.sql` | Cubierto |
 | AC-35 | E2B | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Cubierto |
-| RF-10 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-11 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-12 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-13 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-14 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-15 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-16 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-17 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-13 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-16 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-17 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-18 | E3 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| RF-10 | E3 | Brief con los campos del Documento Maestro §6.5, competencia en varias filas y estado borrador → enviado → aprobado | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| RF-11 | E3 | Fórmula cualicuantitativa versionada sobre el SGD; no se envía si la suma ≠ 100 % (±0,001) | pgtap: `supabase/tests/0019_master_documents.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| RF-12 | E3 | Especificaciones por materia prima, granel y producto terminado; cada parámetro con método y límites | pgtap: `supabase/tests/0019_master_documents.test.sql` | Cubierto |
+| RF-13 | E3 | Instructivos por etapa y presentación; cada paso define equipo, verificación y valores a capturar | pgtap: `supabase/tests/0019_master_documents.test.sql` | Cubierto |
+| RF-14 | E3 | Aprobación de versiones con SOD-3: el creador no aprueba, la aprobada es inmutable y la anterior queda reemplazada; bandeja S-10 por ruta | pgtap: `supabase/tests/0019_master_documents.test.sql`<br>pgtap: `supabase/tests/0020_rd_readings_batch_inbox.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| RF-15 | E3 | Prototipos P-NNNN y mejoras P-NNNN-n; mínimo 2 por brief para elegir | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| RF-16 | E3 | Estabilidad preliminar: cinco pruebas, cronograma de 30 días, lecturas por tiempo (todas o ninguna) y cierre firmado | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>pgtap: `supabase/tests/0020_rd_readings_batch_inbox.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| RF-17 | E3 | Hoja de costos con totales que coinciden con las líneas; visible solo a roles autorizados | pgtap: `supabase/tests/0019_master_documents.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| AC-13 | E3 | Aprobar fórmula sin estabilidad completa y conforme o con menos de 2 prototipos → STABILITY_INCOMPLETE / MIN_PROTOTYPES | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>pgtap: `supabase/tests/0019_master_documents.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| AC-16 | E3 | Cerrar como «cumple» con lecturas faltantes → STABILITY_INCOMPLETE | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| AC-17 | E3 | Viscosidad con muestra de 200 mL → SAMPLE_TOO_SMALL | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>pgtap: `supabase/tests/0020_rd_readings_batch_inbox.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
+| AC-18 | E3 | El cronograma crea lecturas a 0 h, 12 h, 24 h, 3, 7, 15 y 30 d; microbiología solo a 0 h y 30 d | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
 | RF-20 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-21 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-22 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
