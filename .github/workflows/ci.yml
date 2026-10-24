@@ -97,12 +97,13 @@ jobs:
           R=$(curl -s -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/token?grant_type=password" \
             -H "apikey: $NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" -H "Content-Type: application/json" \
             -d '{"email":"diego.cardenas@grufarcol.test","password":"Grufarcol.Dev.2026"}')
-          echo "::error title=Token de prueba::$(echo "$R" | head -c 600)"
+          # Solo el resultado del inicio de sesión; nunca el token (el repositorio es público).
+          echo "::error title=Token de prueba::$(echo "$R" | jq -c 'if .access_token then {ok: true} else {error_code, msg, error, error_description} end' 2>/dev/null || echo 'respuesta no JSON')"
           docker logs supabase_auth_grufarcol-ebr 2>&1 | grep -iE "error|hook|fail" | tail -8 | while read -r l; do
             echo "::warning title=Auth::$(echo "$l" | head -c 400)"
           done
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
