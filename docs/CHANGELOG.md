@@ -2,6 +2,24 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E4] Documentos maestros (PRD F3) — 24/10/2026
+
+### Agregado
+
+- Migración 0017: materias primas, materiales de envase y empaque, productos con registro sanitario y presentaciones (catálogos con bitácora) y criterios de cumplimiento de la estabilidad por producto, vacíos hasta que Calidad los defina (D-13).
+- Migración 0018: brief con competencia y precio por mL (`save_brief`, `submit_brief`, `decide_brief`); prototipos `P-NNNN` y mejoras `P-NNNN-n` (`save_prototype`, `create_prototype_improvement`, `discard_prototype`), mínimo 2 por brief (AC-13); estabilidad preliminar con cinco pruebas y cronograma de 30 días (`start_stability_study`, AC-18), lecturas con rango, ventana y muestra mínima de viscosidad (`record_stability_reading`, AC-17), cierre firmado con cierre anticipado «No cumple» (`close_stability_study`, AC-16), criterios (`set_stability_criteria`) y aprobación como fórmula por Gerencia y Dirección técnica (`approve_prototype`).
+- Migración 0019: tipo documental `FM` (D-49); fórmula (suma 100 % ± 0,001), especificaciones por alcance, instructivos por etapa y presentación y hoja de costos (`save_formula_draft`, `save_specification_draft`, `save_instruction_draft`, `save_cost_sheet`, `v_cost_sheet_totals`, `formula_quantities`) sobre el SGD; la aprobación de la fórmula exige un prototipo con estabilidad conforme (AC-13) y bloquea el contenido; `assert_approved_formula` (`NO_APPROVED_VERSION`, AC-07 parcial, se usa en E6). Costos legibles solo con permiso.
+- Migración 0020: `record_stability_readings` (las repeticiones de un tiempo se registran todas o ninguna) y `my_pending_versions` (la bandeja S-10 muestra solo lo que le toca firmar a cada persona según la ruta y excluye las versiones aprobadas sin publicar).
+- Pantallas S-05, S-06 (brief), S-36 (prototipos, estabilidad, criterios y aprobación como fórmula), S-07, S-08, S-09 (fórmula, especificaciones, instructivos), S-37 (costos) y S-10 (aprobaciones con comparación de versiones). Menú: «Aprobaciones» e «I+D».
+- Semilla del Prompt 0B: PRD-001 y PRD-014, materias primas, BR-2026-0011, P-0007, P-0008, P-0007-1 con sus estudios, IDI-FM-001 v3, IDI-EP-007 v02, IDI-IN-012 v03 y costos.
+- Pruebas: pgTAP 0017 (7), 0018 (46), 0019 (28) y 0020 (17); E2E `e2e/idi.spec.ts` (flujo brief → prototipos → estabilidad y vistas de la semilla). Matriz: 57 requisitos con prueba hasta F3.
+
+### Corregido
+
+- Los códigos de error de prototipos y estabilidad (`MIN_PROTOTYPES`, `STABILITY_*`, `SAMPLE_TOO_SMALL`, `READING_DUPLICATE`, `REPORT_MISSING`) se mostraban como «error inesperado».
+- El formulario de lecturas volvía a enviar el tiempo recién registrado; ahora pasa al siguiente pendiente.
+- La comparación de versiones en S-10 rotulaba la versión anterior como «número − 1»; ahora usa la versión reemplazada.
+
 ## [Seguridad] Dependencias — 24/10/2026
 
 - `next` y `eslint-config-next` 16.4.0 → 16.4.3: corrige una ejecución remota de código sin autenticación en la optimización de imágenes (`/_next/image`) y una denegación de servicio con acciones de servidor (aviso crítico; `next build` se detenía).

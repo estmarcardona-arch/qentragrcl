@@ -32,8 +32,8 @@ select ok(not has_table_privilege('authenticated', 'app_private.training_answer_
   'las respuestas de los cuestionarios no se pueden leer');
 
 -- Tipos y rutas (PRD 2.5.1, 2.5.4).
-select is((select string_agg(type_code, ',' order by type_code) from public.document_types),
-  'CE,EP,FR,FT,IN,MN,PC,PG,PL,PO,PR,RG', 'los 12 tipos del PRD 2.5.1 (incluido PC)');
+select ok((select array_agg(type_code) from public.document_types)
+  @> array['CE','EP','FR','FT','IN','MN','PC','PG','PL','PO','PR','RG'], 'los 12 tipos del PRD 2.5.1 (incluido PC)');
 select is((select level from public.document_types where type_code = 'FR'), 5, 'los formatos son nivel 5');
 select is((select stamp_required from public.document_types where type_code = 'FR'), false, 'D-22: los formatos no llevan sello por defecto');
 select is((select requires_scope from public.document_types where type_code = 'IN'), false, 'los instructivos no llevan alcance');

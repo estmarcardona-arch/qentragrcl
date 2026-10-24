@@ -135,6 +135,39 @@ export const ERROR_MESSAGES = {
     rule: "No aprobó el cuestionario: el puntaje está por debajo del mínimo.",
     action: "Repase el documento y presente el cuestionario de nuevo.",
   },
+  // F3 · Prototipos y estabilidad preliminar (PRD §8, RF-15, RF-16, AC-13, AC-16, AC-17; D-13).
+  MIN_PROTOTYPES: {
+    rule: "Se requieren al menos 2 prototipos del brief para elegir uno.",
+    action: "Registre otro prototipo del mismo brief e intente de nuevo.",
+  },
+  STABILITY_MISSING: {
+    rule: "El prototipo no tiene estudio de estabilidad preliminar.",
+    action: "Inicie el estudio de estabilidad del prototipo seleccionado.",
+  },
+  STABILITY_INCOMPLETE: {
+    rule: "El estudio de estabilidad no está completo y conforme.",
+    action: "Registre las lecturas obligatorias que faltan y cierre el estudio como «cumple».",
+  },
+  STABILITY_CRITERIA_MISSING: {
+    rule: "El producto no tiene criterios de cumplimiento de estabilidad definidos.",
+    action: "Solicite a Control de calidad o I+D que registre los criterios del producto (D-13).",
+  },
+  STABILITY_OUT_OF_CRITERIA: {
+    rule: "Las lecturas del estudio están fuera de los criterios de cumplimiento.",
+    action: "Cierre el estudio como «no cumple» con su motivo o revise los criterios del producto.",
+  },
+  SAMPLE_TOO_SMALL: {
+    rule: "La muestra de viscosidad debe ser de al menos 250 mL.",
+    action: "Registre la lectura con una muestra de 250 mL o más.",
+  },
+  READING_DUPLICATE: {
+    rule: "Esa lectura ya se registró.",
+    action: "Si el valor está errado, registre una corrección con motivo.",
+  },
+  REPORT_MISSING: {
+    rule: "Falta el informe del laboratorio externo.",
+    action: "Adjunte el informe de microbiología antes de registrar el resultado.",
+  },
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_MESSAGES;

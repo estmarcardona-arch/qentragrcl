@@ -205,6 +205,178 @@ export type Database = {
         }
         Relationships: []
       }
+      brief_competitors: {
+        Row: {
+          actives: string | null
+          appearance: string | null
+          aroma: string | null
+          brief_id: string
+          cap_type: string | null
+          claims: string | null
+          color: string | null
+          container: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          label_type: string | null
+          manufacturer: string
+          net_content_ml: number | null
+          order_no: number
+          price: number | null
+          price_per_ml: number | null
+          product_name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          actives?: string | null
+          appearance?: string | null
+          aroma?: string | null
+          brief_id: string
+          cap_type?: string | null
+          claims?: string | null
+          color?: string | null
+          container?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label_type?: string | null
+          manufacturer?: string
+          net_content_ml?: number | null
+          order_no: number
+          price?: number | null
+          price_per_ml?: number | null
+          product_name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          actives?: string | null
+          appearance?: string | null
+          aroma?: string | null
+          brief_id?: string
+          cap_type?: string | null
+          claims?: string | null
+          color?: string | null
+          container?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label_type?: string | null
+          manufacturer?: string
+          net_content_ml?: number | null
+          order_no?: number
+          price?: number | null
+          price_per_ml?: number | null
+          product_name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_competitors_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      briefs: {
+        Row: {
+          channels: string[]
+          channels_other: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          execution_date: string | null
+          id: string
+          implementation_costs: string
+          justification: string
+          legal_requirements: string
+          locked_at: string | null
+          margin_pct: number | null
+          product_category: string | null
+          product_id: string | null
+          project_name: string
+          project_type: string | null
+          recommendations: string
+          return_reason: string | null
+          sensorial: Json
+          sources_description: string
+          status: string
+          suggested_price_by_presentation: Json
+          target: Json
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          channels?: string[]
+          channels_other?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          execution_date?: string | null
+          id?: string
+          implementation_costs?: string
+          justification?: string
+          legal_requirements?: string
+          locked_at?: string | null
+          margin_pct?: number | null
+          product_category?: string | null
+          product_id?: string | null
+          project_name?: string
+          project_type?: string | null
+          recommendations?: string
+          return_reason?: string | null
+          sensorial?: Json
+          sources_description?: string
+          status?: string
+          suggested_price_by_presentation?: Json
+          target?: Json
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          channels?: string[]
+          channels_other?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          execution_date?: string | null
+          id?: string
+          implementation_costs?: string
+          justification?: string
+          legal_requirements?: string
+          locked_at?: string | null
+          margin_pct?: number | null
+          product_category?: string | null
+          product_id?: string | null
+          project_name?: string
+          project_type?: string | null
+          recommendations?: string
+          return_reason?: string | null
+          sensorial?: Json
+          sources_description?: string
+          status?: string
+          suggested_price_by_presentation?: Json
+          target?: Json
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "briefs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalog_items: {
         Row: {
           active: boolean
@@ -450,6 +622,143 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "signable_tables"
             referencedColumns: ["table_name"]
+          },
+        ]
+      }
+      cost_sheet_lines: {
+        Row: {
+          cost_sheet_id: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          kind: string
+          line_cost: number | null
+          material_id: string | null
+          presentation_id: string | null
+          qty: number
+          unit: string
+          unit_cost: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cost_sheet_id: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          kind: string
+          line_cost?: number | null
+          material_id?: string | null
+          presentation_id?: string | null
+          qty: number
+          unit: string
+          unit_cost: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cost_sheet_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          kind?: string
+          line_cost?: number | null
+          material_id?: string | null
+          presentation_id?: string | null
+          qty?: number
+          unit?: string
+          unit_cost?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_sheet_lines_cost_sheet_id_fkey"
+            columns: ["cost_sheet_id"]
+            isOneToOne: false
+            referencedRelation: "cost_sheets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cost_sheet_lines_cost_sheet_id_fkey"
+            columns: ["cost_sheet_id"]
+            isOneToOne: false
+            referencedRelation: "v_cost_sheet_totals"
+            referencedColumns: ["cost_sheet_id"]
+          },
+          {
+            foreignKeyName: "cost_sheet_lines_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cost_sheet_lines_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cost_sheets: {
+        Row: {
+          batch_size: number
+          created_at: string
+          created_by: string | null
+          density: number
+          formula_id: string | null
+          id: string
+          industrial_lot_units: Json
+          prototype_id: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          batch_size: number
+          created_at?: string
+          created_by?: string | null
+          density?: number
+          formula_id?: string | null
+          id?: string
+          industrial_lot_units?: Json
+          prototype_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          batch_size?: number
+          created_at?: string
+          created_by?: string | null
+          density?: number
+          formula_id?: string | null
+          id?: string
+          industrial_lot_units?: Json
+          prototype_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_sheets_formula_id_fkey"
+            columns: ["formula_id"]
+            isOneToOne: false
+            referencedRelation: "formulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cost_sheets_prototype_id_fkey"
+            columns: ["prototype_id"]
+            isOneToOne: false
+            referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1192,6 +1501,330 @@ export type Database = {
           },
         ]
       }
+      formula_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          formula_id: string
+          function: string | null
+          id: string
+          material_id: string
+          order_no: number
+          pct: number
+          phase: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          formula_id: string
+          function?: string | null
+          id?: string
+          material_id: string
+          order_no: number
+          pct: number
+          phase?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          formula_id?: string
+          function?: string | null
+          id?: string
+          material_id?: string
+          order_no?: number
+          pct?: number
+          phase?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formula_items_formula_id_fkey"
+            columns: ["formula_id"]
+            isOneToOne: false
+            referencedRelation: "formulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formula_items_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      formula_prototypes: {
+        Row: {
+          approved_at: string | null
+          benefit: string
+          brief_id: string
+          code: string
+          concept: string
+          created_at: string
+          created_by: string | null
+          draft_instruction: string
+          id: string
+          iteration_no: number
+          parent_prototype_id: string | null
+          product_type: string
+          status: string
+          status_reason: string | null
+          target_description: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          benefit?: string
+          brief_id: string
+          code: string
+          concept?: string
+          created_at?: string
+          created_by?: string | null
+          draft_instruction?: string
+          id?: string
+          iteration_no?: number
+          parent_prototype_id?: string | null
+          product_type?: string
+          status?: string
+          status_reason?: string | null
+          target_description?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          benefit?: string
+          brief_id?: string
+          code?: string
+          concept?: string
+          created_at?: string
+          created_by?: string | null
+          draft_instruction?: string
+          id?: string
+          iteration_no?: number
+          parent_prototype_id?: string | null
+          product_type?: string
+          status?: string
+          status_reason?: string | null
+          target_description?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formula_prototypes_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formula_prototypes_parent_prototype_id_fkey"
+            columns: ["parent_prototype_id"]
+            isOneToOne: false
+            referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      formulas: {
+        Row: {
+          batch_size: number
+          batch_unit: string
+          created_at: string
+          created_by: string | null
+          document_version_id: string
+          id: string
+          locked_at: string | null
+          product_id: string
+          prototype_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_size: number
+          batch_unit?: string
+          created_at?: string
+          created_by?: string | null
+          document_version_id: string
+          id?: string
+          locked_at?: string | null
+          product_id: string
+          prototype_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_size?: number
+          batch_unit?: string
+          created_at?: string
+          created_by?: string | null
+          document_version_id?: string
+          id?: string
+          locked_at?: string | null
+          product_id?: string
+          prototype_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formulas_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: true
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulas_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: true
+            referencedRelation: "v_master_list"
+            referencedColumns: ["version_id"]
+          },
+          {
+            foreignKeyName: "formulas_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulas_prototype_id_fkey"
+            columns: ["prototype_id"]
+            isOneToOne: false
+            referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instruction_steps: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          instruction_id: string
+          label: string
+          order_no: number
+          params: Json
+          requires_equipment: string | null
+          requires_verification: boolean
+          text: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instruction_id: string
+          label: string
+          order_no: number
+          params?: Json
+          requires_equipment?: string | null
+          requires_verification?: boolean
+          text: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instruction_id?: string
+          label?: string
+          order_no?: number
+          params?: Json
+          requires_equipment?: string | null
+          requires_verification?: boolean
+          text?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instruction_steps_instruction_id_fkey"
+            columns: ["instruction_id"]
+            isOneToOne: false
+            referencedRelation: "instructions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instructions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_version_id: string
+          id: string
+          locked_at: string | null
+          presentation_id: string | null
+          product_id: string
+          stage: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_version_id: string
+          id?: string
+          locked_at?: string | null
+          presentation_id?: string | null
+          product_id: string
+          stage: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_version_id?: string
+          id?: string
+          locked_at?: string | null
+          presentation_id?: string | null
+          product_id?: string
+          stage?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instructions_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: true
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instructions_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: true
+            referencedRelation: "v_master_list"
+            referencedColumns: ["version_id"]
+          },
+          {
+            foreignKeyName: "instructions_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instructions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       login_attempts: {
         Row: {
           created_at: string
@@ -1232,6 +1865,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      materials: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          default_function: string | null
+          id: string
+          inci_name: string | null
+          name: string
+          requires_coa: boolean
+          type: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          default_function?: string | null
+          id?: string
+          inci_name?: string | null
+          name: string
+          requires_coa?: boolean
+          type: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          default_function?: string | null
+          id?: string
+          inci_name?: string | null
+          name?: string
+          requires_coa?: boolean
+          type?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
       }
       module_permissions: {
         Row: {
@@ -1578,6 +2262,128 @@ export type Database = {
         }
         Relationships: []
       }
+      product_presentations: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          net_content: number
+          product_id: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          net_content: number
+          product_id: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          net_content?: number
+          product_id?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_presentations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          brand_id: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          line_id: string
+          name: string
+          sanitary_registration: string | null
+          sanitary_registration_expires: string | null
+          shelf_life_months: number | null
+          titular: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          brand_id?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          line_id: string
+          name: string
+          sanitary_registration?: string | null
+          sanitary_registration_expires?: string | null
+          shelf_life_months?: number | null
+          titular?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          brand_id?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          line_id?: string
+          name?: string
+          sanitary_registration?: string | null
+          sanitary_registration_expires?: string | null
+          shelf_life_months?: number | null
+          titular?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "product_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           active: boolean
@@ -1630,6 +2436,126 @@ export type Database = {
             columns: ["area_id"]
             isOneToOne: false
             referencedRelation: "organizational_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prototype_approvals: {
+        Row: {
+          approver: string
+          approver_name: string
+          approver_role: string
+          client_reference: string | null
+          created_at: string
+          created_by: string | null
+          decided_at: string
+          id: string
+          prototype_id: string
+          reason: string | null
+          reauth_method: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approver: string
+          approver_name: string
+          approver_role: string
+          client_reference?: string | null
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string
+          id?: string
+          prototype_id: string
+          reason?: string | null
+          reauth_method: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approver?: string
+          approver_name?: string
+          approver_role?: string
+          client_reference?: string | null
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string
+          id?: string
+          prototype_id?: string
+          reason?: string | null
+          reauth_method?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prototype_approvals_approver_fkey"
+            columns: ["approver"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prototype_approvals_prototype_id_fkey"
+            columns: ["prototype_id"]
+            isOneToOne: false
+            referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prototype_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          function: string | null
+          id: string
+          material_id: string
+          order_no: number
+          pct: number
+          phase: string | null
+          prototype_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          function?: string | null
+          id?: string
+          material_id: string
+          order_no: number
+          pct: number
+          phase?: string | null
+          prototype_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          function?: string | null
+          id?: string
+          material_id?: string
+          order_no?: number
+          pct?: number
+          phase?: string | null
+          prototype_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prototype_items_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prototype_items_prototype_id_fkey"
+            columns: ["prototype_id"]
+            isOneToOne: false
+            referencedRelation: "formula_prototypes"
             referencedColumns: ["id"]
           },
         ]
@@ -2339,6 +3265,436 @@ export type Database = {
         }
         Relationships: []
       }
+      spec_parameters: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          max_value: number | null
+          method: string
+          min_value: number | null
+          name: string
+          order_no: number
+          specification_id: string
+          text_limit: string | null
+          unit: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_value?: number | null
+          method?: string
+          min_value?: number | null
+          name: string
+          order_no: number
+          specification_id: string
+          text_limit?: string | null
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_value?: number | null
+          method?: string
+          min_value?: number | null
+          name?: string
+          order_no?: number
+          specification_id?: string
+          text_limit?: string | null
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spec_parameters_specification_id_fkey"
+            columns: ["specification_id"]
+            isOneToOne: false
+            referencedRelation: "specifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      specifications: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_version_id: string
+          id: string
+          locked_at: string | null
+          material_id: string | null
+          product_id: string | null
+          scope: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_version_id: string
+          id?: string
+          locked_at?: string | null
+          material_id?: string | null
+          product_id?: string | null
+          scope: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_version_id?: string
+          id?: string
+          locked_at?: string | null
+          material_id?: string | null
+          product_id?: string | null
+          scope?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specifications_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: true
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "specifications_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: true
+            referencedRelation: "v_master_list"
+            referencedColumns: ["version_id"]
+          },
+          {
+            foreignKeyName: "specifications_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "specifications_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stability_criteria: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          density_max_variation: number | null
+          id: string
+          micro_limits: Json | null
+          notes: string | null
+          organoleptic_changes_allowed: boolean | null
+          ph_max_variation: number | null
+          product_id: string
+          reading_window_hours: number | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+          viscosity_max_variation_pct: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          density_max_variation?: number | null
+          id?: string
+          micro_limits?: Json | null
+          notes?: string | null
+          organoleptic_changes_allowed?: boolean | null
+          ph_max_variation?: number | null
+          product_id: string
+          reading_window_hours?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+          viscosity_max_variation_pct?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          density_max_variation?: number | null
+          id?: string
+          micro_limits?: Json | null
+          notes?: string | null
+          organoleptic_changes_allowed?: boolean | null
+          ph_max_variation?: number | null
+          product_id?: string
+          reading_window_hours?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+          viscosity_max_variation_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stability_criteria_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stability_readings: {
+        Row: {
+          analytes: Json | null
+          created_at: string
+          created_by: string | null
+          due_at: string
+          id: string
+          in_range: boolean | null
+          locked_at: string | null
+          observations: string | null
+          organoleptic: Json | null
+          ph: number | null
+          recorded_at: string | null
+          recorded_by: string | null
+          replicate: number
+          temperature: number | null
+          test_id: string
+          time_point: string
+          unit: string | null
+          updated_at: string
+          updated_by: string | null
+          value: number | null
+          within_window: boolean | null
+        }
+        Insert: {
+          analytes?: Json | null
+          created_at?: string
+          created_by?: string | null
+          due_at: string
+          id?: string
+          in_range?: boolean | null
+          locked_at?: string | null
+          observations?: string | null
+          organoleptic?: Json | null
+          ph?: number | null
+          recorded_at?: string | null
+          recorded_by?: string | null
+          replicate: number
+          temperature?: number | null
+          test_id: string
+          time_point: string
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+          within_window?: boolean | null
+        }
+        Update: {
+          analytes?: Json | null
+          created_at?: string
+          created_by?: string | null
+          due_at?: string
+          id?: string
+          in_range?: boolean | null
+          locked_at?: string | null
+          observations?: string | null
+          organoleptic?: Json | null
+          ph?: number | null
+          recorded_at?: string | null
+          recorded_by?: string | null
+          replicate?: number
+          temperature?: number | null
+          test_id?: string
+          time_point?: string
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+          within_window?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stability_readings_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stability_readings_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "stability_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stability_studies: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          conclusions: string | null
+          created_at: string
+          created_by: string | null
+          early_close_reason: string | null
+          end_date: string
+          id: string
+          kind: string
+          locked_at: string | null
+          protocol_document_version_id: string
+          prototype_id: string
+          result: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          conclusions?: string | null
+          created_at?: string
+          created_by?: string | null
+          early_close_reason?: string | null
+          end_date: string
+          id?: string
+          kind?: string
+          locked_at?: string | null
+          protocol_document_version_id: string
+          prototype_id: string
+          result?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          conclusions?: string | null
+          created_at?: string
+          created_by?: string | null
+          early_close_reason?: string | null
+          end_date?: string
+          id?: string
+          kind?: string
+          locked_at?: string | null
+          protocol_document_version_id?: string
+          prototype_id?: string
+          result?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stability_studies_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stability_studies_protocol_document_version_id_fkey"
+            columns: ["protocol_document_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stability_studies_protocol_document_version_id_fkey"
+            columns: ["protocol_document_version_id"]
+            isOneToOne: false
+            referencedRelation: "v_master_list"
+            referencedColumns: ["version_id"]
+          },
+          {
+            foreignKeyName: "stability_studies_prototype_id_fkey"
+            columns: ["prototype_id"]
+            isOneToOne: false
+            referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stability_tests: {
+        Row: {
+          condition_max: number | null
+          condition_min: number | null
+          created_at: string
+          created_by: string | null
+          duration_days: number
+          external_lab_name: string | null
+          id: string
+          lab: string
+          method: string | null
+          replicates: number
+          report_file: string | null
+          required: boolean
+          sample_volume_ml: number | null
+          study_id: string
+          test_type: string
+          unit: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          condition_max?: number | null
+          condition_min?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number
+          external_lab_name?: string | null
+          id?: string
+          lab?: string
+          method?: string | null
+          replicates: number
+          report_file?: string | null
+          required?: boolean
+          sample_volume_ml?: number | null
+          study_id: string
+          test_type: string
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          condition_max?: number | null
+          condition_min?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number
+          external_lab_name?: string | null
+          id?: string
+          lab?: string
+          method?: string | null
+          replicates?: number
+          report_file?: string | null
+          required?: boolean
+          sample_volume_ml?: number | null
+          study_id?: string
+          test_type?: string
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stability_tests_study_id_fkey"
+            columns: ["study_id"]
+            isOneToOne: false
+            referencedRelation: "stability_studies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stage_definitions: {
         Row: {
           active: boolean
@@ -2656,6 +4012,16 @@ export type Database = {
       }
     }
     Views: {
+      v_cost_sheet_totals: {
+        Row: {
+          bulk_cost: number | null
+          bulk_cost_per_unit: number | null
+          cost_sheet_id: string | null
+          industrial_lot_cost: number | null
+          presentations: Json | null
+        }
+        Relationships: []
+      }
       v_documents_overdue_by_process: {
         Row: {
           overdue: number | null
@@ -2816,6 +4182,17 @@ export type Database = {
         Args: { p_password: string; p_reason?: string; p_version: string }
         Returns: Json
       }
+      approve_prototype: {
+        Args: {
+          p_as_client: boolean
+          p_client_reference: string
+          p_password: string
+          p_prototype: string
+          p_reason: string
+        }
+        Returns: Json
+      }
+      assert_approved_formula: { Args: { p_product: string }; Returns: Json }
       assert_document_effective: {
         Args: { p_version_ids: string[] }
         Returns: Json
@@ -2838,7 +4215,10 @@ export type Database = {
       bogota_today: { Args: never; Returns: string }
       can_follow_trainings: { Args: never; Returns: boolean }
       can_read_audit: { Args: never; Returns: boolean }
+      can_read_costs: { Args: never; Returns: boolean }
       can_read_documents: { Args: never; Returns: boolean }
+      can_read_master: { Args: never; Returns: boolean }
+      can_read_rd: { Args: never; Returns: boolean }
       can_see_role_changes: { Args: never; Returns: boolean }
       can_sign: {
         Args: {
@@ -2863,6 +4243,16 @@ export type Database = {
         Args: { p_annulment: string; p_reason: string }
         Returns: undefined
       }
+      close_stability_study: {
+        Args: {
+          p_conclusions: string
+          p_password: string
+          p_reason: string
+          p_result: string
+          p_study: string
+        }
+        Returns: Json
+      }
       compute_review_due_date: {
         Args: {
           p_issue_date: string
@@ -2872,11 +4262,24 @@ export type Database = {
         }
         Returns: string
       }
+      create_prototype_improvement: {
+        Args: { p_parent: string; p_reason: string }
+        Returns: Json
+      }
       current_user_roles: { Args: never; Returns: string[] }
       decide_annulment: {
         Args: {
           p_annulment: string
           p_decision: string
+          p_password: string
+          p_reason: string
+        }
+        Returns: Json
+      }
+      decide_brief: {
+        Args: {
+          p_decision: string
+          p_id: string
           p_password: string
           p_reason: string
         }
@@ -2891,6 +4294,10 @@ export type Database = {
         }
         Returns: Json
       }
+      discard_prototype: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
       document_validity: {
         Args: { p_review_date: string; p_status: string }
         Returns: string
@@ -2898,6 +4305,17 @@ export type Database = {
       format_sequence_code: {
         Args: { p_format: string; p_value: number; p_year: number }
         Returns: string
+      }
+      formula_quantities: {
+        Args: { p_batch_size?: number; p_formula: string }
+        Returns: {
+          code: string
+          material_id: string
+          name: string
+          pct: number
+          qty: number
+          unit: string
+        }[]
       }
       get_audit_trail: {
         Args: { p_record_id: string; p_table: string }
@@ -2945,6 +4363,13 @@ export type Database = {
         Returns: Json
       }
       log_session_event: { Args: { p_action: string }; Returns: undefined }
+      my_pending_versions: {
+        Args: never
+        Returns: {
+          step: string
+          version_id: string
+        }[]
+      }
       next_number: { Args: { p_key: string }; Returns: string }
       practice_reauth: { Args: { p_password: string }; Returns: Json }
       publish_document: {
@@ -2969,6 +4394,19 @@ export type Database = {
       record_password_change: {
         Args: { p_password: string }
         Returns: undefined
+      }
+      record_stability_reading: {
+        Args: {
+          p_replicate: number
+          p_test: string
+          p_time_point: string
+          p_values: Json
+        }
+        Returns: Json
+      }
+      record_stability_readings: {
+        Args: { p_readings: Json; p_test: string; p_time_point: string }
+        Returns: Json
       }
       reference_now: { Args: never; Returns: string }
       register_change_request: {
@@ -3024,6 +4462,23 @@ export type Database = {
         Args: { p_checklist?: Json; p_version: string }
         Returns: Json
       }
+      save_brief: {
+        Args: { p_competitors: Json; p_data: Json; p_id: string }
+        Returns: Json
+      }
+      save_cost_sheet: {
+        Args: {
+          p_batch_size: number
+          p_density: number
+          p_formula: string
+          p_ingredient_costs: Json
+          p_packaging: Json
+          p_prototype: string
+          p_reason: string
+          p_units: Json
+        }
+        Returns: string
+      }
       save_document_draft: {
         Args: {
           p_change_description?: string
@@ -3032,6 +4487,40 @@ export type Database = {
           p_version: string
         }
         Returns: undefined
+      }
+      save_formula_draft: {
+        Args: {
+          p_batch_size: number
+          p_items: Json
+          p_product: string
+          p_prototype?: string
+          p_version: string
+        }
+        Returns: Json
+      }
+      save_instruction_draft: {
+        Args: {
+          p_presentation: string
+          p_product: string
+          p_stage: string
+          p_steps: Json
+          p_version: string
+        }
+        Returns: Json
+      }
+      save_prototype: {
+        Args: { p_brief: string; p_data: Json; p_id: string; p_items: Json }
+        Returns: Json
+      }
+      save_specification_draft: {
+        Args: {
+          p_material: string
+          p_params: Json
+          p_product: string
+          p_scope: string
+          p_version: string
+        }
+        Returns: Json
       }
       save_template_draft: {
         Args: {
@@ -3047,6 +4536,10 @@ export type Database = {
         Args: { p_change_request: string; p_decision: string; p_note: string }
         Returns: undefined
       }
+      set_stability_criteria: {
+        Args: { p_product: string; p_reason: string; p_values: Json }
+        Returns: undefined
+      }
       short_signature_of: { Args: { p_full_name: string }; Returns: string }
       sign_record: {
         Args: {
@@ -3058,8 +4551,17 @@ export type Database = {
         }
         Returns: Json
       }
+      stability_missing: { Args: { p_study: string }; Returns: Json }
+      start_stability_study: {
+        Args: { p_density_required: boolean; p_prototype: string }
+        Returns: Json
+      }
       style_observations: {
         Args: { p_content: Json; p_type_id: string }
+        Returns: Json
+      }
+      submit_brief: {
+        Args: { p_id: string; p_password: string }
         Returns: Json
       }
       submit_for_review: {

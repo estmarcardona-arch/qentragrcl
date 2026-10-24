@@ -289,7 +289,7 @@ test.describe("RF-92 · listado maestro de la semilla (Prompt 0B)", () => {
     await expect(ind.locator('[data-process="PRD"]')).toContainText("1 de 3");
     await expect(ind.locator('[data-process="GCA"]')).toContainText("0 de 4");
     await expect(ind.locator('[data-process="CC"]')).toContainText("0 de 2");
-    await expect(ind.locator('[data-process="IDI"]')).toContainText("0 de 2");
+    await expect(ind.locator('[data-process="IDI"]')).toContainText("0 de 3"); // 0B + fórmula IDI-FM-001 (E4, D-49)
     await expect(ind.locator('[data-process="GLG"]')).toContainText("0 de 1");
   });
 
