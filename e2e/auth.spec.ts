@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { DEV_PASSWORD, hasSeedUsers, login, loginOk, USERS } from "./helpers";
+import { createThrowawayUser, DEV_PASSWORD, hasSeedUsers, login, loginOk, USERS } from "./helpers";
 
 const AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 const GENERIC = "No pudimos iniciar su sesión";
@@ -77,8 +77,9 @@ test.describe("RF-01 / RF-02 · sesión iniciada", () => {
 
   test("RF-01 · bloqueo tras 5 intentos fallidos", async ({ page }, info) => {
     test.skip(process.env.E2E_AUTH_HOOK !== "1", "Requiere el hook de bloqueo de Supabase Auth");
-    // Usuarios que ninguna otra prueba usa: quedan bloqueados 15 minutos.
-    const user = info.project.name === "tablet" ? USERS.camila : USERS.marcela;
+    test.skip(!process.env.E2E_DB_URL, "Requiere acceso directo a la base de pruebas");
+    // Usuario desechable: queda bloqueado 15 minutos sin afectar a los usuarios de la semilla.
+    const user = await createThrowawayUser(process.env.E2E_DB_URL!, `bloqueo.${info.project.name}`);
     for (let i = 0; i < 5; i++) {
       await login(page, user, `Clave.Equivocada.${i}`);
       await expect(page.getByRole("alert").filter({ hasText: GENERIC })).toBeVisible();
