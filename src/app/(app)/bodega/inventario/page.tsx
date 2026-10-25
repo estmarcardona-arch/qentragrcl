@@ -115,7 +115,7 @@ export default async function InventoryPage({ searchParams }: PageProps<"/bodega
         actions={
           a.receive ? (
             <Button asChild>
-              <Link href="/bodega/recepcion">Recibir material</Link>
+              <Link href="/bodega/recepcion">Ingreso a bodega (recepción técnica)</Link>
             </Button>
           ) : null
         }

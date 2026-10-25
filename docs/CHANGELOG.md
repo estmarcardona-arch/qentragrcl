@@ -2,6 +2,17 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E5B] Maestro de materiales y productos (PRD 1.9, F4B) — 25/10/2026
+
+### Agregado
+
+- PRD 1.9 (solicitud del responsable): RF-26, pantalla S-50, fase F4B, fila «Maestro de materiales y productos» en la matriz 2.2 (crean I+D, el jefe de bodega y Aseguramiento de la calidad), RF-20 ampliado, AC-42 y AC-43.
+- Migración 0026: campos del maestro (condiciones de almacenamiento, vida útil o reanálisis, empaque de compra) y de la recepción (orden de compra, unidades de empaque); `save_material`, `save_product` y `save_presentation` con motivo, unidad del catálogo, código único e inmutable tras su uso; la recepción solo admite ítems activos (AC-42) y calcula o valida la cantidad con las unidades de empaque (AC-43).
+- S-50 `/bodega/maestros`: materias primas, envase, empaque y productos terminados con sus presentaciones; crear y editar con motivo; inactivar; «dónde se usa» (prototipos, fórmulas, especificaciones e instructivos de I+D y lotes en bodega). Pestaña en Bodega e I+D.
+- Recepción técnica: botón «Ingreso a bodega (recepción técnica)» en Inventario; orden de compra, empaques con cantidad calculada, vencimiento sugerido por la vida útil y condiciones de almacenamiento; la plantilla CSV incluye las columnas nuevas.
+- Rótulo: condiciones de almacenamiento, empaques y orden de compra; **PDF descargable** de 10 × 7 cm con QR (`/bodega/rotulos/[id]/pdf`), que registra quién lo genera.
+- Pruebas: pgTAP 0026 (19); E2E `e2e/maestros.spec.ts`. Matriz: 70 requisitos con prueba hasta F4B. Decisiones D-55…D-57.
+
 ## [E5] Bodega y calidad de insumos (PRD F4) — 24/10/2026
 
 ### Agregado

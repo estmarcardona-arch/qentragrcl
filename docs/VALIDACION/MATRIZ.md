@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E4**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E4B**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -61,7 +61,7 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-16 | E3 | Cerrar como «cumple» con lecturas faltantes → STABILITY_INCOMPLETE | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts`<br>pgtap: `supabase/tests/0021_stability_signer_judgment.test.sql` | Cubierto |
 | AC-17 | E3 | Viscosidad con muestra de 200 mL → SAMPLE_TOO_SMALL | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>pgtap: `supabase/tests/0020_rd_readings_batch_inbox.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
 | AC-18 | E3 | El cronograma crea lecturas a 0 h, 12 h, 24 h, 3, 7, 15 y 30 d; microbiología solo a 0 h y 30 d | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
-| RF-20 | E4 | Recepción en cuarentena con vencimiento obligatorio, CoA, ubicación sugerida compatible y rótulo con la ubicación | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-20 | E4 | Recepción en cuarentena con vencimiento obligatorio, CoA, ubicación sugerida compatible y rótulo con la ubicación; v1.9: orden de compra, unidades de empaque, vencimiento sugerido y rótulo PDF | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts`<br>pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
 | RF-21 | E4 | Kardex por lote con movimientos inmutables, FEFO y alertas 30/60/90 días; saldo = suma de movimientos y nunca negativo | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
 | RF-22 | E4 | Liberación de insumos por Control de calidad con firma: cuarentena → aprobado | rechazado; SOD-5 | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
 | RF-23 | E4 | Bodegas por función, internas o externas (aprobación D-20), estantes × pisos × posiciones con ubicaciones codificadas | pgtap: `supabase/tests/0023_warehouses.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
@@ -71,6 +71,9 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-22 | E4 | Trasladar un lote rechazado a una ubicación de materias primas aprobadas → LOCATION_RULE_VIOLATION | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql` | Cubierto |
 | AC-24 | E4 | Despachar a una bodega externa con tercero no calificado o vencido → EXTERNAL_SITE_NOT_QUALIFIED | pgtap: `supabase/tests/0025_stock_transfers.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
 | AC-27 | E4 | 6 estantes × 4 pisos × 2 posiciones = 48 ubicaciones con códigos únicos | pgtap: `supabase/tests/0023_warehouses.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-26 | E4B | Maestro de materiales y productos: código único, unidad del catálogo, almacenamiento, vida útil o reanálisis y empaque de compra; mantienen I+D, bodega y Calidad con motivo; dónde se usa | pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
+| AC-42 | E4B | Recibir un ítem que no existe en el maestro o está inactivo → INVALID_FIELD | pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
+| AC-43 | E4B | Recibir 2 cajas × 100 plegadizas → 200 und con orden de compra en el rótulo | pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
 | RF-50 | E5 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-30 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-31 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |

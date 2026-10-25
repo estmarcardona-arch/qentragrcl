@@ -7,7 +7,8 @@ import { getWarehouseAccess } from "@/lib/warehouse/access";
 
 export const metadata: Metadata = { title: "Recepción · GRUFARCOL eBR" };
 
-// S-11 · Recepción de materia prima y materiales (RF-20) e importación CSV (D-03).
+// S-11 · Recepción técnica de materias primas y materiales (RF-20 v1.9: orden de compra y unidades de empaque) e
+// importación CSV (D-03). Solo ítems activos del maestro (RF-26).
 export default async function ReceptionPage() {
   const a = await getWarehouseAccess();
   if (!a.receive) {
@@ -23,7 +24,9 @@ export default async function ReceptionPage() {
   const [{ data: materials }, { data: suppliers }, { data: locations }] = await Promise.all([
     a.supabase
       .from("materials")
-      .select("id, code, name, unit, requires_coa")
+      .select(
+        "id, code, name, unit, requires_coa, storage_conditions, shelf_life_months, shelf_life_kind, default_package_type, default_package_qty",
+      )
       .eq("active", true)
       .order("name"),
     a.supabase
@@ -42,8 +45,8 @@ export default async function ReceptionPage() {
   return (
     <main className="grid content-start gap-4 px-8 pt-6 pb-10 max-[1279px]:px-4">
       <PageHeader
-        title="Recepción de materia prima"
-        description="Complete los datos del lote del proveedor"
+        title="Recepción técnica · ingreso a bodega"
+        description="Todo lo recibido queda en CUARENTENA con su rótulo hasta que Control de calidad lo libere"
         breadcrumbs={[
           { label: "Inicio", href: "/inicio" },
           { label: "Bodega" },
@@ -57,6 +60,11 @@ export default async function ReceptionPage() {
           name: m.name,
           unit: m.unit,
           requiresCoa: m.requires_coa,
+          storage: m.storage_conditions,
+          shelfLifeMonths: m.shelf_life_months,
+          shelfLifeKind: m.shelf_life_kind,
+          packageType: m.default_package_type,
+          packageQty: m.default_package_qty == null ? null : Number(m.default_package_qty),
         }))}
         suppliers={(suppliers ?? []).map((s) => ({ id: s.id, label: s.name }))}
         locations={(locations ?? []).map((l) => ({

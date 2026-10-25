@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.8 · **Fecha:** 24/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.9 · **Fecha:** 25/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -70,8 +70,9 @@ Un usuario puede tener varios roles, **pero la segregación de funciones se eval
 | Sistema de gestión documental (SGD): solicitar, redactar, revisar, aprobar, codificar, publicar y anular documentos | C (autor) | C (autor) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa a su equipo) | C (autor) | C (autor) F (revisa) | F A (revisa, aprueba y decide anulaciones) | A (documentos técnicos y administrativos) | — | C (autor) | **C F (estandariza, codifica, publica y custodia)** | A (documentos administrativos) | L |
 | Lectura y capacitación (leer, presentar cuestionario y obtener constancia) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | — | F (lee) | C (asigna y hace seguimiento) | F (lee) | L |
 | Costos de fórmula (hoja de costos; confidencial) | — | C | — | — | — | — | — | — | — | L | — | — | — | L | — |
+| Maestro de materiales y productos (código, unidad, almacenamiento, vida útil) | L | C | L | C | L | L | L | L | C | L | — | L | — | L | L |
 
-Los costos se rigen por la fila **Costos de fórmula** (desde la v1.8): la fila «Prototipos, estabilidad y costos» conserva su nombre porque su código es estable, pero ya no da acceso a los costos.
+El maestro de materiales y productos lo mantienen I+D, el jefe de bodega y Aseguramiento de la calidad (desde la v1.9; RF-26). Los costos se rigen por la fila **Costos de fórmula** (desde la v1.8): la fila «Prototipos, estabilidad y costos» conserva su nombre porque su código es estable, pero ya no da acceso a los costos.
 
 La matriz anterior es la **línea base** de los roles del sistema. Sus permisos solo se ajustan en la plataforma con **doble aprobación** (2.6, D-40); la línea base se conserva y la pantalla S-04 marca las celdas ajustadas. Los roles adicionales (2.6) agregan columnas configurables.
 
@@ -357,10 +358,10 @@ erDiagram
 
 | Tabla | Campos clave |
 |---|---|
-| `products` | code, name, line_id, brand_id?, presentation_list |
+| `products` | code, name, line_id, brand_id?, presentation_list, titular, sanitary_registration, shelf_life_months, storage_conditions (v1.9) |
 | `briefs` | code, execution_date, project_name, project_type (`innovador/nuevo_portafolio/modificacion_renovacion/extension_linea/maquila_tercero`), product_category (`cosmetico/medicamento`), justification, sources_description, target (jsonb: estrato, rango_edad, sexo, ingresos, otras, para_quien, psicograficos, actitud_compra, frecuencia_consumo), channels (array: `cadenas/subtiendas/mercado_tradicional/otros`), margin_pct, suggested_price_by_presentation (jsonb), legal_requirements, implementation_costs, recommendations, status, version |
 | `brief_competitors` | brief_id, manufacturer, product_name, container (vidrio/PET/otro), cap_type, label_type, claims, actives, price, price_per_ml, aroma, color, appearance |
-| `materials` | code, name, type (`mp`/`envase`/`empaque`), unit, spec_id?, requires_coa |
+| `materials` | code, name, type (`mp`/`envase`/`empaque`), unit (catálogo de unidades), spec_id?, requires_coa; desde v1.9: storage_conditions, shelf_life_months y shelf_life_kind (`vencimiento`/`reanalisis`), default_package_type y default_package_qty (unidad de empaque de compra) |
 | `formulas` | product_id, version, status (`draft/in_review/approved/superseded`), approved_by, approved_at, content_hash |
 | `formula_items` | formula_id, material_id, pct, phase, order_no; CHECK suma = 100 % al enviar a revisión |
 | `specifications` | scope (`mp/granel/pt`), subject_id, version, status |
@@ -424,7 +425,7 @@ La `formulas` aprobada referencia su `prototype_id` de origen y exige: estabilid
 
 | Tabla | Campos clave |
 |---|---|
-| `material_lots` | material_id, supplier_lot, internal_code (único), expiry_date, qty_received, qty_available, status (`cuarentena/aprobado/rechazado/agotado/vencido`), coa_file |
+| `material_lots` | material_id, supplier_lot, internal_code (único), expiry_date, qty_received, qty_available, status (`cuarentena/aprobado/rechazado/agotado/vencido`), coa_file; desde v1.9: purchase_order (orden de compra), package_type, package_count y qty_per_package (p. ej. 2 cajas × 100 plegadizas = 200 und) |
 | `lot_status_history` | lot_id, from_status, to_status, reason, signature_id (inmutable) |
 | `inventory_movements` | lot_id, type (`recepcion/dispensacion/ajuste/devolucion/traslado/envio_externo/recepcion_externa`), qty, from_location_id, to_location_id, ref_id; saldo = suma de movimientos |
 | `labels` | lot_id / batch_id, qr_payload, printed_by, printed_at |
@@ -595,12 +596,13 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 - **RF-17** Hoja de costos de la fórmula aprobada: costo por ingrediente, granel por presentación, producto terminado con envase, etiqueta y caja, y costo del lote industrial según unidades. *Aceptación:* los totales se recalculan en vivo y coinciden con la suma de líneas; costos visibles solo a roles autorizados y nunca en la página pública.
 
 **Bodega**
-- **RF-20** Recepción de lote: vencimiento, cantidad, adjunto de certificado de proveedor, rótulo con QR, estado inicial cuarentena. *Aceptación:* no se puede recibir sin vencimiento; el rótulo imprimible muestra la **ubicación asignada**; el sistema propone ubicaciones libres compatibles con el tipo de material.
+- **RF-20** Recepción de lote: vencimiento, cantidad, adjunto de certificado de proveedor, rótulo con QR, estado inicial cuarentena. *Aceptación:* no se puede recibir sin vencimiento; el rótulo imprimible muestra la **ubicación asignada**; el sistema propone ubicaciones libres compatibles con el tipo de material. **(v1.9)** Solo se reciben ítems activos del maestro (RF-26); la recepción técnica registra la orden de compra y las unidades de empaque (número × contenido por empaque = cantidad recibida); sugiere el vencimiento o el reanálisis con la vida útil del ítem; la fecha de recepción es la hora del servidor (DI-5); el rótulo muestra las condiciones de almacenamiento y se puede **imprimir y descargar en PDF**.
 - **RF-21** Inventario/kardex por lote con movimientos, FEFO y alertas de vencimiento (30/60/90 días). *Aceptación:* saldo = suma de movimientos, verificado por prueba.
 - **RF-22** Liberación de insumos por Control de calidad (cuarentena→aprobado/rechazado) con firma. *Aceptación:* un lote en cuarentena o rechazado no aparece disponible para dispensar.
 - **RF-23** Estructura de bodegas: crear bodegas con código, nombre, **función** (materias primas, material de envase, material de empaque, granel, producto terminado, rechazo, devolución), tipos de material permitidos y sitio **interno o externo**; definir **número de estantes, pisos por estante y posiciones por piso**; el sistema genera las ubicaciones codificadas; bloquear, inactivar y marcar zona (cuarentena / aprobado). *Aceptación:* 6 estantes × 4 pisos × 2 posiciones generan 48 ubicaciones únicas; no se puede borrar una ubicación con existencias.
 - **RF-24** Asignación y control de ubicación: toda existencia tiene ubicación; solo se admiten tipos de material permitidos; traslados internos con motivo; localizador «¿dónde está este lote?»; regla por defecto: rechazado → bodega de rechazo, devoluciones → bodega de devolución. *Aceptación:* colocar material de envase en una ubicación de producto terminado se rechaza (`LOCATION_TYPE_MISMATCH`); el kardex se ve por ubicación.
 - **RF-25** Bodegas externas y traslados a maquilador: bodega externa vinculada a un **tercero calificado**, traslado con remisión PDF, firma de despacho y de recepción, estado «en tránsito» y existencias visibles por bodega; la trazabilidad (S-29) incluye la ubicación externa. *Aceptación:* enviar a una bodega cuyo tercero no está calificado o tiene la calificación vencida se rechaza (`EXTERNAL_SITE_NOT_QUALIFIED`).
+- **RF-26** **Maestro de materiales y productos (v1.9):** toda materia prima, material de envase, material de empaque y producto terminado (con sus presentaciones) que se inventaría se crea antes en el maestro con código único, nombre, tipo, unidad de almacenamiento (del catálogo de unidades), condiciones de almacenamiento, vida útil o reanálisis, unidad de empaque de compra y si exige CoA. Lo mantienen I+D, el jefe de bodega y Aseguramiento de la calidad; todo cambio exige motivo y queda en bitácora; un ítem no se borra, se inactiva. Cada ítem muestra **dónde se usa**: prototipos y fórmulas de I+D, lotes en bodega y, desde F6, dispensaciones y lotes de producto (base de la trazabilidad RF-70). *Aceptación:* no se recibe un ítem inexistente o inactivo; un código duplicado o una unidad fuera del catálogo se rechazan (`INVALID_FIELD`).
 
 **Producción**
 
@@ -733,7 +735,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | S-11 | Recepción de materias primas | `/bodega/recepcion` | bodega_aux | RF-20 | 4 |
 | S-12 | Inventario / kardex | `/bodega/inventario` | bodega_jefe | RF-21 | 4 |
 | S-13 | Liberación de insumos | `/calidad/insumos` | cc_jefe | RF-22 | 4 |
-| S-14 | Rótulos (vista de impresión) | `/bodega/rotulos/[id]` | bodega_aux | RF-20 | 4 |
+| S-14 | Rótulos (vista de impresión y PDF descargable) | `/bodega/rotulos/[id]` | bodega_aux | RF-20 | 4 |
 | S-15 | Crear orden de producción | `/produccion/ordenes/nueva` | prod_coord | RF-30 | 5 |
 | S-16 | Tablero de órdenes y lotes (lote activo) | `/produccion/lotes` | prod_aux, prod_coord | RF-31 | 5 |
 | S-17 | Prealistamiento y despeje de línea | `/produccion/lotes/[id]/despeje` | prod_aux, prod_coord | RF-32 | 5 |
@@ -769,6 +771,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | S-47 | Divulgación y capacitación (cuestionario y constancia) | `/documentos/capacitacion` | todos, aq_doc | RF-97 | 2C |
 | S-48 | Control de cambios y anulaciones documentales | `/documentos/cambios` | aq_doc, aq_dir, jefes de área, autores | RF-99, RF-100 | 2C |
 | S-49 | Estandarización de documentos (bandeja del analista, lista de chequeo y revisor de redacción) | `/documentos/estandarizacion` | aq_doc | RF-94 | 2C |
+| S-50 | Maestro de materiales y productos (ítems de inventario, dónde se usa) | `/bodega/maestros` | idi, bodega_jefe, aq_dir (crean); lectura según la matriz | RF-26 | — (sistema de diseño del Prompt 0) |
 
 ### Flujo pantalla a pantalla
 
@@ -856,6 +859,8 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | AC-39 | El administrador solicita un rol adicional e intenta aprobarlo él mismo; luego lo aprueba `aq_dir` | El rol no existe mientras está pendiente; autoaprobación → `SOD_VIOLATION`; con la aprobación de `aq_dir` el rol se crea |
 | AC-40 | Se solicita un permiso para un rol del sistema; aprueba solo `aq_dir`, luego la misma persona otra vez, luego `dt` | Con una aprobación no se aplica; la misma persona → `SOD_VIOLATION`; con `aq_dir` + `dt` se aplica y S-04 marca la celda ajustada con su base del PRD |
 | AC-41 | Solicitar quitar al `dt` la aprobación de la liberación final | `RESERVED_PERMISSION` (candado) |
+| AC-42 | Recibir un ítem que no existe en el maestro o está inactivo | `INVALID_FIELD`; el ítem no aparece en la recepción |
+| AC-43 | Recibir 2 cajas × 100 plegadizas | Cantidad recibida 200 und; el rótulo muestra «2 cajas × 100» y la orden de compra |
 
 ## 15. Reglas para el agente de desarrollo (`AGENTS.md`)
 
@@ -879,6 +884,7 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | **F2B Gestión documental y plantillas** | SGD completo según los procedimientos: tipos y niveles, codificación, solicitudes, estandarización, rutas, versiones, copias controladas, capacitación con cuestionario, vigencias, anulación, listado maestro, plantillas de proceso y edición maestra (S-43…S-49) | F2 | RF-05, RF-92…103, AC-19, AC-20, AC-23, AC-25, AC-28…33 |
 | **F3 Documentos maestros** | Brief ampliado, prototipos, estabilidad preliminar, fórmula, especificación, instructivo, costos, aprobación versionada **sobre el SGD** (S-05…S-10, S-36, S-37) | F2B | RF-10…17, AC-07 (parcial), AC-13 |
 | **F4 Bodega y calidad de insumos** | Estructura de bodegas y ubicaciones, bodegas externas y traslados, recepción con ubicación, rótulos, kardex, liberación de insumos (S-11…S-14, S-41, S-42) | F2 | RF-20…25, AC-21, AC-22, AC-24, saldo de inventario |
+| **F4B Maestro de materiales y productos** | Maestro de ítems de inventario con unidad, almacenamiento y vida útil; recepción técnica con orden de compra y unidades de empaque; rótulo PDF; «dónde se usa» (S-50) | F4 | RF-26, RF-20 (v1.9), AC-42, AC-43 |
 | **F5 Equipos** | Hoja de vida y estados (S-25) | F2 | RF-50 |
 | **F6 Producción** | OP con numeración, aprobación y documentos generados, lotes, despeje, limpieza, dispensación, fabricación, envase, acondicionamiento (S-15…S-21, S-38, S-39) | F3, F4, F5 | AC-03, AC-04, AC-05, AC-07, AC-14 |
 | **F7 Laboratorio y certificado** | Resultados, certificado, supervisión (S-22…S-24) | F6 | RF-40…42 |
@@ -927,6 +933,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.9 | 25/10/2026 | Solicitud del responsable: maestro de materiales y productos (RF-26, S-50, fase F4B) que mantienen I+D, el jefe de bodega y Aseguramiento de la calidad, con unidad de almacenamiento, condiciones de almacenamiento, vida útil o reanálisis y unidad de empaque; RF-20 ampliado (orden de compra, unidades de empaque, vencimiento sugerido, rótulo PDF descargable); fila nueva en la matriz 2.2; AC-42 y AC-43 |
 | 1.8 | 24/10/2026 | Decisiones del responsable: la fórmula maestra es el tipo documental `FM` (D-49); D-13 resuelta (criterios de estabilidad opcionales, «cumple» justificado por quien firma); fila nueva «Costos de fórmula» en la matriz 2.2: solo I+D (C), Dirección técnica (L) y Gerencia (L) ven los costos (RF-17) |
 | 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado. Decisiones del responsable: el paso 23 cita RF-80 (D-45); supervisor = rol adicional o, si no existe, `prod_coord` (D-46); la inspección de producto terminado la firma el coordinador o el supervisor (D-47); tolerancia de la devolución 0 unidades por defecto (D-48) |
 | 1.6 | 08/10/2026 | Aprobación de cambios de rol (D-39, D-40 resueltas): todo cambio de rol es una solicitud del administrador que aprueba Aseguramiento de la calidad; los permisos de los roles del sistema se ajustan con doble aprobación (`aq_dir` y `dt`) y las funciones reservadas siguen con candado; línea base del PRD conservada y marcada en S-04; bandeja S-04B; AC-39…41; D-41 |

@@ -1,7 +1,7 @@
 # Reporte de etapa E5 — Bodega y calidad de insumos
 
 **Fase del PRD:** F4 (el responsable la nombra E5; en la matriz de trazabilidad conserva la clave E4, ver D-44) · **Rama:** `etapa/E5` · **Fecha:** 24/10/2026
-**Estado:** **lista para aprobación del responsable.** Migraciones 0023–0025 aplicadas en la nube; pgTAP 25 de 25 en la nube; CI en verde ([ejecución 40144550302](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/40144550302)).
+**Estado:** **cerrada**: aprobada por el responsable el 25/10/2026 e integrada a `main` ([PR #4](https://github.com/estmarcardona-arch/qentragrcl/pull/4)). Migraciones 0023–0025 aplicadas en la nube; pgTAP 25 de 25 en la nube; CI en verde ([ejecución 40144550302](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/40144550302)).
 
 ## Puerta de salida
 

@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { CircleCheck, CircleX, Clock, TriangleAlert, type LucideIcon } from "lucide-react";
+import {
+  CircleCheck,
+  CircleX,
+  Clock,
+  Download,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
@@ -11,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { PrintLabelButton } from "@/components/warehouse/print-label-button";
 import { formatDate, formatNumber } from "@/lib/format";
 import { getWarehouseAccess } from "@/lib/warehouse/access";
+import { KIND, loadLabel } from "@/lib/warehouse/label";
 import { LOT_STATUS } from "@/lib/warehouse/labels";
 
 export const metadata: Metadata = { title: "Rótulo · GRUFARCOL eBR" };
@@ -42,12 +50,6 @@ const BAND: Record<string, { text: string; icon: LucideIcon; cls: string; note: 
   },
 };
 
-const KIND: Record<string, string> = {
-  mp: "MATERIA PRIMA",
-  envase: "MATERIAL DE ENVASE",
-  empaque: "MATERIAL DE EMPAQUE",
-};
-
 // S-14 · Rótulo del lote (RF-20): código interno, UBICACIÓN asignada en grande, estado legible a un metro,
 // QR con el código interno y fecha de recepción. Vista de impresión del navegador, 10 × 7 cm (D-10).
 export default async function LabelPage({
@@ -64,21 +66,11 @@ export default async function LabelPage({
       </main>
     );
   }
-  const [{ data: lot }, { data: stock }] = await Promise.all([
-    a.supabase.from("v_lot_stock").select("*").eq("id", id).maybeSingle(),
-    a.supabase
-      .from("stock_by_location")
-      .select("qty, storage_locations(code)")
-      .eq("lot_id", id)
-      .gt("qty", 0),
-  ]);
-  if (!lot) notFound();
-  const state = lot.effective_status === "agotado" ? "aprobado" : String(lot.effective_status);
+  const data = await loadLabel(a.supabase, id);
+  if (!data) notFound();
+  const { lot, state, locations } = data;
   const band = BAND[state] ?? BAND.cuarentena;
   const Icon = band.icon;
-  const locations = (stock ?? [])
-    .map((s) => (s.storage_locations as { code: string } | null)?.code)
-    .filter(Boolean);
   const qr = await QRCode.toString(String(lot.internal_code), {
     type: "svg",
     margin: 0,
@@ -101,6 +93,11 @@ export default async function LabelPage({
           <>
             <Button asChild variant="secondary">
               <Link href={`/bodega/inventario/${id}`}>Ver kardex</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <a href={`/bodega/rotulos/${id}/pdf`} download>
+                <Download aria-hidden /> Descargar PDF
+              </a>
             </Button>
             <PrintLabelButton lotId={id} />
           </>
@@ -163,7 +160,8 @@ export default async function LabelPage({
                 Lote proveedor <b className="font-mono">{lot.supplier_lot}</b>
               </span>
               <span>
-                Vence <b className="font-mono">{formatDate(String(lot.expiry_date))}</b>
+                {data.expiryLabel}{" "}
+                <b className="font-mono">{formatDate(String(lot.expiry_date))}</b>
               </span>
               <span>
                 Cantidad{" "}
@@ -172,6 +170,25 @@ export default async function LabelPage({
                 </b>
               </span>
             </div>
+            {data.packages || data.purchaseOrder ? (
+              <div className="flex gap-6 text-sm">
+                {data.packages ? (
+                  <span>
+                    Empaques <b className="font-mono">{data.packages}</b>
+                  </span>
+                ) : null}
+                {data.purchaseOrder ? (
+                  <span>
+                    OC <b className="font-mono">{data.purchaseOrder}</b>
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+            {data.storage ? (
+              <div className="text-sm" data-testid="label-storage">
+                Almacenamiento: <b>{data.storage}</b>
+              </div>
+            ) : null}
           </dl>
           <figure className="grid content-start justify-items-center gap-1">
             <span
