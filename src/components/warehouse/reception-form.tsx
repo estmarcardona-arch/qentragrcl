@@ -23,6 +23,12 @@ export type MaterialOpt = {
   name: string;
   unit: string;
   requiresCoa: boolean;
+  /** Maestro (RF-26): almacenamiento, vida útil o reanálisis y unidad de empaque de compra. */
+  storage: string | null;
+  shelfLifeMonths: number | null;
+  shelfLifeKind: string;
+  packageType: string | null;
+  packageQty: number | null;
 };
 export type Opt = { id: string; label: string };
 
@@ -67,6 +73,10 @@ export function ReceptionForm({
     unit: "kg",
     coa_ref: "",
     observations: "",
+    purchase_order: "",
+    package_type: "",
+    package_count: null,
+    qty_per_package: null,
   });
   const [suggested, setSuggested] = useState<{ id: string; code: string; zone: string }[]>([]);
   const [loc, setLoc] = useState("");
@@ -75,9 +85,31 @@ export function ReceptionForm({
   const [pending, start] = useTransition();
   const mat = materials.find((m) => m.id === d.material_id);
   const set = <K extends keyof ReceiptInput>(k: K, v: ReceiptInput[K]) => setD({ ...d, [k]: v });
+  // AC-43: cantidad = número de empaques × contenido por empaque.
+  const setPackages = (count: number | null, per: number | null) =>
+    setD({
+      ...d,
+      package_count: count,
+      qty_per_package: per,
+      qty: count && per ? count * per : d.qty,
+    });
+  const byPackages = Boolean(d.package_count && d.qty_per_package);
+  const suggestExpiry = () => {
+    if (!mat?.shelfLifeMonths) return;
+    const t = new Date();
+    t.setMonth(t.getMonth() + mat.shelfLifeMonths);
+    set("expiry_date", t.toISOString().slice(0, 10));
+  };
   const pickMaterial = (id: string) => {
     const m = materials.find((x) => x.id === id);
-    setD({ ...d, material_id: id, unit: m?.unit ?? d.unit });
+    setD({
+      ...d,
+      material_id: id,
+      unit: m?.unit ?? d.unit,
+      package_type: m?.packageType ?? "",
+      qty_per_package: m?.packageQty ?? null,
+      qty: d.package_count && m?.packageQty ? d.package_count * m.packageQty : d.qty,
+    });
     setLoc("");
     setSuggested([]);
     if (id)
@@ -158,8 +190,13 @@ export function ReceptionForm({
               ))}
             </select>
             <span className="text-xs text-text-secondary">
-              Se asigna el código interno al recibir.
+              Solo ítems activos del maestro de materiales. Se asigna el código interno al recibir.
             </span>
+            {mat?.storage ? (
+              <span className="text-xs font-medium text-text-strong">
+                Almacenamiento: {mat.storage}
+              </span>
+            ) : null}
           </div>
           <div className="grid min-w-0 gap-1.5">
             <Label htmlFor="r-supplier" className="text-label uppercase">
@@ -193,7 +230,7 @@ export function ReceptionForm({
           </div>
           <div className="grid min-w-0 gap-1.5">
             <Label htmlFor="r-expiry" className="text-label uppercase">
-              Fecha de vencimiento *
+              Fecha de {mat?.shelfLifeKind === "reanalisis" ? "reanálisis" : "vencimiento"} *
             </Label>
             <Input
               id="r-expiry"
@@ -204,7 +241,90 @@ export function ReceptionForm({
               onChange={(e) => set("expiry_date", e.target.value)}
             />
             {fieldErr(Boolean(d.expiry_date), "Falta fecha de vencimiento")}
+            {mat?.shelfLifeMonths ? (
+              <button
+                type="button"
+                onClick={suggestExpiry}
+                className="justify-self-start text-xs text-primary underline"
+              >
+                Sugerir con la vida útil del maestro ({mat.shelfLifeMonths} meses)
+              </button>
+            ) : null}
           </div>
+          <div className="grid min-w-0 gap-1.5">
+            <Label htmlFor="r-po" className="text-label uppercase">
+              Orden de compra
+            </Label>
+            <Input
+              id="r-po"
+              className="font-mono"
+              value={d.purchase_order}
+              onChange={(e) => set("purchase_order", e.target.value)}
+            />
+          </div>
+          <fieldset className="col-span-2 grid gap-1.5 max-[1279px]:col-span-1">
+            <legend className="mb-1 text-label text-text-strong uppercase">
+              Unidades de empaque
+            </legend>
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="grid gap-1">
+                <span className="text-xs text-text-secondary">Número</span>
+                <Input
+                  id="r-pkg-count"
+                  type="number"
+                  step="any"
+                  className="w-24"
+                  value={d.package_count ?? ""}
+                  onChange={(e) =>
+                    setPackages(
+                      e.target.value === "" ? null : Number(e.target.value),
+                      d.qty_per_package,
+                    )
+                  }
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs text-text-secondary">Empaque</span>
+                <Input
+                  id="r-pkg-type"
+                  className="w-36"
+                  placeholder="Caja, saco, tambor…"
+                  value={d.package_type}
+                  onChange={(e) => set("package_type", e.target.value)}
+                />
+              </label>
+              <span className="pb-2.5 text-sm">×</span>
+              <label className="grid gap-1">
+                <span className="text-xs text-text-secondary">
+                  Contenido por empaque ({d.unit})
+                </span>
+                <Input
+                  id="r-pkg-qty"
+                  type="number"
+                  step="any"
+                  className="w-32"
+                  value={d.qty_per_package ?? ""}
+                  onChange={(e) =>
+                    setPackages(
+                      d.package_count,
+                      e.target.value === "" ? null : Number(e.target.value),
+                    )
+                  }
+                />
+              </label>
+              {byPackages ? (
+                <span
+                  className="pb-2.5 font-mono text-sm font-semibold"
+                  data-testid="package-total"
+                >
+                  = {d.package_count! * d.qty_per_package!} {d.unit}
+                </span>
+              ) : null}
+            </div>
+            <span className="text-xs text-text-secondary">
+              Opcional. Ejemplo: 2 cajas × 100 plegadizas = 200 und; 4 sacos × 25 kg = 100 kg.
+            </span>
+          </fieldset>
           <div className="grid min-w-0 gap-1.5">
             <Label htmlFor="r-qty" className="text-label uppercase">
               Cantidad recibida * ({d.unit})
@@ -214,8 +334,15 @@ export function ReceptionForm({
               type="number"
               step="any"
               value={d.qty ?? ""}
+              readOnly={byPackages}
+              className={cn(byPackages && "bg-surface-sunken")}
               onChange={(e) => set("qty", e.target.value === "" ? null : Number(e.target.value))}
             />
+            {byPackages ? (
+              <span className="text-xs text-text-secondary">
+                Calculada con las unidades de empaque.
+              </span>
+            ) : null}
           </div>
           <div className="grid min-w-0 gap-1.5">
             <Label htmlFor="r-received" className="text-label uppercase">
@@ -326,6 +453,13 @@ export function ReceptionForm({
             ["Material", mat ? mat.name : "—"],
             ["Proveedor", suppliers.find((s) => s.id === d.supplier_id)?.label ?? "—"],
             ["Cantidad", d.qty ? `${d.qty} ${d.unit}` : "—"],
+            [
+              "Empaques",
+              byPackages
+                ? `${d.package_count} ${d.package_type || "empaques"} × ${d.qty_per_package}`
+                : "—",
+            ],
+            ["Orden de compra", d.purchase_order || "—"],
             ["Ubicación", locCode ?? "—"],
             ["Recibe", receivedBy],
           ].map(([k, v]) => (
@@ -383,15 +517,16 @@ export function ReceptionForm({
 }
 
 const TEMPLATE =
-  "material_code;supplier_name;supplier_lot;expiry_date;qty;unit;coa_ref;location_code;observations\n" +
-  "MP-031;Química Andina S.A.S.;FEN-2510-C;15/03/2028;50,00;kg;CoA-FEN-2510-C.pdf;MP-E01-P1-01;Envase íntegro\n";
+  "material_code;supplier_name;supplier_lot;expiry_date;qty;unit;coa_ref;location_code;observations;purchase_order;package_type;package_count;qty_per_package\n" +
+  "MP-031;Química Andina S.A.S.;FEN-2510-C;15/03/2028;50,00;kg;CoA-FEN-2510-C.pdf;MP-E01-P1-01;Envase íntegro;OC-2026-0457;Tambor;2;25\n";
 
 /** Convierte una fecha DD/MM/AAAA (o AAAA-MM-DD) y un número es-CO (1.234,56) al formato de la base. */
 function normalize(row: ImportRow): ImportRow {
   const out = { ...row };
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(row.expiry_date ?? "");
   if (m) out.expiry_date = `${m[3]}-${m[2]}-${m[1]}`;
-  if (row.qty) out.qty = row.qty.replace(/\./g, "").replace(",", ".");
+  for (const k of ["qty", "package_count", "qty_per_package"])
+    if (row[k]) out[k] = row[k].replace(/\./g, "").replace(",", ".");
   return out;
 }
 

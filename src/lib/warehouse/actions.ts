@@ -71,6 +71,11 @@ export type ReceiptInput = {
   unit: string;
   coa_ref: string;
   observations: string;
+  /** RF-20 v1.9: orden de compra y unidades de empaque (AC-43). */
+  purchase_order: string;
+  package_type: string;
+  package_count: number | null;
+  qty_per_package: number | null;
 };
 
 export async function receiveLot(input: {
@@ -473,6 +478,96 @@ export async function cancelTransfer(input: { id: string; reason: string }): Pro
     });
     refresh(`/bodega/traslados/${input.id}`);
     return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Maestro de materiales y productos (RF-26)
+// ---------------------------------------------------------------------------
+export type MaterialInput = {
+  code: string;
+  name: string;
+  type: "mp" | "envase" | "empaque";
+  unit: string;
+  inci_name: string;
+  default_function: string;
+  requires_coa: boolean;
+  storage_conditions: string;
+  shelf_life_months: number | null;
+  shelf_life_kind: "vencimiento" | "reanalisis";
+  default_package_type: string;
+  default_package_qty: number | null;
+  active: boolean;
+};
+
+export async function saveMaterial(input: {
+  id: string | null;
+  data: MaterialInput;
+  reason: string;
+}): Promise<WhResult<{ id: string }>> {
+  try {
+    const supabase = await createClient();
+    const id = await callRpc(supabase, "save_material", {
+      p_id: input.id ? uuid.parse(input.id) : NULL,
+      p_data: input.data as never,
+      p_reason: input.reason,
+    });
+    revalidatePath("/bodega/maestros");
+    return { ok: true, id: String(id) };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export type ProductInput = {
+  code: string;
+  name: string;
+  line_id: string;
+  titular: string;
+  sanitary_registration: string;
+  sanitary_registration_expires: string;
+  shelf_life_months: number | null;
+  storage_conditions: string;
+  active: boolean;
+};
+
+export async function saveProduct(input: {
+  id: string | null;
+  data: ProductInput;
+  reason: string;
+}): Promise<WhResult<{ id: string }>> {
+  try {
+    const supabase = await createClient();
+    const id = await callRpc(supabase, "save_product", {
+      p_id: input.id ? uuid.parse(input.id) : NULL,
+      p_data: input.data as never,
+      p_reason: input.reason,
+    });
+    revalidatePath("/bodega/maestros");
+    return { ok: true, id: String(id) };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function savePresentation(input: {
+  id: string | null;
+  productId: string;
+  data: { code: string; name: string; net_content: number | null; unit: string; active: boolean };
+  reason: string;
+}): Promise<WhResult<{ id: string }>> {
+  try {
+    const supabase = await createClient();
+    const id = await callRpc(supabase, "save_presentation", {
+      p_id: input.id ? uuid.parse(input.id) : NULL,
+      p_product: uuid.parse(input.productId),
+      p_data: input.data as never,
+      p_reason: input.reason,
+    });
+    revalidatePath(`/bodega/maestros/productos/${input.productId}`);
+    return { ok: true, id: String(id) };
   } catch (e) {
     return fail(e);
   }

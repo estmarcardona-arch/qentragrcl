@@ -30,6 +30,8 @@ export async function getWarehouseAccess() {
     trRead,
     trCreate,
     trApprove,
+    itemRead,
+    itemEdit,
   ] = await Promise.all([
     perm("recepcion_inventario", "read"),
     perm("recepcion_inventario", "create"),
@@ -43,6 +45,9 @@ export async function getWarehouseAccess() {
     perm("traslados_y_envios_a_bodegas_externas", "read"),
     perm("traslados_y_envios_a_bodegas_externas", "create"),
     perm("traslados_y_envios_a_bodegas_externas", "approve"),
+    // Maestro de materiales y productos (PRD 1.9, RF-26).
+    perm("maestro_de_materiales_y_productos", "read"),
+    perm("maestro_de_materiales_y_productos", "create"),
   ]);
   return {
     ctx,
@@ -59,6 +64,8 @@ export async function getWarehouseAccess() {
     trRead,
     trCreate,
     trApprove,
+    itemRead,
+    itemEdit,
     relocate: receive || trCreate,
     signer: `${ctx.fullName}${ctx.shortSignature ? ` (${ctx.shortSignature})` : ""}`,
   };
@@ -73,11 +80,17 @@ export function warehouseTabs(a: WarehouseAccess): DocTab[] {
   if (a.receive)
     t.push({
       href: "/bodega/recepcion",
-      label: "Recepción",
+      label: "Recepción técnica",
       match: ["/bodega/recepcion", "/bodega/rotulos"],
     });
   if (a.trRead)
     t.push({ href: "/bodega/traslados", label: "Traslados", match: ["/bodega/traslados"] });
+  if (a.itemRead)
+    t.push({
+      href: "/bodega/maestros",
+      label: "Materiales y productos",
+      match: ["/bodega/maestros"],
+    });
   if (a.structRead || a.structEdit || a.structApprove)
     t.push({
       href: "/bodega/estructura",

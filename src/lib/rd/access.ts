@@ -27,6 +27,7 @@ export async function getRdAccess() {
     masterCreate,
     costRead,
     costCreate,
+    itemRead,
   ] = await Promise.all([
     perm("brief", "read"),
     perm("brief", "create"),
@@ -38,6 +39,7 @@ export async function getRdAccess() {
     // Costos confidenciales: fila «Costos de fórmula» (PRD 1.8, RF-17).
     perm("costos_de_formula", "read"),
     perm("costos_de_formula", "create"),
+    perm("maestro_de_materiales_y_productos", "read"),
   ]);
   const roles = ctx.roles;
   return {
@@ -52,6 +54,7 @@ export async function getRdAccess() {
     masterCreate,
     costRead,
     costCreate,
+    itemRead,
     canAny: briefRead || protoRead || masterRead || costRead,
     isIdi: roles.includes("idi"),
     canRecord: roles.some((r) => ["lab_aux", "idi", "cc_jefe"].includes(r)),
@@ -82,5 +85,7 @@ export function rdTabs(a: RdAccess): DocTab[] {
     t.push({ href: "/idi/instructivos", label: "Instructivos", match: ["/idi/instructivos"] });
   }
   if (a.costRead) t.push({ href: "/idi/costos", label: "Costos", match: ["/idi/costos"] });
+  // Maestro de materiales y productos (RF-26): I+D crea las materias primas nuevas al formular.
+  if (a.itemRead) t.push({ href: "/bodega/maestros", label: "Materiales y productos", match: [] });
   return t;
 }

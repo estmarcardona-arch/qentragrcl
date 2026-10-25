@@ -173,6 +173,7 @@ export const MODULE_TO_NAV: Record<string, NavKey[]> = {
   usuarios_catalogos_perfiles: ["administracion"],
   plantillas_de_proceso: ["documentos"],
   bodegas_estantes_y_ubicaciones: ["bodega"],
+  maestro_de_materiales_y_productos: ["bodega"],
   traslados_y_envios_a_bodegas_externas: ["bodega"],
   sistema_de_gestion_documental: ["documentos"],
   lectura_y_capacitacion: ["documentos"],
