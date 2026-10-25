@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/common/page-header";
 import { NoPermissionState } from "@/components/common/state-card";
-import { ITEM_TYPES, MaterialForm } from "@/components/warehouse/item-forms";
+import { MaterialForm } from "@/components/warehouse/item-forms";
 import type { MaterialInput } from "@/lib/warehouse/actions";
 import { getWarehouseAccess } from "@/lib/warehouse/access";
 import { EMPTY_MATERIAL, loadUnits } from "@/lib/warehouse/items";
+import { ITEM_TYPES } from "@/lib/warehouse/labels";
 
 export const metadata: Metadata = { title: "Nuevo ítem · GRUFARCOL eBR" };
 

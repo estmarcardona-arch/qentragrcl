@@ -15,12 +15,7 @@ import {
   type ProductInput,
   type WhResult,
 } from "@/lib/warehouse/actions";
-
-export const ITEM_TYPES: [MaterialInput["type"], string][] = [
-  ["mp", "Materia prima"],
-  ["envase", "Material de envase"],
-  ["empaque", "Material de empaque"],
-];
+import { ITEM_TYPES } from "@/lib/warehouse/labels";
 
 const selectCls =
   "h-10 w-full min-w-0 rounded-md border border-border-control bg-white px-2.5 text-sm";

@@ -4,12 +4,12 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/common/page-header";
 import { NoPermissionState } from "@/components/common/state-card";
 import { StatusBadge } from "@/components/gxp/status-badge";
-import { ITEM_TYPES, MaterialForm } from "@/components/warehouse/item-forms";
+import { MaterialForm } from "@/components/warehouse/item-forms";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { MaterialInput } from "@/lib/warehouse/actions";
 import { getWarehouseAccess } from "@/lib/warehouse/access";
 import { loadUnits } from "@/lib/warehouse/items";
-import { LOT_STATUS } from "@/lib/warehouse/labels";
+import { ITEM_TYPES, LOT_STATUS } from "@/lib/warehouse/labels";
 
 export const metadata: Metadata = { title: "Ítem del maestro · GRUFARCOL eBR" };
 

@@ -82,3 +82,10 @@ export function expiryBadge(days: number): { status: StatusKey; label: string } 
   if (days <= 90) return { status: "por_vencer", label: `Por vencer · ${days} d` };
   return { status: "vigente", label: "Vigente" };
 }
+
+/** Tipos de ítem del maestro de materiales (RF-26). */
+export const ITEM_TYPES: ["mp" | "envase" | "empaque", string][] = [
+  ["mp", "Materia prima"],
+  ["envase", "Material de envase"],
+  ["empaque", "Material de empaque"],
+];
