@@ -2205,6 +2205,10 @@ export type Database = {
           locked_at: string | null
           material_id: string
           observations: string | null
+          package_count: number | null
+          package_type: string | null
+          purchase_order: string | null
+          qty_per_package: number | null
           qty_received: number
           received_at: string
           received_by: string | null
@@ -2230,6 +2234,10 @@ export type Database = {
           locked_at?: string | null
           material_id: string
           observations?: string | null
+          package_count?: number | null
+          package_type?: string | null
+          purchase_order?: string | null
+          qty_per_package?: number | null
           qty_received: number
           received_at?: string
           received_by?: string | null
@@ -2255,6 +2263,10 @@ export type Database = {
           locked_at?: string | null
           material_id?: string
           observations?: string | null
+          package_count?: number | null
+          package_type?: string | null
+          purchase_order?: string | null
+          qty_per_package?: number | null
           qty_received?: number
           received_at?: string
           received_by?: string | null
@@ -2315,10 +2327,15 @@ export type Database = {
           created_at: string
           created_by: string | null
           default_function: string | null
+          default_package_qty: number | null
+          default_package_type: string | null
           id: string
           inci_name: string | null
           name: string
           requires_coa: boolean
+          shelf_life_kind: string
+          shelf_life_months: number | null
+          storage_conditions: string | null
           type: string
           unit: string
           updated_at: string
@@ -2331,10 +2348,15 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           default_function?: string | null
+          default_package_qty?: number | null
+          default_package_type?: string | null
           id?: string
           inci_name?: string | null
           name: string
           requires_coa?: boolean
+          shelf_life_kind?: string
+          shelf_life_months?: number | null
+          storage_conditions?: string | null
           type: string
           unit?: string
           updated_at?: string
@@ -2347,10 +2369,15 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           default_function?: string | null
+          default_package_qty?: number | null
+          default_package_type?: string | null
           id?: string
           inci_name?: string | null
           name?: string
           requires_coa?: boolean
+          shelf_life_kind?: string
+          shelf_life_months?: number | null
+          storage_conditions?: string | null
           type?: string
           unit?: string
           updated_at?: string
@@ -2770,6 +2797,7 @@ export type Database = {
           sanitary_registration: string | null
           sanitary_registration_expires: string | null
           shelf_life_months: number | null
+          storage_conditions: string | null
           titular: string | null
           updated_at: string
           updated_by: string | null
@@ -2787,6 +2815,7 @@ export type Database = {
           sanitary_registration?: string | null
           sanitary_registration_expires?: string | null
           shelf_life_months?: number | null
+          storage_conditions?: string | null
           titular?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -2804,6 +2833,7 @@ export type Database = {
           sanitary_registration?: string | null
           sanitary_registration_expires?: string | null
           shelf_life_months?: number | null
+          storage_conditions?: string | null
           titular?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -5563,6 +5593,23 @@ export type Database = {
           p_version: string
         }
         Returns: Json
+      }
+      save_material: {
+        Args: { p_data: Json; p_id: string; p_reason?: string }
+        Returns: string
+      }
+      save_presentation: {
+        Args: {
+          p_data: Json
+          p_id: string
+          p_product: string
+          p_reason?: string
+        }
+        Returns: string
+      }
+      save_product: {
+        Args: { p_data: Json; p_id: string; p_reason?: string }
+        Returns: string
       }
       save_prototype: {
         Args: { p_brief: string; p_data: Json; p_id: string; p_items: Json }
