@@ -18,7 +18,7 @@ export default async function RdLayout({ children }: { children: ReactNode }) {
   }
   return (
     <div className="grid content-start">
-      <DocumentsTabs tabs={rdTabs(a)} />
+      <DocumentsTabs tabs={rdTabs(a)} label="Secciones de I+D" />
       {children}
     </div>
   );

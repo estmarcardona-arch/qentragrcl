@@ -160,6 +160,29 @@ export const ERROR_MESSAGES = {
     rule: "Esa lectura ya se registró.",
     action: "Si el valor está errado, registre una corrección con motivo.",
   },
+  // F4 · Bodega y calidad de insumos (PRD §8, RF-21, RF-22, RF-24, RF-25; AC-21, AC-22, AC-24).
+  LOCATION_TYPE_MISMATCH: {
+    rule: "Esta ubicación no admite este tipo de material.",
+    action:
+      "Elija una ubicación de una bodega que admita el material: el sistema propone las compatibles.",
+  },
+  LOCATION_RULE_VIOLATION: {
+    rule: "La ubicación no corresponde al estado del lote (cuarentena, aprobado, rechazado o vencido).",
+    action: "Elija una ubicación de la zona o la bodega que corresponde al estado del lote.",
+  },
+  EXTERNAL_SITE_NOT_QUALIFIED: {
+    rule: "El tercero de la bodega externa no tiene calificación vigente: no se pueden enviar materiales.",
+    action:
+      "Pida a Aseguramiento de la calidad recalificar al tercero, o use otra bodega calificada.",
+  },
+  RESULTS_PENDING: {
+    rule: "No se puede aprobar: faltan resultados de análisis.",
+    action: "Solicite a Laboratorio que registre los resultados pendientes.",
+  },
+  INSUFFICIENT_STOCK: {
+    rule: "No hay saldo suficiente del lote en esa ubicación.",
+    action: "Revise el saldo en el kardex o elija otra ubicación o lote.",
+  },
   REPORT_MISSING: {
     rule: "Falta el informe del laboratorio externo.",
     action: "Adjunte el informe de microbiología antes de registrar el resultado.",

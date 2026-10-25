@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E3**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E4**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -61,16 +61,16 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-16 | E3 | Cerrar como «cumple» con lecturas faltantes → STABILITY_INCOMPLETE | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts`<br>pgtap: `supabase/tests/0021_stability_signer_judgment.test.sql` | Cubierto |
 | AC-17 | E3 | Viscosidad con muestra de 200 mL → SAMPLE_TOO_SMALL | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>pgtap: `supabase/tests/0020_rd_readings_batch_inbox.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
 | AC-18 | E3 | El cronograma crea lecturas a 0 h, 12 h, 24 h, 3, 7, 15 y 30 d; microbiología solo a 0 h y 30 d | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
-| RF-20 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-21 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-22 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-23 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-24 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-25 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-21 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-22 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-24 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-27 | E4 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| RF-20 | E4 | Recepción en cuarentena con vencimiento obligatorio, CoA, ubicación sugerida compatible y rótulo con la ubicación | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-21 | E4 | Kardex por lote con movimientos inmutables, FEFO y alertas 30/60/90 días; saldo = suma de movimientos y nunca negativo | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-22 | E4 | Liberación de insumos por Control de calidad con firma: cuarentena → aprobado | rechazado; SOD-5 | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-23 | E4 | Bodegas por función, internas o externas (aprobación D-20), estantes × pisos × posiciones con ubicaciones codificadas | pgtap: `supabase/tests/0023_warehouses.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-24 | E4 | Toda existencia con ubicación compatible; traslados internos con motivo; localizador; rechazado → bodega de rechazo (D-16) | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| RF-25 | E4 | Traslados y envíos a bodegas externas con tercero calificado, remisión PDF, firmas de despacho y recepción y estado en tránsito | pgtap: `supabase/tests/0025_stock_transfers.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| AC-21 | E4 | Material de envase en una ubicación de producto terminado → LOCATION_TYPE_MISMATCH | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| AC-22 | E4 | Trasladar un lote rechazado a una ubicación de materias primas aprobadas → LOCATION_RULE_VIOLATION | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql` | Cubierto |
+| AC-24 | E4 | Despachar a una bodega externa con tercero no calificado o vencido → EXTERNAL_SITE_NOT_QUALIFIED | pgtap: `supabase/tests/0025_stock_transfers.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
+| AC-27 | E4 | 6 estantes × 4 pisos × 2 posiciones = 48 ubicaciones con códigos únicos | pgtap: `supabase/tests/0023_warehouses.test.sql`<br>e2e: `e2e/bodega.spec.ts` | Cubierto |
 | RF-50 | E5 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-30 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-31 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
@@ -82,7 +82,7 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | RF-37 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-38 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-39 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-03 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| AC-03 | E6 | Dispensar un lote en cuarentena → LOT_NOT_APPROVED (assert_lot_available listo desde F4; la dispensación llega en F6) | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql` | Etapa futura |
 | AC-04 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | AC-05 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | AC-07 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |

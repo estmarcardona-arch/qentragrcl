@@ -32,6 +32,7 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | `@testing-library/react` | 16.3.3 | desarrollo |
 | `@types/node` | 24.19.1 | desarrollo |
 | `@types/pg` | 8.23.1 | desarrollo |
+| `@types/qrcode` | 1.5.6 | desarrollo |
 | `@types/react` | 19.3.0 | desarrollo |
 | `@types/react-dom` | 19.3.0 | desarrollo |
 | `@vitejs/plugin-react` | 6.1.2 | desarrollo |
@@ -47,6 +48,7 @@ Todas las dependencias se fijan con versión exacta (`.npmrc`: `save-exact=true`
 | `pg` | 8.23.1 | desarrollo |
 | `prettier` | 3.9.9 | desarrollo |
 | `prettier-plugin-tailwindcss` | 0.8.1 | desarrollo |
+| `qrcode` | 1.5.4 | producción |
 | `radix-ui` | 1.7.0 | producción |
 | `react` | 19.3.0 | producción |
 | `react-dom` | 19.3.0 | producción |

@@ -6,12 +6,18 @@ import { cn } from "cn";
 
 export type DocTab = { href: string; label: string; match: string[]; exact?: boolean };
 
-/** Secciones del sistema de gestión documental (S-43…S-49) según el rol. */
-export function DocumentsTabs({ tabs }: { tabs: DocTab[] }) {
+/** Pestañas de una sección (Documentos, I+D, Bodega) según el rol. */
+export function DocumentsTabs({
+  tabs,
+  label = "Secciones de Documentos",
+}: {
+  tabs: DocTab[];
+  label?: string;
+}) {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="Secciones de Documentos"
+      aria-label={label}
       className="flex flex-wrap gap-1 border-b border-border bg-surface px-8 max-[1279px]:px-4"
     >
       {tabs.map((t) => {
