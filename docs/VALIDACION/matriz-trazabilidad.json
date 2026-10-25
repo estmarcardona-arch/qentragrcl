@@ -1,6 +1,21 @@
 {
-  "etapa_actual": "E4",
-  "orden_etapas": ["E0", "E1", "E2", "E2B", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11"],
+  "etapa_actual": "E4B",
+  "orden_etapas": [
+    "E0",
+    "E1",
+    "E2",
+    "E2B",
+    "E3",
+    "E4",
+    "E4B",
+    "E5",
+    "E6",
+    "E7",
+    "E8",
+    "E9",
+    "E10",
+    "E11"
+  ],
   "requisitos": [
     {
       "id": "RNF-01",
@@ -856,7 +871,7 @@
     {
       "id": "RF-20",
       "etapa": "E4",
-      "descripcion": "Recepción en cuarentena con vencimiento obligatorio, CoA, ubicación sugerida compatible y rótulo con la ubicación",
+      "descripcion": "Recepción en cuarentena con vencimiento obligatorio, CoA, ubicación sugerida compatible y rótulo con la ubicación; v1.9: orden de compra, unidades de empaque, vencimiento sugerido y rótulo PDF",
       "pruebas": [
         {
           "tipo": "pgtap",
@@ -865,6 +880,14 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/bodega.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0026_item_master.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/maestros.spec.ts"
         }
       ]
     },
@@ -996,6 +1019,51 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/bodega.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "RF-26",
+      "etapa": "E4B",
+      "descripcion": "Maestro de materiales y productos: código único, unidad del catálogo, almacenamiento, vida útil o reanálisis y empaque de compra; mantienen I+D, bodega y Calidad con motivo; dónde se usa",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0026_item_master.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/maestros.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-42",
+      "etapa": "E4B",
+      "descripcion": "Recibir un ítem que no existe en el maestro o está inactivo → INVALID_FIELD",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0026_item_master.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/maestros.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-43",
+      "etapa": "E4B",
+      "descripcion": "Recibir 2 cajas × 100 plegadizas → 200 und con orden de compra en el rótulo",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0026_item_master.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/maestros.spec.ts"
         }
       ]
     },
