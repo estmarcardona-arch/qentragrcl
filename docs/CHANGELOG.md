@@ -2,6 +2,22 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E5] Bodega y calidad de insumos (PRD F4) — 24/10/2026
+
+### Agregado
+
+- Migración 0023: terceros (proveedores, maquiladores y almacenamiento externo) con calificación y vencimiento registrados por Aseguramiento de la calidad (D-17); bodegas por función, internas o externas, con tipos de material permitidos, bajo llave y prefijo de ubicaciones (RF-23); una externa nace pendiente y la aprueba `aq_dir` con firma (D-20); estantes con zona (cuarentena, aprobados o general; D-16) y ubicaciones generadas estante × piso × posición (`create_warehouse`, `generate_locations`, AC-27); bloqueo de ubicaciones con motivo.
+- Migración 0024: lotes de insumo con código `MP-`/`ME-`/`EM-AAAA-NNNN` (D-51), recepción en cuarentena con vencimiento y CoA obligatorios y ubicación compatible sugerida (`receive_material_lot`, `suggest_locations`, RF-20); importación CSV de recepciones, todo o nada (`import_material_receipts`, D-03); kardex inmutable con existencias por ubicación que nunca quedan negativas (`inventory_movements`, `stock_by_location`, `v_lot_stock`, RF-21); traslado interno y ajuste con motivo; reglas de ubicación (`LOCATION_TYPE_MISMATCH`, AC-21; `LOCATION_RULE_VIOLATION`, AC-22); pruebas de liberación desde la especificación vigente o revisión del CoA (D-52), resultados del laboratorio y liberación o rechazo con firma y SOD-5 (`record_lot_results`, `release_material_lot`, `RESULTS_PENDING`, RF-22); rótulos (`log_label_print`); `assert_lot_available` para la dispensación (AC-03: `LOT_NOT_APPROVED`, `LOT_EXPIRED`, `INSUFFICIENT_STOCK`). Vencido y agotado se derivan (D-53).
+- Migración 0025: traslados `TR-AAAA-NNNN` entre bodegas y a bodegas externas: borrador → despachado (en tránsito) → recibido | anulado; despacho con firma de quien prepara («Ejecuté») y aprobación del jefe de bodega, otra persona («Aprobé»); recepción con acta y ubicación («Verifiqué»); solo salen lotes aprobados y vigentes; tercero calificado y vigente (`EXTERNAL_SITE_NOT_QUALIFIED`, AC-24).
+- Pantallas S-11 (recepción e importación CSV), S-12 (inventario FEFO con alertas a 30/60/90 días, localizador y kardex por lote), S-13 (liberación de insumos), S-14 (rótulo con QR e impresión del navegador, D-10), S-41 (bodegas, mapa de ubicaciones, nueva bodega, terceros y calificación) y S-42 (traslados con remisión PDF). Menú: «Bodega» y «Calidad»; el administrador y Aseguramiento de la calidad ven Bodega.
+- Semilla del Prompt 0B: terceros, 9 bodegas (8 con estructura, 276 ubicaciones; D-50), lotes de insumo con su kardex y liberación (glicerina 40,00 y 120,00 kg, fenoxietanol en cuarentena, perfume vencido, ácido cítrico rechazado) y TR-2026-0007 en tránsito. En la nube se cargaron solo terceros y bodegas, sin lotes.
+- Dependencia `qrcode` 1.5.4.
+- Pruebas: pgTAP 0023 (19), 0024 (37) y 0025 (21); E2E `e2e/bodega.spec.ts` (ciclo recepción → liberación → traslado externo con cuatro personas y semilla). Matriz: 67 requisitos con prueba hasta F4.
+
+### Corregido
+
+- Las pestañas de I+D y Bodega se anunciaban como «Secciones de Documentos».
+
 ## [E4] Decisiones del responsable y pendientes — 24/10/2026
 
 ### Cambiado
