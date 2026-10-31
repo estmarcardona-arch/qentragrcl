@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E4B**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E5**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -74,7 +74,12 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | RF-26 | E4B | Maestro de materiales y productos: código único, unidad del catálogo, almacenamiento, vida útil o reanálisis y empaque de compra; mantienen I+D, bodega y Calidad con motivo; dónde se usa | pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
 | AC-42 | E4B | Recibir un ítem que no existe en el maestro o está inactivo → INVALID_FIELD | pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
 | AC-43 | E4B | Recibir 2 cajas × 100 plegadizas → 200 und con orden de compra en el rótulo | pgtap: `supabase/tests/0026_item_master.test.sql`<br>e2e: `e2e/maestros.spec.ts` | Cubierto |
-| RF-50 | E5 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| RF-50 | E5 | Inventario de equipos con documento que los rige, hoja de vida firmada (instalación, calibración, verificación, mantenimiento, calificación, limpieza, uso), estados, certificados con huella y validez en un momento (is_equipment_valid) | pgtap: `supabase/tests/0027_equipment.test.sql`<br>e2e: `e2e/equipos.spec.ts` | Cubierto |
+| RF-51 | E5 | Avisos de vencimiento de calibración, mantenimiento y calificación a 30/15/7 días (configurables) en la campana y por correo en cola, generados por tarea programada diaria | pgtap: `supabase/tests/0027_equipment.test.sql`<br>e2e: `e2e/equipos.spec.ts` | Cubierto |
+| AC-44 | E5 | Registrar una calibración sin certificado → INVALID_FIELD; con certificado queda con huella SHA-256 | pgtap: `supabase/tests/0027_equipment.test.sql`<br>e2e: `e2e/equipos.spec.ts` | Cubierto |
+| AC-45 | E5 | Equipo con calibración vencida → is_equipment_valid falso y EQUIPMENT_NOT_VALID con la regla y la fecha | pgtap: `supabase/tests/0027_equipment.test.sql`<br>e2e: `e2e/equipos.spec.ts` | Cubierto |
+| AC-46 | E5 | Al cruzar un umbral se crea un aviso por persona y un correo en cola; el mismo umbral no se repite | pgtap: `supabase/tests/0027_equipment.test.sql` | Cubierto |
+| AC-47 | E5 | Quien registró la limpieza no la verifica → SOD_VIOLATION | pgtap: `supabase/tests/0027_equipment.test.sql` | Cubierto |
 | RF-30 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-31 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-32 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |

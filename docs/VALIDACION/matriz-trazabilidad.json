@@ -1,5 +1,5 @@
 {
-  "etapa_actual": "E4B",
+  "etapa_actual": "E5",
   "orden_etapas": [
     "E0",
     "E1",
@@ -1070,8 +1070,84 @@
     {
       "id": "RF-50",
       "etapa": "E5",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Inventario de equipos con documento que los rige, hoja de vida firmada (instalación, calibración, verificación, mantenimiento, calificación, limpieza, uso), estados, certificados con huella y validez en un momento (is_equipment_valid)",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0027_equipment.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/equipos.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "RF-51",
+      "etapa": "E5",
+      "descripcion": "Avisos de vencimiento de calibración, mantenimiento y calificación a 30/15/7 días (configurables) en la campana y por correo en cola, generados por tarea programada diaria",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0027_equipment.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/equipos.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-44",
+      "etapa": "E5",
+      "descripcion": "Registrar una calibración sin certificado → INVALID_FIELD; con certificado queda con huella SHA-256",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0027_equipment.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/equipos.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-45",
+      "etapa": "E5",
+      "descripcion": "Equipo con calibración vencida → is_equipment_valid falso y EQUIPMENT_NOT_VALID con la regla y la fecha",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0027_equipment.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/equipos.spec.ts"
+        }
+      ]
+    },
+    {
+      "id": "AC-46",
+      "etapa": "E5",
+      "descripcion": "Al cruzar un umbral se crea un aviso por persona y un correo en cola; el mismo umbral no se repite",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0027_equipment.test.sql"
+        }
+      ]
+    },
+    {
+      "id": "AC-47",
+      "etapa": "E5",
+      "descripcion": "Quien registró la limpieza no la verifica → SOD_VIOLATION",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0027_equipment.test.sql"
+        }
+      ]
     },
     {
       "id": "RF-30",
