@@ -255,10 +255,10 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     const fen = D.locator('details[data-code="MP-031"]');
     await expect(
       fen.getByLabel("Lote").locator("option", { hasText: "MP-2026-0198" }),
-    ).toBeDisabled();
+    ).toHaveAttribute("disabled", "");
     await expect(
       fen.getByLabel("Balanza").locator("option", { hasText: "BAL-014" }),
-    ).toBeDisabled();
+    ).toHaveAttribute("disabled", "");
     await expect(fen).toContainText("BAL-014 no puede usarse");
     for (const code of [
       "MP-001",
