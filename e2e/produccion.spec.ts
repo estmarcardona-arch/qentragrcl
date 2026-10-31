@@ -77,10 +77,16 @@ async function prepare(diego: Page, paola: Page, base: string, stage: string, eq
   const tomorrow = new Date(Date.now() + 36 * 3600_000).toISOString().slice(0, 16);
   for (const code of equipment.length ? equipment : [""]) {
     if (code) {
-      const option = diego.getByLabel("Equipo").locator("option", { hasText: `${code} ·` });
-      await diego.getByLabel("Equipo").selectOption(String(await option.getAttribute("value")));
+      const option = diego
+        .getByLabel("Equipo", { exact: true })
+        .locator("option", { hasText: `${code} ·` });
+      await diego
+        .getByLabel("Equipo", { exact: true })
+        .selectOption(String(await option.getAttribute("value")));
     }
-    await diego.getByLabel("Utensilios").fill("Palas de acero, recipientes de acero");
+    await diego
+      .getByLabel("Utensilios", { exact: true })
+      .fill("Palas de acero, recipientes de acero");
     await diego.getByLabel("Vigente hasta *").fill(tomorrow);
     await diego.getByLabel("Rótulo de limpieza colocado y verificado").check();
     await sign(diego, diego.getByTestId("sign-cleaning"));
