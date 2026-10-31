@@ -245,7 +245,15 @@ test.describe("E3 · ciclo completo de un documento controlado", () => {
   });
 });
 
-// Listado maestro del Prompt 0B: código · versión · emisión · revisión · trámite · vigencia.
+// Listado maestro del Prompt 0B: código · versión · emisión · revisión · trámite · vigencia. La vigencia del 0B es la
+// del 05/10/2026; la prueba la recalcula con el día en que corre (vencida, o por vencer a 30 días: document_due_soon_days).
+function validityOn(review: string): string {
+  const [d, m, y] = review.split("-").map(Number);
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
+  const days = (Date.UTC(y, m - 1, d) - Date.parse(today)) / 86_400_000;
+  return days < 0 ? "Revisión vencida" : days <= 30 ? "Por vencer" : "Vigente";
+}
+
 const MASTER_0B: [string, string, string, string, string, string][] = [
   ["GCA-PR-001", "02", "17-04-2025", "17-04-2028", "Vigente", "Vigente"],
   ["GCA-PR-002", "01", "17-04-2025", "17-04-2028", "Vigente", "Vigente"],
@@ -278,7 +286,7 @@ test.describe("RF-92 · listado maestro de la semilla (Prompt 0B)", () => {
       expect(cells[5], `${code} emisión`).toBe(issue);
       expect(cells[6], `${code} revisión`).toBe(review);
       expect(cells[7], `${code} trámite`).toBe(tram);
-      expect(cells[8], `${code} vigencia`).toBe(validity);
+      expect(cells[8], `${code} vigencia`).toBe(review === "—" ? validity : validityOn(review));
     }
     await expect(table.locator('tr[data-code="EXT-001"]')).toContainText(
       "Norma de buenas prácticas de manufactura aplicable",

@@ -14,6 +14,10 @@ Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en
 - CI: Supabase local arranca con Storage (bucket `evidencias` declarado en `config.toml`).
 - Pruebas: pgTAP 0027 (33); E2E `e2e/equipos.spec.ts`. Matriz: 76 requisitos con prueba hasta F5. Decisiones D-58…D-62.
 
+### Corregido
+
+- E2E del listado maestro (RF-92): la vigencia esperada se calcula con el día en que corre la prueba; con fechas fijas falló el 31/10/2026 porque la revisión de IDI-EP-007 venció el 30/10/2026.
+
 ## [E5B] Maestro de materiales y productos (PRD 1.9, F4B) — 25/10/2026
 
 ### Agregado
