@@ -4,7 +4,7 @@ import { DEV_PASSWORD, hasSeedUsers, loginOk, USERS } from "./helpers";
 // E6 · Equipos y hoja de vida (PRD 1.10, RF-50, RF-51): BAL-014 queda «No apto para uso» por la calibración vencida
 // (AC-45) y el jefe de bodega registra la calibración nueva con su certificado y huella (AC-44). Requiere la semilla
 // de equipos del 0B (CI).
-// Requisitos: RF-50, RF-51, AC-44, AC-45.
+// Requisitos: RF-50, RF-51, AC-44, AC-45, D-64.
 const hasSeedDocs = process.env.E2E_SEED_DOCS === "1";
 
 async function as(
@@ -85,7 +85,7 @@ test.describe.serial("E6 · equipos y hoja de vida", () => {
     await dialog.getByRole("button", { name: "Firmar y registrar" }).click();
     await expect(dialog.getByRole("alert")).toContainText("certificado");
 
-    await dialog.getByLabel(/Certificado/).setInputFiles({
+    await dialog.getByLabel("Archivo").setInputFiles({
       name: "CAL-BAL014-E2E.pdf",
       mimeType: "application/pdf",
       buffer: PDF,
@@ -100,6 +100,31 @@ test.describe.serial("E6 · equipos y hoja de vida", () => {
     await expect(ev).toContainText("CAL-BAL014-E2E.pdf");
     await expect(ev).toContainText("SHA-256");
     await expect(ev).toContainText("Hernán Salgado");
+    // El certificado se abre desde la hoja de vida (enlace temporal del servidor).
+    const file = ev.getByRole("link", { name: /CAL-BAL014-E2E\.pdf/ });
+    await expect(file).toHaveAttribute("href", /^\/equipos\/evidencia\/[0-9a-f-]{36}$/);
+    const opened = await h.page.request.get(String(await file.getAttribute("href")), {
+      maxRedirects: 0,
+    });
+    expect(opened.status()).toBe(302);
+
+    // D-64: una verificación con el enlace del proveedor queda abrible desde la línea de tiempo.
+    await h.page
+      .getByRole("combobox", { name: "Registrar otro evento" })
+      .selectOption("verificacion");
+    const v = h.page.getByRole("dialog");
+    await v
+      .getByLabel("Enlace del proveedor")
+      .fill("https://metrologia.test/verificaciones/BAL-014");
+    await v.getByLabel("Descripción del enlace").fill("Verificación en el portal del proveedor");
+    await v.getByLabel("Contraseña").fill(DEV_PASSWORD);
+    await v.getByRole("button", { name: "Firmar y registrar" }).click();
+    await expect(v).toBeHidden({ timeout: 20_000 });
+    const ver = h.page.locator('[data-testid="events"] li[data-type="verificacion"]').first();
+    await expect(
+      ver.getByRole("link", { name: /Verificación en el portal del proveedor/ }),
+    ).toBeVisible();
+    await expect(ver).toContainText("Enlace del proveedor · metrologia.test");
     await h.close();
   });
 });

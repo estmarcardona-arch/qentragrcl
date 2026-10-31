@@ -2,6 +2,19 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E6] Ajustes: diálogos y enlaces del proveedor (PRD 1.11) — 31/10/2026
+
+### Cambiado
+
+- PRD 1.11 (solicitud del responsable): el certificado o informe del proveedor se registra como archivo, como enlace verificable o ambos; la calificación también lo exige (AC-44). Decisión D-64.
+- Migración 0028: `equipment_attachments.url` (enlace sin huella; el archivo conserva su SHA-256); `record_equipment_event` acepta enlaces http(s) y exige evidencia en calibración y calificación.
+- Hoja de vida: cada evento (salvo el uso) admite archivo y enlace con descripción; los adjuntos se abren en otra pestaña desde la línea de tiempo (`/equipos/evidencia/[id]`: enlace temporal del archivo o el del proveedor).
+
+### Corregido
+
+- Los diálogos se cortaban en pantallas bajas: ahora tienen altura máxima y desplazamiento interno (todo el sistema).
+- El certificado se abría con una ventana emergente después de una espera, que el navegador podía bloquear; ahora es un enlace normal.
+
 ## [E6] Equipos y hoja de vida (PRD 1.10, F5) — 31/10/2026
 
 ### Agregado

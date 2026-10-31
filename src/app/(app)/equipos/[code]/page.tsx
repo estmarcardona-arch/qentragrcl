@@ -65,7 +65,7 @@ export default async function EquipmentPage({
       .order("created_at", { ascending: false }),
     a.supabase
       .from("equipment_attachments")
-      .select("event_id, path, file_name, sha256")
+      .select("id, event_id, path, url, file_name, sha256")
       .eq("equipment_id", eq.id),
     loadAlertSettings(a),
     a.create ? loadEquipmentOptions(a) : Promise.resolve({ types: [], documents: [] }),
@@ -318,14 +318,19 @@ export default async function EquipmentPage({
                       Registró {rec ?? "—"}
                       {ver ? ` · verificó ${ver} el ${formatDateTime(String(e.verified_at))}` : ""}
                     </p>
-                    {filesOf(e.id).map((f) => (
-                      <EvidenceLink
-                        key={f.path}
-                        path={f.path}
-                        fileName={f.file_name}
-                        sha256={f.sha256}
-                      />
-                    ))}
+                    {filesOf(e.id).length ? (
+                      <div className="flex flex-wrap gap-x-5 gap-y-1.5" data-testid="evidence">
+                        {filesOf(e.id).map((f) => (
+                          <EvidenceLink
+                            key={f.id}
+                            id={f.id}
+                            url={f.url}
+                            fileName={f.file_name}
+                            sha256={f.sha256}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
                     {e.type === "limpieza" &&
                     e.status !== "verificado" &&
                     a.sign &&

@@ -1662,12 +1662,13 @@ export type Database = {
           event_id: string | null
           file_name: string
           id: string
-          mime_type: string
-          path: string
-          sha256: string
-          size_bytes: number
+          mime_type: string | null
+          path: string | null
+          sha256: string | null
+          size_bytes: number | null
           updated_at: string
           updated_by: string | null
+          url: string | null
           uploaded_by: string | null
         }
         Insert: {
@@ -1678,12 +1679,13 @@ export type Database = {
           event_id?: string | null
           file_name: string
           id?: string
-          mime_type: string
-          path: string
-          sha256: string
-          size_bytes: number
+          mime_type?: string | null
+          path?: string | null
+          sha256?: string | null
+          size_bytes?: number | null
           updated_at?: string
           updated_by?: string | null
+          url?: string | null
           uploaded_by?: string | null
         }
         Update: {
@@ -1694,12 +1696,13 @@ export type Database = {
           event_id?: string | null
           file_name?: string
           id?: string
-          mime_type?: string
-          path?: string
-          sha256?: string
-          size_bytes?: number
+          mime_type?: string | null
+          path?: string | null
+          sha256?: string | null
+          size_bytes?: number | null
           updated_at?: string
           updated_by?: string | null
+          url?: string | null
           uploaded_by?: string | null
         }
         Relationships: [

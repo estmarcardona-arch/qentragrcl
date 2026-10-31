@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Paperclip } from "lucide-react";
+import { ExternalLink, FileText, Paperclip } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { ReauthDialog } from "@/components/documents/reauth-dialog";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/db/client";
 import {
-  evidenceUrl,
   recordEquipmentEvent,
   setEquipmentStatus,
   verifyCleaning,
@@ -28,6 +27,8 @@ type Equipment = { id: string; code: string; name: string; status: string };
 
 const WITH_RESULT = ["calibracion", "verificacion", "mantenimiento", "calificacion"];
 const WITH_DUE = ["calibracion", "mantenimiento", "calificacion"];
+/** Exigen el certificado o informe del proveedor, como archivo o enlace (AC-44, D-64). */
+const NEEDS_EVIDENCE = ["calibracion", "calificacion"];
 
 function invalid(detail: string): Exclude<EqResult, { ok: true }> {
   return {
@@ -70,17 +71,24 @@ export function EventActions({
   };
   const [d, setD] = useState(blank);
   const [files, setFiles] = useState<File[]>([]);
+  const [link, setLink] = useState({ url: "", label: "" });
   const set = (k: keyof typeof blank, v: string) => setD((p) => ({ ...p, [k]: v }));
   const open = (t: string) => {
     setD(blank);
     setFiles([]);
+    setLink({ url: "", label: "" });
     setType(t);
   };
   if (!canSign) return null;
 
   async function confirm(pw: string): Promise<EqResult> {
     if (!type) return invalid("tipo de evento");
-    if (type === "calibracion" && files.length === 0) return invalid("adjunte el certificado");
+    if (NEEDS_EVIDENCE.includes(type) && files.length === 0 && !link.url.trim()) {
+      return invalid("adjunte el certificado o el enlace del proveedor");
+    }
+    if (link.url.trim() && !/^https?:\/\/\S+$/.test(link.url.trim())) {
+      return invalid("el enlace debe empezar por http:// o https://");
+    }
     for (const f of files) {
       if (!EVIDENCE_TYPES.includes(f.type) || f.size > EVIDENCE_MAX_BYTES) {
         return invalid(`${f.name}: solo PDF, PNG o JPG de hasta 10 MB`);
@@ -106,6 +114,7 @@ export function EventActions({
         // La vigencia de la limpieza se digita en hora de Bogotá.
         valid_until: d.valid_until ? `${d.valid_until}:00-05:00` : "",
         files: uploaded,
+        links: link.url.trim() ? [link] : [],
       },
       pw,
     );
@@ -233,19 +242,51 @@ export function EventActions({
               </>
             ) : null}
           </div>
-          {type !== "limpieza" && type !== "uso" ? (
-            <Field
-              id="ev-file"
-              label={type === "calibracion" ? "Certificado *" : "Evidencia (opcional)"}
-              hint="PDF, PNG o JPG de hasta 10 MB. Se guarda con su huella SHA-256 y no se puede reemplazar."
-            >
-              <Input
+          {type !== "uso" ? (
+            <fieldset className="grid gap-3 rounded-md border border-border p-3">
+              <legend className="px-1 text-label uppercase">
+                {NEEDS_EVIDENCE.includes(type)
+                  ? "Certificado o informe del proveedor *"
+                  : "Evidencia (opcional)"}
+              </legend>
+              <p className="text-xs text-text-secondary">
+                {NEEDS_EVIDENCE.includes(type)
+                  ? "Adjunte el archivo, el enlace del proveedor para verificarlo, o ambos."
+                  : "Puede adjuntar un archivo, un enlace o ambos."}
+              </p>
+              <Field
                 id="ev-file"
-                type="file"
-                accept={EVIDENCE_TYPES.join(",")}
-                onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-              />
-            </Field>
+                label="Archivo"
+                hint="PDF, PNG o JPG de hasta 10 MB. Se guarda con su huella SHA-256 y no se puede reemplazar."
+              >
+                <Input
+                  id="ev-file"
+                  type="file"
+                  accept={EVIDENCE_TYPES.join(",")}
+                  onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field id="ev-link" label="Enlace del proveedor" hint="https://…">
+                  <Input
+                    id="ev-link"
+                    type="url"
+                    inputMode="url"
+                    placeholder="https://"
+                    value={link.url}
+                    onChange={(e) => setLink((l) => ({ ...l, url: e.target.value }))}
+                  />
+                </Field>
+                <Field id="ev-link-label" label="Descripción del enlace">
+                  <Input
+                    id="ev-link-label"
+                    placeholder="p. ej. Certificado en el portal del proveedor"
+                    value={link.label}
+                    onChange={(e) => setLink((l) => ({ ...l, label: e.target.value }))}
+                  />
+                </Field>
+              </div>
+            </fieldset>
           ) : null}
           <Field id="ev-notes" label="Observaciones">
             <Textarea
@@ -364,43 +405,49 @@ export function StatusForm({ equipment }: { equipment: Equipment }) {
   );
 }
 
-/** Abre el certificado con un enlace temporal; muestra la huella para cotejarla. */
+/**
+ * Abre el certificado (enlace temporal desde el servidor) o el enlace del proveedor en otra pestaña. Del archivo muestra la
+ * huella SHA-256 para cotejarla; del enlace, el sitio al que lleva.
+ */
 export function EvidenceLink({
-  path,
+  id,
+  url,
   fileName,
   sha256,
 }: {
-  path: string;
+  id: string;
+  url: string | null;
   fileName: string;
-  sha256: string;
+  sha256: string | null;
 }) {
-  const [pending, start] = useTransition();
-  const [error, setError] = useState<Exclude<EqResult, { ok: true }> | null>(null);
+  const Icon = url ? ExternalLink : fileName.toLowerCase().endsWith(".pdf") ? FileText : Paperclip;
+  let host = "";
+  try {
+    host = url ? new URL(url).host : "";
+  } catch {
+    host = "";
+  }
   return (
     <span className="inline-grid gap-0.5">
-      <button
-        type="button"
-        disabled={pending}
+      <a
+        href={`/equipos/evidencia/${id}`}
+        target="_blank"
+        rel="noopener noreferrer"
         className="inline-flex items-center gap-1 text-sm text-primary underline"
-        onClick={() =>
-          start(async () => {
-            const res = await evidenceUrl(path);
-            if (!res.ok) return setError(res);
-            window.open(res.url, "_blank", "noopener");
-          })
-        }
       >
-        {fileName.toLowerCase().endsWith(".pdf") ? (
-          <FileText aria-hidden className="size-3.5" />
-        ) : (
-          <Paperclip aria-hidden className="size-3.5" />
-        )}
+        <Icon aria-hidden className="size-3.5" />
         {fileName}
-      </button>
-      <span className="font-mono text-[11px] text-text-secondary" title={sha256}>
-        SHA-256 {sha256.slice(0, 16)}…
-      </span>
-      <ErrorLine error={error} />
+        <span className="sr-only"> (se abre en otra pestaña)</span>
+      </a>
+      {url ? (
+        <span className="text-[11px] text-text-secondary" title={url}>
+          Enlace del proveedor · {host}
+        </span>
+      ) : sha256 ? (
+        <span className="font-mono text-[11px] text-text-secondary" title={sha256}>
+          SHA-256 {sha256.slice(0, 16)}…
+        </span>
+      ) : null}
     </span>
   );
 }

@@ -114,6 +114,8 @@ export type EventInput = {
   batch_ref: string;
   /** Archivos ya subidos por el navegador al bucket «evidencias» con la sesión del usuario. */
   files: { path: string; file_name: string }[];
+  /** Enlaces del proveedor para verificar el certificado o informe (D-64). */
+  links: { url: string; label: string }[];
 };
 
 /**
@@ -147,12 +149,20 @@ export async function recordEquipmentEvent(
         sha256,
       });
     }
-    const { equipmentId, code, files, ...data } = input;
+    const { equipmentId, code, files, links, ...data } = input;
+    const validLinks = links
+      .map((l) => ({ url: l.url.trim(), label: l.label.trim() }))
+      .filter((l) => l.url);
+    for (const l of validLinks) {
+      if (!/^https?:\/\/\S+$/.test(l.url)) {
+        throw new Error(`INVALID_FIELD: el enlace ${l.url} debe empezar por http:// o https://`);
+      }
+    }
     void files;
     const res = (await callRpc(supabase, "record_equipment_event", {
       p_equipment: uuid.parse(equipmentId),
       p_type: input.type,
-      p_data: { ...data, attachments },
+      p_data: { ...data, attachments, links: validLinks },
       p_password: password.parse(pw),
     })) as Record<string, unknown>;
     if (res.ok !== true) return soft(res);
@@ -200,18 +210,6 @@ export async function setEquipmentStatus(input: {
     log.info("equipment.status_changed", { status: input.status });
     refresh(input.code);
     return { ok: true };
-  } catch (e) {
-    return fail(e);
-  }
-}
-
-/** Enlace temporal (5 min) para ver un certificado; la política de Storage exige permiso de lectura. */
-export async function evidenceUrl(path: string): Promise<EqResult<{ url: string }>> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.storage.from("evidencias").createSignedUrl(path, 300);
-    if (error || !data) throw new Error("RECORD_NOT_FOUND: certificado");
-    return { ok: true, url: data.signedUrl };
   } catch (e) {
     return fail(e);
   }
