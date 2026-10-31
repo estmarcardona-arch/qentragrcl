@@ -104,12 +104,8 @@ async function runSteps(page: Page, values: Record<string, string> = {}) {
       const label = ((await field.locator("label").textContent()) ?? "")
         .replace(/\s*\(.*$|\s*\*$/g, "")
         .trim();
-      const hint =
-        (await field
-          .locator("> span")
-          .last()
-          .textContent()
-          .catch(() => "")) ?? "";
+      const spans = field.locator("> span");
+      const hint = (await spans.count()) ? ((await spans.last().textContent()) ?? "") : "";
       const m = /Rango ([\d.]+)–([\d.]+)/.exec(hint);
       await input.fill(values[label] ?? (m ? String((Number(m[1]) + Number(m[2])) / 2) : "0"));
     }
