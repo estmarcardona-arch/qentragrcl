@@ -60,6 +60,14 @@
 - Antes de aplicar 0027: concatenación de razones (`text[]`), bloqueo inicial del evento firmado, vigencia de la limpieza con la hora de referencia y límite exacto de 48 h.
 - E2E del listado maestro (E3): la vigencia y el indicador de vencidos por proceso tenían valores fijos y fallaron el 31/10/2026 al vencer la revisión de IDI-EP-007 (30/10/2026); ahora se calculan con la fecha de ejecución.
 
+## Ajustes posteriores (PRD 1.11, rama `etapa/E6-ajustes`)
+
+Solicitados por el responsable al revisar la etapa el 31/10/2026:
+
+- Los diálogos de registro se cortaban en pantallas bajas: ahora se desplazan por dentro (afecta a todos los diálogos).
+- Cada evento (salvo el uso) admite **archivo y/o enlace del proveedor**; la calibración y la calificación exigen al menos uno (AC-44 en v1.11, D-64). Migración 0028 y pgTAP 0028 (9).
+- Los adjuntos se abren en otra pestaña desde la línea de tiempo: el archivo con un enlace temporal y el enlace del proveedor tal cual. Antes el archivo se abría con una ventana emergente que el navegador podía bloquear.
+
 ## Comandos para reproducir
 
 ```bash

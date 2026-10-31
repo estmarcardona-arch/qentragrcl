@@ -1079,6 +1079,10 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/equipos.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0028_equipment_links.test.sql"
         }
       ]
     },
@@ -1100,7 +1104,7 @@
     {
       "id": "AC-44",
       "etapa": "E5",
-      "descripcion": "Registrar una calibración sin certificado → INVALID_FIELD; con certificado queda con huella SHA-256",
+      "descripcion": "Registrar una calibración o una calificación sin certificado ni enlace del proveedor → INVALID_FIELD; el archivo queda con huella SHA-256 y el enlace se abre desde la hoja de vida",
       "pruebas": [
         {
           "tipo": "pgtap",
@@ -1109,6 +1113,10 @@
         {
           "tipo": "e2e",
           "archivo": "e2e/equipos.spec.ts"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0028_equipment_links.test.sql"
         }
       ]
     },
