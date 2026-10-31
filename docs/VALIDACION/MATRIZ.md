@@ -1,6 +1,6 @@
 # Matriz de trazabilidad requisito → prueba
 
-Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E5**.
+Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabilidad.json`. Etapa actual: **E6**.
 
 | Requisito | Etapa | Descripción | Pruebas | Estado |
 |---|---|---|---|---|
@@ -36,10 +36,10 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | RF-101 | E2B | Congelación de versión: solo versiones vigentes en OP o lote (assert_document_effective) | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
 | RF-102 | E2B | Firma corta y buenas prácticas: correcciones con asterisco y aviso a partir de 6 correcciones | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Cubierto |
 | RF-103 | E2B | Marca de copia controlada / no controlada / OBSOLETO con usuario y fecha de descarga | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
-| AC-19 | E2B | Crear una OP con un documento no vigente → DOCUMENT_NOT_EFFECTIVE | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| AC-19 | E2B | Crear una OP con un documento no vigente → DOCUMENT_NOT_EFFECTIVE | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>pgtap: `supabase/tests/0029_production.test.sql` | Cubierto |
 | AC-20 | E2B | master edita una versión aprobada → RECORD_LOCKED | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
 | AC-23 | E2B | El autor o master revisa o aprueba su versión → SOD_VIOLATION | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
-| AC-25 | E2B | Ejecutar un paso sin la capacitación aprobada (regla activa) → TRAINING_REQUIRED | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
+| AC-25 | E2B | Ejecutar un paso sin la capacitación aprobada (regla activa) → TRAINING_REQUIRED | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
 | AC-26 | E2B | Otro rol crea un documento controlado → FORBIDDEN_ROLE | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
 | AC-28 | E2B | Solicitar un código sin ser aq_doc → FORBIDDEN_ROLE | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
 | AC-29 | E2B | El autor aprueba su versión → SOD_VIOLATION; el revisor aprueba la que revisó → permitido | pgtap: `supabase/tests/0015_document_rpcs.test.sql` | Cubierto |
@@ -48,7 +48,7 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-32 | E2B | Anular sin recoger una de las 4 copias → RECALL_PENDING | pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
 | AC-33 | E2B | Preliminar con «generalmente» y redacción no infinitiva → STYLE_CHECK_FAILED con observaciones | pgtap: `supabase/tests/0014_document_management.test.sql`<br>pgtap: `supabase/tests/0015_document_rpcs.test.sql`<br>e2e: `e2e/documentos.spec.ts` | Cubierto |
 | AC-34 | E2B | Documento con registro sanitario que vence el 30/09/2030 → revisión 30/09/2030 | pgtap: `supabase/tests/0014_document_management.test.sql` | Cubierto |
-| AC-35 | E2B | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0006_corrections_numbering.test.sql` | Cubierto |
+| AC-35 | E2B | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0006_corrections_numbering.test.sql`<br>pgtap: `supabase/tests/0029_production.test.sql` | Cubierto |
 | RF-10 | E3 | Brief con los campos del Documento Maestro §6.5, competencia en varias filas y estado borrador → enviado → aprobado | pgtap: `supabase/tests/0018_briefs_prototypes_stability.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
 | RF-11 | E3 | Fórmula cualicuantitativa versionada sobre el SGD; no se envía si la suma ≠ 100 % (±0,001) | pgtap: `supabase/tests/0019_master_documents.test.sql`<br>e2e: `e2e/idi.spec.ts` | Cubierto |
 | RF-12 | E3 | Especificaciones por materia prima, granel y producto terminado; cada parámetro con método y límites | pgtap: `supabase/tests/0019_master_documents.test.sql` | Cubierto |
@@ -80,21 +80,21 @@ Generada por `npm run traceability:write` desde `docs/VALIDACION/matriz-trazabil
 | AC-45 | E5 | Equipo con calibración vencida → is_equipment_valid falso y EQUIPMENT_NOT_VALID con la regla y la fecha | pgtap: `supabase/tests/0027_equipment.test.sql`<br>e2e: `e2e/equipos.spec.ts` | Cubierto |
 | AC-46 | E5 | Al cruzar un umbral se crea un aviso por persona y un correo en cola; el mismo umbral no se repite | pgtap: `supabase/tests/0027_equipment.test.sql` | Cubierto |
 | AC-47 | E5 | Quien registró la limpieza no la verifica → SOD_VIOLATION | pgtap: `supabase/tests/0027_equipment.test.sql` | Cubierto |
-| RF-30 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-31 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-32 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-33 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-34 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-35 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-36 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-37 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-38 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| RF-39 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-03 | E6 | Dispensar un lote en cuarentena → LOT_NOT_APPROVED (assert_lot_available listo desde F4; la dispensación llega en F6) | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql` | Etapa futura |
-| AC-04 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-05 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-07 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
-| AC-14 | E6 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
+| RF-30 | E6 | Orden de producción con número OP-AAAA-NNNN y solo documentos vigentes, congelados en el lote | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-31 | E6 | Tablero de órdenes y lotes con lote activo, etapa actual, estado y filtros | e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-32 | E6 | Despeje de línea por etapa, verificado por otra persona; sin él la etapa no inicia | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-33 | E6 | Dispensación multi-lote con lote aprobado, balanza válida, FEFO y verificación independiente | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-34 | E6 | Registro paso a paso con parámetros, equipos válidos y firma; fuera de rango marcado | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-35 | E6 | Envase por presentación con control de peso periódico y acción ante fuera de rango | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-36 | E6 | Acondicionamiento con codificado, inspección de 9 puntos y devolución que cuadra | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-37 | E6 | Granel entre etapas con rótulo y rendimiento contra límites | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-38 | E6 | Al aprobar la OP se generan órdenes de etapa, solicitudes, codificado, rótulos y registros en PDF | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| RF-39 | E6 | Limpieza de equipos y utensilios antes de cada etapa, verificada; en la hoja de vida del equipo | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| AC-03 | E6 | Dispensar un lote en cuarentena → LOT_NOT_APPROVED (assert_lot_available listo desde F4; la dispensación llega en F6) | pgtap: `supabase/tests/0024_material_lots_inventory.test.sql`<br>pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| AC-04 | E6 | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| AC-05 | E6 | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| AC-07 | E6 | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
+| AC-14 | E6 | Ver PRD_GRUFARCOL.md | pgtap: `supabase/tests/0029_production.test.sql`<br>e2e: `e2e/produccion.spec.ts` | Cubierto |
 | RF-40 | E7 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-41 | E7 | Ver PRD_GRUFARCOL.md | — | Etapa futura |
 | RF-42 | E7 | Ver PRD_GRUFARCOL.md | — | Etapa futura |

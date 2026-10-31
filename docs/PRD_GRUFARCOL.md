@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.11 · **Fecha:** 31/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.12 · **Fecha:** 31/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -448,6 +448,9 @@ La `formulas` aprobada referencia su `prototype_id` de origen y exige: estabilid
 | `weight_controls` | stage_order_id, sample_time, value, min, max, in_range, recorded_by (cada N minutos) |
 | `pt_inspections` | stage_order_id, points (jsonb, 9 puntos), result, inspector |
 | `yield_reconciliations` | batch_id, stage, theoretical, actual, pct, within_limits |
+| `stage_outputs` (v1.12) | stage_order_id, presentation_id, theoretical, received, actual, rejected, retained, remnant, pct, limit_min, within_limits — implementa `yield_reconciliations` por etapa y presentación |
+| `presentation_materials` (v1.12) | presentation_id, material_id, stage (`envase/acondicionamiento`), qty_per_unit — base de las solicitudes SE y SA (D-68) |
+| `step_drafts` (v1.12) | stage_order_id, step_key, presentation_id, user_id, values, saved_at — borrador por campo con la hora del servidor |
 
 **Solicitudes, codificación, limpieza y expediente (nuevo en v1.1)**
 
@@ -944,6 +947,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 |---|---|---|
 | 1.10 | 31/10/2026 | Encargo de la etapa E6 (Equipos): RF-50 ampliado (documento que rige el equipo, eventos, estados, certificados en Storage con huella, `is_equipment_valid`), RF-51 (notificaciones en la interfaz y por correo, recordatorios programados a 30/15/7 días), fila «Equipos y hoja de vida» en la matriz 2.2, AC-44…47 |
 | 1.11 | 31/10/2026 | Solicitud del responsable: el certificado o informe del proveedor se registra como archivo o como enlace verificable, ambos se abren desde la hoja de vida; la calificación también lo exige (RF-50, AC-44, `equipment_attachments.url`) |
+| 1.12 | 31/10/2026 | Etapa E7 (Producción): diccionario con `stage_outputs`, `presentation_materials` y `step_drafts`; decisiones D-65…D-71 (código de lote, rango de peso, tolerancia de dispensación, materiales por presentación, dispensación como orden de etapa, lotes ilustrativos y verificadores) |
 | 1.9 | 25/10/2026 | Solicitud del responsable: maestro de materiales y productos (RF-26, S-50, fase F4B) que mantienen I+D, el jefe de bodega y Aseguramiento de la calidad, con unidad de almacenamiento, condiciones de almacenamiento, vida útil o reanálisis y unidad de empaque; RF-20 ampliado (orden de compra, unidades de empaque, vencimiento sugerido, rótulo PDF descargable); fila nueva en la matriz 2.2; AC-42 y AC-43 |
 | 1.8 | 24/10/2026 | Decisiones del responsable: la fórmula maestra es el tipo documental `FM` (D-49); D-13 resuelta (criterios de estabilidad opcionales, «cumple» justificado por quien firma); fila nueva «Costos de fórmula» en la matriz 2.2: solo I+D (C), Dirección técnica (L) y Gerencia (L) ven los costos (RF-17) |
 | 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado. Decisiones del responsable: el paso 23 cita RF-80 (D-45); supervisor = rol adicional o, si no existe, `prod_coord` (D-46); la inspección de producto terminado la firma el coordinador o el supervisor (D-47); tolerancia de la devolución 0 unidades por defecto (D-48) |

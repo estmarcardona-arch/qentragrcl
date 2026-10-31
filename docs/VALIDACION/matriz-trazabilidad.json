@@ -1,5 +1,5 @@
 {
-  "etapa_actual": "E5",
+  "etapa_actual": "E6",
   "orden_etapas": [
     "E0",
     "E1",
@@ -501,6 +501,10 @@
         {
           "tipo": "pgtap",
           "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
         }
       ]
     },
@@ -542,6 +546,14 @@
         {
           "tipo": "pgtap",
           "archivo": "supabase/tests/0015_document_rpcs.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
         }
       ]
     },
@@ -665,6 +677,10 @@
         {
           "tipo": "pgtap",
           "archivo": "supabase/tests/0006_corrections_numbering.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
         }
       ]
     },
@@ -1160,62 +1176,148 @@
     {
       "id": "RF-30",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Orden de producción con número OP-AAAA-NNNN y solo documentos vigentes, congelados en el lote",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-31",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Tablero de órdenes y lotes con lote activo, etapa actual, estado y filtros",
+      "pruebas": [
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-32",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Despeje de línea por etapa, verificado por otra persona; sin él la etapa no inicia",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-33",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Dispensación multi-lote con lote aprobado, balanza válida, FEFO y verificación independiente",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-34",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Registro paso a paso con parámetros, equipos válidos y firma; fuera de rango marcado",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-35",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Envase por presentación con control de peso periódico y acción ante fuera de rango",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-36",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Acondicionamiento con codificado, inspección de 9 puntos y devolución que cuadra",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-37",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Granel entre etapas con rótulo y rendimiento contra límites",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-38",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Al aprobar la OP se generan órdenes de etapa, solicitudes, codificado, rótulos y registros en PDF",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-39",
       "etapa": "E6",
-      "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "descripcion": "Limpieza de equipos y utensilios antes de cada etapa, verificada; en la hoja de vida del equipo",
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-03",
@@ -1225,6 +1327,14 @@
         {
           "tipo": "pgtap",
           "archivo": "supabase/tests/0024_material_lots_inventory.test.sql"
+        },
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
         }
       ]
     },
@@ -1232,25 +1342,61 @@
       "id": "AC-04",
       "etapa": "E6",
       "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-05",
       "etapa": "E6",
       "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-07",
       "etapa": "E6",
       "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "AC-14",
       "etapa": "E6",
       "descripcion": "Ver PRD_GRUFARCOL.md",
-      "pruebas": []
+      "pruebas": [
+        {
+          "tipo": "pgtap",
+          "archivo": "supabase/tests/0029_production.test.sql"
+        },
+        {
+          "tipo": "e2e",
+          "archivo": "e2e/produccion.spec.ts"
+        }
+      ]
     },
     {
       "id": "RF-40",

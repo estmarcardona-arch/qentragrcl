@@ -41,18 +41,25 @@ describe("RF-02 · menú por rol", () => {
     ]);
   });
 
-  it("desde F4 se habilitan Bodega y Calidad, y desde F5 Equipos, según el rol", () => {
+  it("desde F4 se habilitan Bodega y Calidad, desde F5 Equipos y desde F6 Producción, según el rol", () => {
     const enabled = (roles: string[]) =>
       navForRoles(roles)
         .filter((n) => n.stage === null)
         .map((n) => n.key);
-    expect(enabled(["prod_aux"])).toEqual(["inicio", "documentos", "equipos"]);
-    expect(enabled(["bodega_aux"])).toEqual(["inicio", "documentos", "bodega", "equipos"]);
+    expect(enabled(["prod_aux"])).toEqual(["inicio", "documentos", "produccion", "equipos"]);
+    expect(enabled(["bodega_aux"])).toEqual([
+      "inicio",
+      "documentos",
+      "bodega",
+      "produccion",
+      "equipos",
+    ]);
     expect(enabled(["lab_aux"])).toEqual(["inicio", "documentos", "calidad", "equipos"]);
     expect(enabled(["cc_jefe"])).toEqual([
       "inicio",
       "aprobaciones",
       "documentos",
+      "produccion",
       "calidad",
       "equipos",
     ]);
@@ -61,6 +68,7 @@ describe("RF-02 · menú por rol", () => {
       "aprobaciones",
       "documentos",
       "idi",
+      "produccion",
       "calidad",
       "equipos",
       "cambios_roles",
@@ -71,13 +79,14 @@ describe("RF-02 · menú por rol", () => {
       "aprobaciones",
       "documentos",
       "bodega",
+      "produccion",
       "calidad",
       "equipos",
       "cambios_roles",
     ]);
-    // RF-23: el administrador también crea bodegas (Prompt 4B); no ve Equipos (matriz 2.2).
+    // RF-23: el administrador también crea bodegas (Prompt 4B); no ve Equipos ni Producción (matriz 2.2).
     expect(enabled(["admin"])).toEqual(["inicio", "bodega", "cambios_roles", "administracion"]);
-    expect(enabled(["comercial"])).not.toContain("equipos");
+    expect(enabled(["comercial"])).not.toContain("produccion");
   });
 
   it("RF-92: todos los roles con acceso al SGD ven Documentos; el administrador no (matriz 2.2)", () => {

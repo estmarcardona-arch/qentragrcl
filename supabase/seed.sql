@@ -931,3 +931,198 @@ begin
   -- Avisos de la campana según la fecha de carga (RF-51); en producción los genera la tarea diaria.
   perform public.generate_equipment_reminders();
 end $$;
+
+-- =====================================================================================
+-- E7 · Producción (Prompt 0B: OP-2026-0042 / L-2610-018 en proceso y OP-2026-0043 / L-2610-019 creada)
+-- L-2610-018: aprobada el 04/10/2026 por el Dr. Gaviria; dispensación completada (glicerina 40,00 + 20,00 kg de dos
+-- lotes; dispensó Diego Cárdenas y verificó Paola Mejía, balanza BAL-014) y fabricación en el paso 6 de 11. Materiales de
+-- envase y acondicionamiento por unidad (1 envase, 1 tapa, 1 etiqueta y 1 caja; costos del 0B). Los lotes de agua,
+-- fenoxietanol, manzanilla, ácido cítrico y perfume aprobados que completan la fórmula son ilustrativos (D-70).
+-- =====================================================================================
+do $$
+declare
+  v_marta constant uuid := 'a1000000-0000-4000-8000-000000000003';
+  v_diego constant uuid := 'a1000000-0000-4000-8000-000000000005';
+  v_paola constant uuid := 'a1000000-0000-4000-8000-000000000006';
+  v_esteban constant uuid := 'a1000000-0000-4000-8000-000000000010';
+  v_prd uuid := (select id from public.products where code = 'PRD-001');
+  v_docs jsonb;
+  v_order uuid;
+  v_batch uuid;
+  v_so uuid;
+  v_l record;
+  v_lot uuid;
+  v_mov uuid;
+  v_t record;
+begin
+  if exists (select 1 from public.production_orders where code = 'OP-2026-0042')
+     or not exists (select 1 from public.formulas f join public.document_versions dv on dv.id = f.document_version_id
+                    where f.product_id = v_prd and dv.status = 'vigente') then
+    return;
+  end if;
+
+  insert into public.presentation_materials (presentation_id, material_id, stage, qty_per_unit, created_by)
+  select p.id, m.id, v.stage, 1, v_paola
+  from (values ('200', 'EN-PET-200', 'envase'), ('200', 'EN-TAPA-FT', 'envase'), ('200', 'EM-ETQ-200', 'acondicionamiento'),
+               ('200', 'EM-CAJA-200', 'acondicionamiento'), ('400', 'EN-PET-400', 'envase'), ('400', 'EN-TAPA-FT', 'envase'),
+               ('400', 'EM-ETQ-400', 'acondicionamiento'), ('400', 'EM-CAJA-400', 'acondicionamiento')) as v(pres, mat, stage)
+  join public.product_presentations p on p.product_id = v_prd and p.code = v.pres
+  join public.materials m on m.code = v.mat;
+
+  -- Lotes aprobados que completan la fórmula (ilustrativos, D-70).
+  for v_l in
+    select * from (values
+      ('MP-2026-0179', 'MP-001', 'AGU-2510-A', date '2027-10-31', 6000.0, 'MP-E06-P1-01'),
+      ('MP-2026-0180', 'MP-031', 'FEN-2508-A', date '2028-02-28', 40.0, 'MP-E04-P2-01'),
+      ('MP-2026-0181', 'MP-040', 'MAN-2509-B', date '2027-09-30', 20.0, 'MP-E04-P2-02'),
+      ('MP-2026-0183', 'MP-055', 'ACC-2509-B', date '2028-05-31', 5.0, 'MP-E05-P2-01'),
+      ('MP-2026-0184', 'MP-060', 'PER-2509-B', date '2027-09-30', 5.0, 'MP-E05-P2-02')
+    ) as t(code, mat, slot, expiry, qty, loc)
+  loop
+    insert into public.material_lots (material_id, internal_code, supplier_id, supplier_lot, expiry_date, qty_received, unit,
+      received_at, received_by, coa_ref, status, sampled_at, sampled_by, released_at, released_by, created_by, updated_by)
+    values ((select id from public.materials where code = v_l.mat), v_l.code,
+      (select id from public.external_parties where name = 'Química Andina S.A.S.'), v_l.slot, v_l.expiry, v_l.qty, 'kg',
+      '2026-09-28 09:00-05', v_marta, 'CoA-' || v_l.slot || '.pdf', 'aprobado', '2026-09-29 09:00-05',
+      'a1000000-0000-4000-8000-000000000007', '2026-10-01 09:00-05', 'a1000000-0000-4000-8000-000000000008', v_marta, v_marta)
+    returning id into v_lot;
+    insert into public.inventory_movements (lot_id, type, qty, to_location_id, reason, created_at, created_by, updated_by)
+    values (v_lot, 'recepcion', v_l.qty, (select id from public.storage_locations where code = v_l.loc),
+      'Recibido en cuarentena · CoA adjunto', '2026-09-28 09:00-05', v_marta, v_marta);
+  end loop;
+
+  -- OP-2026-0042 / L-2610-018: 2.000,0 kg; 200 mL y 400 mL con 1.000,0 kg cada una.
+  v_docs := app_private.order_documents(v_prd);
+  insert into public.production_orders (code, product_id, formula_id, batch_size, batch_unit, planned_date, presentations,
+    frozen_documents, document_warnings, regulatory_profile, status, approved_by, approved_at, created_at, created_by, updated_by)
+  select 'OP-2026-0042', v_prd, (v_docs ->> 'formula_id')::uuid, 2000, 'kg', '2026-10-05',
+    jsonb_agg(jsonb_build_object('presentation_id', p.id, 'code', p.code, 'name', p.name, 'net_content', p.net_content,
+      'unit', p.unit, 'bulk_qty', 1000, 'units', case p.code when '200' then 5000 else 2500 end) order by p.code),
+    v_docs -> 'documents', coalesce(v_docs -> 'warnings', '[]'), 'cosmetico', 'aprobada', v_esteban, '2026-10-04 15:00-05',
+    '2026-10-03 10:00-05', v_paola, v_paola
+  from public.product_presentations p where p.product_id = v_prd
+  returning id into v_order;
+  insert into public.batches (order_id, batch_code, product_id, batch_size, batch_unit, expiry_date, status, frozen_formula_id,
+    frozen_documents, regulatory_profile_snapshot, started_at, created_by, updated_by)
+  select v_order, 'L-2610-018', v_prd, 2000, 'kg', '2028-10-31', 'en_proceso', formula_id, frozen_documents,
+    public.regulatory_profile_snapshot('cosmetico'), '2026-10-05 08:30-05', v_paola, v_paola
+  from public.production_orders where id = v_order returning id into v_batch;
+  perform app_private.generate_order_documents(v_order);
+  update public.production_orders set status = 'en_ejecucion', locked_at = '2026-10-04 15:00-05' where id = v_order;
+
+  -- Despeje y limpieza de dispensación y fabricación (TQ-101: limpieza del 05/10 de la hoja de vida).
+  for v_t in select * from (values ('dispensacion', timestamptz '2026-10-05 08:10-05', null::text),
+                                   ('fabricacion', timestamptz '2026-10-05 10:00-05', 'TQ-101')) as t(stage, at, eq)
+  loop
+    select id into v_so from public.stage_orders where batch_id = v_batch and stage = v_t.stage;
+    insert into public.line_clearances (stage_order_id, governing_version_id, checklist, status, executed_by, executed_at,
+      verified_by, verified_at, locked_at, created_by, updated_by)
+    select v_so, (d ->> 'version_id')::uuid, (select jsonb_agg(jsonb_build_object('item', s.text, 'ok', true) order by s.order_no)
+      from public.process_template_steps s where s.template_id = (d ->> 'template_id')::uuid and s.checklist_item),
+      'verificado', v_diego, v_t.at, v_paola, v_t.at + interval '10 minutes', v_t.at + interval '10 minutes', v_diego, v_paola
+    from public.batches b, jsonb_array_elements(b.frozen_documents) d
+    where b.id = v_batch and d ->> 'kind' = 'plantilla' and d ->> 'stage' = 'despeje';
+    insert into public.cleaning_records (stage_order_id, equipment_id, equipment_event_id, utensils, label_verified, valid_until,
+      status, cleaned_by, cleaned_at, verified_by, verified_at, locked_at, created_by, updated_by)
+    values (v_so, (select id from public.equipment where code = v_t.eq),
+      (select ev.id from public.equipment_events ev join public.equipment e on e.id = ev.equipment_id
+       where e.code = v_t.eq and ev.type = 'limpieza' and ev.performed_on = '2026-10-05'),
+      '["Palas de acero", "Recipientes de acero", "Mangueras"]', true, '2026-10-07 18:00-05', 'verificado', v_diego,
+      v_t.at, v_paola, v_t.at + interval '10 minutes', v_t.at + interval '10 minutes', v_diego, v_paola);
+    update public.stage_orders set status = case v_t.stage when 'dispensacion' then 'completada' else 'en_curso' end,
+      started_at = v_t.at + interval '15 minutes', started_by = v_diego,
+      completed_at = case v_t.stage when 'dispensacion' then '2026-10-05 09:50-05'::timestamptz end,
+      completed_by = case v_t.stage when 'dispensacion' then v_diego end,
+      locked_at = case v_t.stage when 'dispensacion' then '2026-10-05 09:50-05'::timestamptz end
+    where id = v_so;
+  end loop;
+
+  -- Dispensación: un lote por materia prima y glicerina en dos lotes (movimientos de glicerina ya cargados en E5).
+  select id into v_so from public.stage_orders where batch_id = v_batch and stage = 'dispensacion';
+  for v_l in
+    select l.id as line_id, m.code as mat, l.required_qty, x.lot_code, x.qty
+    from public.material_request_lines l join public.material_requests r on r.id = l.request_id and r.batch_id = v_batch
+      and r.type = 'dispensacion'
+    join public.materials m on m.id = l.material_id
+    join (values ('MP-001', 'MP-2026-0179', 1884.0), ('MP-014', 'MP-2026-0187', 40.0), ('MP-014', 'MP-2026-0204', 20.0),
+                 ('MP-022', 'MP-2026-0190', 30.0), ('MP-031', 'MP-2026-0180', 16.0), ('MP-040', 'MP-2026-0181', 6.0),
+                 ('MP-032', 'MP-2026-0188', 2.0), ('MP-055', 'MP-2026-0183', 1.0), ('MP-060', 'MP-2026-0184', 1.0)
+         ) as x(mat, lot_code, qty) on x.mat = m.code
+  loop
+    select id into v_lot from public.material_lots where internal_code = v_l.lot_code;
+    select id into v_mov from public.inventory_movements where lot_id = v_lot and type = 'dispensacion' and ref_code = 'L-2610-018';
+    if v_mov is null then
+      insert into public.inventory_movements (lot_id, type, qty, from_location_id, ref_table, ref_code, reason, created_at,
+        created_by, updated_by)
+      values (v_lot, 'dispensacion', v_l.qty,
+        (select location_id from public.stock_by_location where lot_id = v_lot and qty >= v_l.qty order by qty limit 1),
+        'material_requests', 'SD-2026-0042', 'Dispensación para el lote L-2610-018', '2026-10-05 09:25-05', v_diego, v_diego)
+      returning id into v_mov;
+    end if;
+    insert into public.dispensing_line_lots (stage_order_id, request_line_id, lot_id, location_id, movement_id, qty, tare,
+      balance_id, status, executed_by, executed_at, verified_by, verified_at, locked_at, created_by, updated_by)
+    values (v_so, v_l.line_id, v_lot, (select from_location_id from public.inventory_movements where id = v_mov), v_mov,
+      v_l.qty, 0.5, (select id from public.equipment where code = 'BAL-014'), 'verificado', v_diego, '2026-10-05 09:25-05',
+      v_paola, '2026-10-05 09:40-05', '2026-10-05 09:40-05', v_diego, v_paola);
+    v_mov := null;
+  end loop;
+
+  -- Fabricación: pasos 1 a 5 de PRD-PR-003-FR-01 v03 (instructivo IDI-IN-012 v03); el 6 es el actual.
+  select id into v_so from public.stage_orders where batch_id = v_batch and stage = 'fabricacion';
+  insert into public.step_records (stage_order_id, step_key, step_no, label, text, values, out_of_range, requires_verification,
+    status, executed_by, executed_at, verified_by, verified_at, locked_at, created_by, updated_by)
+  select v_so, s.id::text, s.order_no, s.label, s.text,
+    coalesce((select jsonb_agg(p || jsonb_build_object('value', v.val, 'in_range', true))
+              from jsonb_array_elements(s.params) p), '[]'),
+    false, s.requires_verification, case when s.requires_verification then 'verificado' else 'ejecutado' end,
+    v_diego, '2026-10-05 10:30-05'::timestamptz + make_interval(mins => 20 * s.order_no),
+    case when s.requires_verification then v_paola end,
+    case when s.requires_verification then '2026-10-05 10:35-05'::timestamptz + make_interval(mins => 20 * s.order_no) end,
+    '2026-10-05 10:35-05'::timestamptz + make_interval(mins => 20 * s.order_no), v_diego, v_diego
+  from public.stage_orders so join public.instruction_steps s on s.instruction_id = so.instruction_id
+  join (values (1, null::numeric), (2, 1884), (3, 72), (4, null), (5, 73)) as v(n, val) on v.n = s.order_no
+  where so.id = v_so;
+
+  -- Firmas de lo ejecutado y verificado.
+  for v_t in select * from (values ('line_clearances', 'executed_by', 'executed_at', 'verified_by', 'verified_at'),
+    ('cleaning_records', 'cleaned_by', 'cleaned_at', 'verified_by', 'verified_at'),
+    ('dispensing_line_lots', 'executed_by', 'executed_at', 'verified_by', 'verified_at'),
+    ('step_records', 'executed_by', 'executed_at', 'verified_by', 'verified_at')) as t(tbl, ex, ex_at, ve, ve_at)
+  loop
+    execute format($q$
+      insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature,
+        signer_name, reauth_method, signed_at, created_by, updated_by)
+      select s.uid, %1$L, t.id, s.meaning::public.signature_meaning, s.role,
+        public.record_hash(app_private.signable_row(%1$L, to_jsonb(t))), coalesce(sr.short_signature, p.full_name), p.full_name,
+        'password', s.at, s.uid, s.uid
+      from public.%1$I t
+      cross join lateral (values (t.%2$I, 'ejecuto', 'prod_aux', t.%3$I), (t.%4$I, 'verifico', 'prod_coord', t.%5$I))
+        as s(uid, meaning, role, at)
+      join public.profiles p on p.id = s.uid left join public.signature_registry sr on sr.user_id = s.uid
+      where s.uid is not null$q$, v_t.tbl, v_t.ex, v_t.ex_at, v_t.ve, v_t.ve_at);
+  end loop;
+  insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature, signer_name,
+    reauth_method, signed_at, created_by, updated_by)
+  select v_esteban, 'production_orders', o.id, 'aprobo', 'dt', public.record_hash(app_private.signable_row('production_orders', to_jsonb(o))),
+    coalesce((select short_signature from public.signature_registry where user_id = v_esteban), 'E. Gaviria'),
+    'Dr. Esteban Gaviria', 'password', '2026-10-04 15:00-05', v_esteban, v_esteban
+  from public.production_orders o where o.id = v_order;
+
+  -- OP-2026-0043 / L-2610-019 en borrador (creada por Paola Mejía).
+  insert into public.production_orders (code, product_id, formula_id, batch_size, batch_unit, planned_date, presentations,
+    frozen_documents, document_warnings, regulatory_profile, created_at, created_by, updated_by)
+  select 'OP-2026-0043', v_prd, (v_docs ->> 'formula_id')::uuid, 2000, 'kg', '2026-10-12',
+    jsonb_agg(jsonb_build_object('presentation_id', p.id, 'code', p.code, 'name', p.name, 'net_content', p.net_content,
+      'unit', p.unit, 'bulk_qty', 1000, 'units', case p.code when '200' then 5000 else 2500 end) order by p.code),
+    v_docs -> 'documents', coalesce(v_docs -> 'warnings', '[]'), 'cosmetico', '2026-10-05 11:00-05', v_paola, v_paola
+  from public.product_presentations p where p.product_id = v_prd
+  returning id into v_order;
+  insert into public.batches (order_id, batch_code, product_id, batch_size, batch_unit, expiry_date, frozen_formula_id,
+    frozen_documents, regulatory_profile_snapshot, created_by, updated_by)
+  select v_order, 'L-2610-019', v_prd, 2000, 'kg', '2028-10-31', formula_id, frozen_documents,
+    public.regulatory_profile_snapshot('cosmetico'), v_paola, v_paola
+  from public.production_orders where id = v_order;
+
+  update public.numbering_sequences set last_value = greatest(last_value, 43), year = 2026 where key = 'production_order';
+  update public.numbering_sequences set last_value = 19, year = 2610 where key = 'batch';
+end $$;
