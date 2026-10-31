@@ -5,13 +5,13 @@
 
 ## Puerta de salida
 
-| #   | Condición                                                         | Estado    | Evidencia                                                                    |
-| --- | ----------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------- |
-| 1   | RF-50 aprobado (y RF-51, AC-44…AC-47 con prueba)                  | Cumplida  | Matriz: 76 requisitos con prueba hasta F5; pgTAP 0027 33 de 33               |
-| 2   | pgTAP de estados y de vigencia                                    | Cumplida  | `supabase/tests/0027_equipment.test.sql`                                     |
-| 3   | Playwright de registro de calibración y bloqueo por vencimiento   | Pendiente | `e2e/equipos.spec.ts`: corre en la CI de GitHub (necesita la semilla del 0B) |
-| 4   | Servicio de recordatorios con tarea programada (decisión escrita) | Cumplida  | `pg_cron` diario (D-59); correo en cola (D-60)                               |
-| 5   | Reporte ETAPA-E6.md                                               | Cumplida  | Este documento                                                               |
+| #   | Condición                                                         | Estado   | Evidencia                                                      |
+| --- | ----------------------------------------------------------------- | -------- | -------------------------------------------------------------- |
+| 1   | RF-50 aprobado (y RF-51, AC-44…AC-47 con prueba)                  | Cumplida | Matriz: 76 requisitos con prueba hasta F5; pgTAP 0027 33 de 33 |
+| 2   | pgTAP de estados y de vigencia                                    | Cumplida | `supabase/tests/0027_equipment.test.sql`                       |
+| 3   | Playwright de registro de calibración y bloqueo por vencimiento   | Cumplida | `e2e/equipos.spec.ts`: aprobado en la CI de GitHub             |
+| 4   | Servicio de recordatorios con tarea programada (decisión escrita) | Cumplida | `pg_cron` diario (D-59); correo en cola (D-60)                 |
+| 5   | Reporte ETAPA-E6.md                                               | Cumplida | Este documento                                                 |
 
 ## Qué se construyó
 
@@ -37,7 +37,7 @@
 | Bloque E6 de la semilla     |                                          | Cargado en transacción revertida: 5 equipos, 21 firmas    |
 | Vitest (53)                 | RF-02 (menú con Equipos), matriz 22 × 15 | Aprobado                                                  |
 | `npm run ci` (local)        |                                          | Aprobado: formato, lint, tipos, matriz, versiones y build |
-| E2E `e2e/equipos.spec.ts`   | RF-50, RF-51, AC-44, AC-45               | Pendiente de la CI de GitHub                              |
+| E2E `e2e/equipos.spec.ts`   | RF-50, RF-51, AC-44, AC-45               | Aprobado en la CI de GitHub                               |
 
 ## Supuestos (PREGUNTAS_ABIERTAS.md)
 
