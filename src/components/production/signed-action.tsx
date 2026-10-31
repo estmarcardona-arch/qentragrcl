@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { ReauthDialog } from "@/components/documents/reauth-dialog";
 import { Button } from "@/components/ui/button";
 import type { PrResult } from "@/lib/production/actions";
+import { useHydrated } from "./use-hydrated";
 
 export type Summary = { label: string; value: string; mono?: boolean }[];
 
@@ -42,6 +43,7 @@ export function SignedAction({
   testId?: string;
 }) {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [open, setOpen] = useState(false);
   const [local, setLocal] = useState<string | null>(null);
   return (
@@ -52,6 +54,7 @@ export function SignedAction({
         variant={variant}
         disabled={disabled}
         data-testid={testId}
+        data-ready={hydrated}
         className="min-h-12 px-5 text-[15px]"
         onClick={() => {
           const msg = validate?.() ?? null;

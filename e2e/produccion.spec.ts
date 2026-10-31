@@ -21,8 +21,14 @@ async function as(
   return { page, close: () => ctx.close() };
 }
 
+/** Espera a que la acción sea interactiva (hidratada) antes de llenar su formulario o pulsarla. */
+async function ready(trigger: Locator) {
+  await expect(trigger).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
+}
+
 /** Abre la acción firmada, escribe la contraseña y firma; espera que el diálogo se cierre. */
 async function sign(page: Page, trigger: Locator) {
+  await ready(trigger);
   await trigger.click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Contraseña").fill(DEV_PASSWORD);
@@ -32,6 +38,7 @@ async function sign(page: Page, trigger: Locator) {
 
 /** Firma y espera el rechazo con su regla (el diálogo sigue abierto); luego lo cierra. */
 async function signRejected(page: Page, trigger: Locator, text: RegExp) {
+  await ready(trigger);
   await trigger.click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Contraseña").fill(DEV_PASSWORD);
@@ -43,11 +50,13 @@ async function signRejected(page: Page, trigger: Locator, text: RegExp) {
 /** Despeje y limpieza de una etapa: Diego ejecuta; Paola verifica. */
 async function prepare(diego: Page, paola: Page, base: string, stage: string, equipment: string[]) {
   await diego.goto(`${base}/despeje?etapa=${stage}`);
+  await ready(diego.getByTestId("sign-clearance"));
   for (const box of await diego.getByTestId("clearance-items").getByRole("checkbox").all())
     await box.check();
   await sign(diego, diego.getByTestId("sign-clearance"));
   await expect(diego.getByText("Usted ejecutó el despeje")).toBeVisible();
   await diego.goto(`${base}/limpieza?etapa=${stage}`);
+  await ready(diego.getByTestId("sign-cleaning"));
   const tomorrow = new Date(Date.now() + 36 * 3600_000).toISOString().slice(0, 16);
   for (const code of equipment.length ? equipment : [""]) {
     if (code) {
@@ -65,6 +74,7 @@ async function prepare(diego: Page, paola: Page, base: string, stage: string, eq
   while (await paola.getByTestId("verify-cleaning").count())
     await sign(paola, paola.getByTestId("verify-cleaning").first());
   await diego.goto(`${base}/${stage}`);
+  await ready(diego.getByTestId("start-stage"));
   await diego.getByTestId("start-stage").click();
   await expect(diego.getByTestId("stage-shell")).toContainText("En curso");
 }
@@ -74,6 +84,7 @@ async function runSteps(page: Page, values: Record<string, string> = {}) {
   for (let i = 0; i < 20; i++) {
     const card = page.getByTestId("current-step");
     if (!(await card.count())) return;
+    await ready(card.getByTestId("complete-step"));
     for (const input of await card.locator('input[inputmode="decimal"]').all()) {
       const field = input.locator("xpath=..");
       const label = ((await field.locator("label").textContent()) ?? "")
@@ -182,6 +193,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
 
     // S-17 · AC-04: sin despeje la etapa no inicia.
     await D.goto(`${base}/dispensacion`);
+    await ready(D.getByTestId("start-stage"));
     await D.getByTestId("start-stage").click();
     await expect(D.getByRole("alert").filter({ hasText: "despeje" })).toBeVisible();
     await prepare(D, P, base, "dispensacion", []);
@@ -208,6 +220,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       "MP-060",
     ]) {
       const line = D.locator(`article[data-code="${code}"]`);
+      await ready(line.getByTestId(`dispense-${code}`));
       await line.getByLabel("Balanza").selectOption({ label: "BAL-015" });
       await sign(D, line.getByTestId(`dispense-${code}`));
     }
@@ -237,6 +250,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     while (await P.getByRole("button", { name: "Verificar paso" }).count())
       await sign(P, P.getByRole("button", { name: "Verificar paso" }).first());
     await D.goto(`${base}/fabricacion`);
+    await ready(D.getByTestId("record-output-fabricacion"));
     await D.getByLabel("Granel obtenido (kg)").fill("2004");
     await D.getByLabel("Granel remanente (kg)").fill("4");
     await expect(D.getByTestId("yield-preview")).toContainText("100,2 %");
@@ -252,6 +266,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       await D.getByRole("tab", { name: new RegExp(`^${name}`) }).click();
       await runSteps(D);
       for (const w of weights) {
+        await ready(D.getByTestId("record-weight"));
         await D.getByLabel("Peso neto (g) *").fill(w);
         if (w === "203.6") {
           await expect(D.getByTestId("weight-controls").getByRole("alert")).toContainText(
@@ -264,6 +279,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       await expect(
         D.getByTestId("weight-controls").locator('tr[data-in-range="false"]'),
       ).toHaveCount(name === "200 mL" ? 1 : 0);
+      await ready(D.getByTestId("record-output-envase"));
       await D.getByLabel("Unidades envasadas").fill(filled);
       await expect(D.getByTestId("yield-preview")).toContainText(pct);
       await sign(D, D.getByTestId("record-output-envase"));
@@ -298,12 +314,14 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     ] as const) {
       await P.goto(`${base}/acondicionamiento`);
       await P.getByRole("tab", { name: new RegExp(`^${name}`) }).click();
+      await ready(P.getByTestId("sign-inspection"));
       const form = P.getByTestId("inspection-form");
       for (const group of await form.getByRole("radiogroup").all())
         await group.getByLabel("Conforme", { exact: true }).check();
       await sign(P, P.getByTestId("sign-inspection"));
       await D.goto(`${base}/acondicionamiento`);
       await D.getByRole("tab", { name: new RegExp(`^${name}`) }).click();
+      await ready(D.getByTestId("record-output-acondicionamiento"));
       await D.getByLabel("Rechazadas en inspección").fill(rej);
       await D.getByLabel("Muestras de retención").fill(ret);
       await expect(D.getByTestId("yield-preview")).toContainText(pct);
@@ -311,6 +329,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       await sign(D, D.getByTestId("record-output-acondicionamiento"));
       for (const [mat, [used, dam, back]] of Object.entries(returns)) {
         const r = D.getByTestId(`return-${mat}`);
+        await ready(r.getByTestId(`record-return-${mat}`));
         await r.getByLabel("Usadas").fill(used);
         await r.getByLabel("Dañadas").fill(dam);
         await r.getByLabel("Devueltas").fill(back);

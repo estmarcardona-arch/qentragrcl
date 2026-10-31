@@ -17,6 +17,7 @@ import {
   type PrResult,
 } from "@/lib/production/actions";
 import { ResultError, SignedAction, type Summary } from "./signed-action";
+import { useHydrated } from "./use-hydrated";
 
 /** S-17 · Lista de despeje: todos los puntos conformes para firmar («Ejecuté»). */
 export function ClearanceForm({
@@ -239,6 +240,7 @@ export function StartStageButton({
   label: string;
 }) {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [error, setError] = useState<Exclude<PrResult, { ok: true }> | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -250,6 +252,7 @@ export function StartStageButton({
           className="min-h-12 px-5 text-[15px]"
           disabled={pending}
           data-testid="start-stage"
+          data-ready={hydrated}
           onClick={() =>
             start(async () => {
               const res = await startStage(batchId, stageOrderId);
