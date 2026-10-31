@@ -1,6 +1,6 @@
 # PRD — GRUFARCOL eBR (Registro electrónico de lote, trazabilidad y liberación)
 
-**Versión:** 1.9 · **Fecha:** 25/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
+**Versión:** 1.10 · **Fecha:** 31/10/2026 · **Estado:** borrador para confirmar con GRUFARCOL
 **Documento hermano (comercial):** `DOCUMENTO_MAESTRO_GRUFARCOL.md` · **Prompts de diseño:** `PROMPTS_CLAUDE_DESIGN_GRUFARCOL.md`
 **Lector principal:** el agente de desarrollo con IA (Antigravity, Claude Code, Cursor, Lovable) y quien lo supervisa.
 
@@ -71,8 +71,9 @@ Un usuario puede tener varios roles, **pero la segregación de funciones se eval
 | Lectura y capacitación (leer, presentar cuestionario y obtener constancia) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | F (lee) | — | F (lee) | C (asigna y hace seguimiento) | F (lee) | L |
 | Costos de fórmula (hoja de costos; confidencial) | — | C | — | — | — | — | — | — | — | L | — | — | — | L | — |
 | Maestro de materiales y productos (código, unidad, almacenamiento, vida útil) | L | C | L | C | L | L | L | L | C | L | — | L | — | L | L |
+| Equipos y hoja de vida (ficha, eventos, estados, certificados) | — | L | L | C F | C F | C F | C F | C F | C F A | L | — | L | L | L | L |
 
-El maestro de materiales y productos lo mantienen I+D, el jefe de bodega y Aseguramiento de la calidad (desde la v1.9; RF-26). Los costos se rigen por la fila **Costos de fórmula** (desde la v1.8): la fila «Prototipos, estabilidad y costos» conserva su nombre porque su código es estable, pero ya no da acceso a los costos.
+Los equipos y su hoja de vida los registran bodega, producción, laboratorio y Control de calidad; las calificaciones y el retiro de servicio los aprueba Aseguramiento de la calidad (desde la v1.10; RF-50). El maestro de materiales y productos lo mantienen I+D, el jefe de bodega y Aseguramiento de la calidad (desde la v1.9; RF-26). Los costos se rigen por la fila **Costos de fórmula** (desde la v1.8): la fila «Prototipos, estabilidad y costos» conserva su nombre porque su código es estable, pero ya no da acceso a los costos.
 
 La matriz anterior es la **línea base** de los roles del sistema. Sus permisos solo se ajustan en la plataforma con **doble aprobación** (2.6, D-40); la línea base se conserva y la pantalla S-04 marca las celdas ajustadas. Los roles adicionales (2.6) agregan columnas configurables.
 
@@ -467,8 +468,11 @@ La `formulas` aprobada referencia su `prototype_id` de origen y exige: estabilid
 |---|---|
 | `lab_results` | subject_type, subject_id, spec_parameter_id, value, conforms, analyst, reviewed_by |
 | `analytical_certificates` | batch_id, status, approved_by, pdf_path, pdf_sha256 |
-| `equipment` | code, name, area, critical, calibration_due, maintenance_due, qualification_due, cleaning_status, cleaning_expires_at |
-| `equipment_events` | equipment_id, type (`calibracion/mantenimiento/calificacion/limpieza`), performed_at, due_at, evidence_file |
+| `equipment` | code, name, equipment_type (catálogo), plant_area, critical, governing_document_id (documento que lo rige; se muestra su código y versión vigente), manufacturer, model, serial_number, capacity, installed_on, requires_calibration, requires_qualification, status (`disponible/en_uso/en_limpieza/en_mantenimiento/fuera_de_servicio`; «calibración vencida» se deriva), active (v1.10) |
+| `equipment_events` | equipment_id, type (`instalacion/calibracion/verificacion/mantenimiento/calificacion/limpieza/uso/cambio_estado`), performed_on, result (`conforme/no_conforme`), due_on o valid_until (próximo vencimiento), provider, reference, recorded_by, verified_by (limpieza), firmas; inmutable (v1.10) |
+| `equipment_attachments` | equipment_id, event_id, bucket, path, file_name, mime_type, size_bytes, sha256 — certificados en Storage con huella, inmutables (v1.10) |
+| `notifications` | user_id, kind, title, body, link, entity_table, entity_id, due_on, threshold_days, read_at — campana de la interfaz (v1.10) |
+| `email_outbox` | user_id, to_email, subject, body, status (`pendiente/enviado/error`), sent_at — cola de correos de recordatorio (v1.10) |
 | `deviations` | code, batch_id?, equipment_id?, severity (`menor/mayor/critica`), description, status (`abierta/en_investigacion/en_capa/cerrada`), root_cause |
 | `capa_actions` | deviation_id, type (`correctiva/preventiva`), owner, due_date, status, effectiveness_check_date, effectiveness_result |
 | `batch_releases` | batch_id, checklist (jsonb), released_by, signature_id, decision (`liberado/rechazado`) |
@@ -668,7 +672,8 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 - **RF-42** Vista de supervisión de calidad (pendientes, vencidos, tendencias simples). *Aceptación:* cifras coinciden con listas.
 
 **Equipos**
-- **RF-50** Hoja de vida de equipo: calibración, mantenimiento, calificación, limpieza. *Aceptación:* estado semáforo con ícono y texto; vencido bloquea uso (RF-34).
+- **RF-50** Hoja de vida de equipo **(ampliado en v1.10):** inventario de equipos con código, tipo, área, criticidad y **código y versión del documento que los rige**; eventos de instalación, calibración, verificación, mantenimiento, calificación, limpieza y uso, con próximo vencimiento, firma y **certificados adjuntos en Storage con huella SHA-256**; estados operativos (disponible, en uso, en limpieza, en mantenimiento, fuera de servicio) y **calibración vencida** derivada; estado general Apto / Apto con alerta / No apto, con semáforo, ícono y texto. La función `is_equipment_valid(equipo, momento)` (y `assert_equipment_valid`, `EQUIPMENT_NOT_VALID`) la usa Producción (RF-34, RF-39; AC-05 en F6). *Aceptación:* estado semáforo con ícono y texto; vencido bloquea uso (RF-34); la calibración exige certificado adjunto; quien limpia no verifica la limpieza.
+- **RF-51** **Notificaciones y recordatorios (v1.10):** campana de avisos en la interfaz y correo; un servicio programado diario (pg_cron) genera los recordatorios de vencimiento de calibración, mantenimiento, calificación y limpieza a **30, 15 y 7 días** (configurables) y al vencer, una sola vez por umbral. *Aceptación:* cada umbral cruzado genera un aviso por persona responsable y un correo en cola; no se repite.
 
 **Desviaciones y CAPA**
 - **RF-60** Apertura de desviación desde cualquier pantalla de registro. *Aceptación:* vinculada al lote/equipo; severidad obligatoria.
@@ -746,7 +751,7 @@ Formato: **RF-xx — requisito** · *Aceptación:* condición verificable. Cada 
 | S-22 | Captura de resultados | `/calidad/resultados` | lab_aux | RF-40 | 8 |
 | S-23 | Certificado analítico | `/calidad/certificados/[id]` | lab_aux, cc_jefe | RF-41 | 8 |
 | S-24 | Supervisión de calidad | `/calidad/supervision` | aq_dir | RF-42 | 8 |
-| S-25 | Equipos (hoja de vida) | `/equipos/[id]` | todos (L) | RF-50 | 9 |
+| S-25 | Equipos (lista con vigencias y hoja de vida) | `/equipos`, `/equipos/[code]` | todos (L); registran bodega, producción, laboratorio y Calidad | RF-50, RF-51 | 9 |
 | S-26 | Listado de desviaciones y CAPA | `/desviaciones` | todos | RF-62 | 10 |
 | S-27 | Apertura de desviación | `/desviaciones/nueva` | todos | RF-60 | 10 |
 | S-28 | Detalle e investigación / CAPA | `/desviaciones/[id]` | aq_dir, cc_jefe | RF-61 | 10 |
@@ -861,6 +866,10 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | AC-41 | Solicitar quitar al `dt` la aprobación de la liberación final | `RESERVED_PERMISSION` (candado) |
 | AC-42 | Recibir un ítem que no existe en el maestro o está inactivo | `INVALID_FIELD`; el ítem no aparece en la recepción |
 | AC-43 | Recibir 2 cajas × 100 plegadizas | Cantidad recibida 200 und; el rótulo muestra «2 cajas × 100» y la orden de compra |
+| AC-44 | Registrar una calibración sin certificado adjunto | `INVALID_FIELD` |
+| AC-45 | Consultar la validez de un equipo con calibración vencida (`is_equipment_valid`) | Falso; `assert_equipment_valid` responde `EQUIPMENT_NOT_VALID` con la regla y la fecha |
+| AC-46 | Un vencimiento a 30, 15 y 7 días (configurables) | Un aviso en la campana por umbral y por responsable, y un correo en cola; no se repite |
+| AC-47 | Quien registró la limpieza intenta verificarla | `SOD_VIOLATION` |
 
 ## 15. Reglas para el agente de desarrollo (`AGENTS.md`)
 
@@ -885,7 +894,7 @@ Reglas de navegación: no hay callejones sin salida (todo detalle tiene migas de
 | **F3 Documentos maestros** | Brief ampliado, prototipos, estabilidad preliminar, fórmula, especificación, instructivo, costos, aprobación versionada **sobre el SGD** (S-05…S-10, S-36, S-37) | F2B | RF-10…17, AC-07 (parcial), AC-13 |
 | **F4 Bodega y calidad de insumos** | Estructura de bodegas y ubicaciones, bodegas externas y traslados, recepción con ubicación, rótulos, kardex, liberación de insumos (S-11…S-14, S-41, S-42) | F2 | RF-20…25, AC-21, AC-22, AC-24, saldo de inventario |
 | **F4B Maestro de materiales y productos** | Maestro de ítems de inventario con unidad, almacenamiento y vida útil; recepción técnica con orden de compra y unidades de empaque; rótulo PDF; «dónde se usa» (S-50) | F4 | RF-26, RF-20 (v1.9), AC-42, AC-43 |
-| **F5 Equipos** | Hoja de vida y estados (S-25) | F2 | RF-50 |
+| **F5 Equipos** | Hoja de vida, estados, certificados en Storage, `is_equipment_valid`, notificaciones y recordatorios programados (S-25) | F2 | RF-50, RF-51, AC-44…47 |
 | **F6 Producción** | OP con numeración, aprobación y documentos generados, lotes, despeje, limpieza, dispensación, fabricación, envase, acondicionamiento (S-15…S-21, S-38, S-39) | F3, F4, F5 | AC-03, AC-04, AC-05, AC-07, AC-14 |
 | **F7 Laboratorio y certificado** | Resultados, certificado, supervisión (S-22…S-24) | F6 | RF-40…42 |
 | **F8 Desviaciones y CAPA** | S-26…S-28; bloqueos por severidad | F6 | AC-06 (parcial), AC-12 |
@@ -933,6 +942,7 @@ Para cada fase el agente entrega: migraciones, RPC, pantallas, pruebas y el repo
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.10 | 31/10/2026 | Encargo de la etapa E6 (Equipos): RF-50 ampliado (documento que rige el equipo, eventos, estados, certificados en Storage con huella, `is_equipment_valid`), RF-51 (notificaciones en la interfaz y por correo, recordatorios programados a 30/15/7 días), fila «Equipos y hoja de vida» en la matriz 2.2, AC-44…47 |
 | 1.9 | 25/10/2026 | Solicitud del responsable: maestro de materiales y productos (RF-26, S-50, fase F4B) que mantienen I+D, el jefe de bodega y Aseguramiento de la calidad, con unidad de almacenamiento, condiciones de almacenamiento, vida útil o reanálisis y unidad de empaque; RF-20 ampliado (orden de compra, unidades de empaque, vencimiento sugerido, rótulo PDF descargable); fila nueva en la matriz 2.2; AC-42 y AC-43 |
 | 1.8 | 24/10/2026 | Decisiones del responsable: la fórmula maestra es el tipo documental `FM` (D-49); D-13 resuelta (criterios de estabilidad opcionales, «cumple» justificado por quien firma); fila nueva «Costos de fórmula» en la matriz 2.2: solo I+D (C), Dirección técnica (L) y Gerencia (L) ven los costos (RF-17) |
 | 1.7 | 09/10/2026 | Sección Producción reorganizada por etapa (Manufactura → Envase → Acondicionamiento → Cierre) con tabla de secuencia de 23 documentos tomada del formato de formación del paquete técnico; RF-30…39 agrupados en bloques A–F sin cambiar sus números; RF-38 precisa 3 órdenes de etapa, 3 solicitudes, orden de codificado, rótulos y 3 registros; RF-32/39 repetidos en cada etapa; RF-37 define el paso de granel entre etapas; RF-36 incluye devolución de material; AC-14 ajustado. Decisiones del responsable: el paso 23 cita RF-80 (D-45); supervisor = rol adicional o, si no existe, `prod_coord` (D-46); la inspección de producto terminado la firma el coordinador o el supervisor (D-47); tolerancia de la devolución 0 unidades por defecto (D-48) |

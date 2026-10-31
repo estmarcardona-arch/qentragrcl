@@ -41,21 +41,28 @@ describe("RF-02 · menú por rol", () => {
     ]);
   });
 
-  it("desde F4 se habilitan también Bodega y Calidad (liberación de insumos) según el rol", () => {
+  it("desde F4 se habilitan Bodega y Calidad, y desde F5 Equipos, según el rol", () => {
     const enabled = (roles: string[]) =>
       navForRoles(roles)
         .filter((n) => n.stage === null)
         .map((n) => n.key);
-    expect(enabled(["prod_aux"])).toEqual(["inicio", "documentos"]);
-    expect(enabled(["bodega_aux"])).toEqual(["inicio", "documentos", "bodega"]);
-    expect(enabled(["lab_aux"])).toEqual(["inicio", "documentos", "calidad"]);
-    expect(enabled(["cc_jefe"])).toEqual(["inicio", "aprobaciones", "documentos", "calidad"]);
+    expect(enabled(["prod_aux"])).toEqual(["inicio", "documentos", "equipos"]);
+    expect(enabled(["bodega_aux"])).toEqual(["inicio", "documentos", "bodega", "equipos"]);
+    expect(enabled(["lab_aux"])).toEqual(["inicio", "documentos", "calidad", "equipos"]);
+    expect(enabled(["cc_jefe"])).toEqual([
+      "inicio",
+      "aprobaciones",
+      "documentos",
+      "calidad",
+      "equipos",
+    ]);
     expect(enabled(["dt"])).toEqual([
       "inicio",
       "aprobaciones",
       "documentos",
       "idi",
       "calidad",
+      "equipos",
       "cambios_roles",
     ]);
     // D-20: Aseguramiento de la calidad aprueba las bodegas externas.
@@ -65,10 +72,12 @@ describe("RF-02 · menú por rol", () => {
       "documentos",
       "bodega",
       "calidad",
+      "equipos",
       "cambios_roles",
     ]);
-    // RF-23: el administrador también crea bodegas (Prompt 4B).
+    // RF-23: el administrador también crea bodegas (Prompt 4B); no ve Equipos (matriz 2.2).
     expect(enabled(["admin"])).toEqual(["inicio", "bodega", "cambios_roles", "administracion"]);
+    expect(enabled(["comercial"])).not.toContain("equipos");
   });
 
   it("RF-92: todos los roles con acceso al SGD ven Documentos; el administrador no (matriz 2.2)", () => {

@@ -839,3 +839,95 @@ begin
   update public.numbering_sequences set last_value = greatest(last_value, 31), year = 2026 where key = 'lot_me';
   update public.numbering_sequences set last_value = greatest(last_value, 7), year = 2026 where key = 'stock_transfer';
 end $$;
+
+-- =====================================================================================
+-- E6 · Equipos y hoja de vida (Prompt 0B: TQ-101, HM-02, BAL-014, LL-03, ET-02)
+-- BAL-014 con la calibración vencida desde el 02/10/2026; TQ-101 limpiado el 05/10 por Diego Cárdenas y verificado por
+-- Paola Mejía; ET-02 (no crítico) con mantenimiento al 20/10/2026. Las demás fechas, proveedores y referencias son
+-- ilustrativos (ficticios). Los certificados no se cargan en la semilla: el almacenamiento empieza vacío.
+-- =====================================================================================
+do $$
+declare
+  v_hernan constant uuid := 'a1000000-0000-4000-8000-000000000004';
+  v_diego constant uuid := 'a1000000-0000-4000-8000-000000000005';
+  v_paola constant uuid := 'a1000000-0000-4000-8000-000000000006';
+  v_lucia constant uuid := 'a1000000-0000-4000-8000-000000000009';
+  v_e record;
+  v_v record;
+  v_eq uuid;
+  v_ev public.equipment_events;
+begin
+  if exists (select 1 from public.equipment where code = 'TQ-101')
+     or not exists (select 1 from public.profiles where id = v_hernan) then
+    return;
+  end if;
+  alter table public.equipment_events disable trigger equipment_events_set_metadata;
+
+  for v_e in
+    select * from (values
+      ('TQ-101', 'Tanque de fabricación 2.500 L', 'tanque', 'fabricacion', true, '2.500 L', true, true, '2024-02-10'::date),
+      ('HM-02', 'Homogeneizador', 'homogeneizador', 'fabricacion', true, '3.000 rpm', true, true, '2024-02-10'),
+      ('BAL-014', 'Balanza 300 kg', 'balanza', 'dispensacion', true, '300 kg · d = 0,1 g', true, true, '2023-08-01'),
+      ('LL-03', 'Llenadora', 'llenadora', 'envase', true, '40 unidades/min', true, true, '2024-05-20'),
+      ('ET-02', 'Etiquetadora', 'etiquetadora', 'acondicionamiento', false, '60 unidades/min', false, false, '2024-05-20')
+    ) as t(code, name, type, area, critical, capacity, calib, cleaning, installed)
+  loop
+    insert into public.equipment (code, name, equipment_type, plant_area, critical, capacity, installed_on,
+      requires_calibration, requires_qualification, requires_cleaning, created_by, updated_by)
+    values (v_e.code, v_e.name, v_e.type, v_e.area, v_e.critical, v_e.capacity, v_e.installed, v_e.calib, v_e.critical,
+      v_e.cleaning, v_hernan, v_hernan)
+    returning id into v_eq;
+    insert into public.equipment_events (equipment_id, type, performed_on, result, provider, notes, recorded_by, locked_at,
+      created_at, created_by, updated_by)
+    values (v_eq, 'instalacion', v_e.installed, 'conforme', 'Proveedor del equipo', 'Instalación y puesta en marcha', v_hernan,
+      v_e.installed + time '12:00', v_e.installed + time '12:00', v_hernan, v_hernan);
+  end loop;
+
+  -- Eventos firmados: (equipo, tipo, realizado, vence, vigente hasta, proveedor, referencia, quien registra, quien verifica).
+  for v_v in
+    select * from (values
+      ('TQ-101', 'calibracion', '2026-03-14'::date, '2027-03-14'::date, null::timestamptz, 'Metrología Andina', 'CAL-TQ101-2026', v_paola, null::uuid),
+      ('TQ-101', 'calificacion', '2026-06-30', '2027-06-30', null, 'Aseguramiento de la calidad', 'CAL-OQ-TQ101', v_lucia, null),
+      ('TQ-101', 'mantenimiento', '2026-07-15', '2027-01-15', null, 'Mantenimiento interno', 'OT-2026-118', v_paola, null),
+      ('TQ-101', 'limpieza', '2026-10-05', null, '2026-10-07 18:00-05', null, null, v_diego, v_paola),
+      ('HM-02', 'calibracion', '2026-02-20', '2027-02-20', null, 'Metrología Andina', 'CAL-HM02-2026', v_paola, null),
+      ('HM-02', 'calificacion', '2026-06-30', '2027-06-30', null, 'Aseguramiento de la calidad', 'CAL-OQ-HM02', v_lucia, null),
+      ('HM-02', 'mantenimiento', '2026-07-15', '2027-01-15', null, 'Mantenimiento interno', 'OT-2026-119', v_paola, null),
+      ('HM-02', 'limpieza', '2026-10-10', null, '2026-10-12 18:00-05', null, null, v_diego, v_paola),
+      ('BAL-014', 'calibracion', '2025-10-02', '2026-10-02', null, 'Metrología Andina', 'CAL-BAL014-2025', v_hernan, null),
+      ('BAL-014', 'calificacion', '2026-06-30', '2027-06-30', null, 'Aseguramiento de la calidad', 'CAL-OQ-BAL014', v_lucia, null),
+      ('BAL-014', 'mantenimiento', '2026-07-15', '2027-01-15', null, 'Mantenimiento interno', 'OT-2026-120', v_hernan, null),
+      ('BAL-014', 'limpieza', '2026-10-05', null, '2026-10-12 18:00-05', null, null, v_diego, v_paola),
+      ('LL-03', 'calibracion', '2026-04-10', '2027-04-10', null, 'Metrología Andina', 'CAL-LL03-2026', v_paola, null),
+      ('LL-03', 'calificacion', '2026-06-30', '2027-06-30', null, 'Aseguramiento de la calidad', 'CAL-OQ-LL03', v_lucia, null),
+      ('LL-03', 'mantenimiento', '2026-07-15', '2027-01-15', null, 'Mantenimiento interno', 'OT-2026-121', v_paola, null),
+      ('LL-03', 'limpieza', '2026-10-09', null, '2026-10-11 18:00-05', null, null, v_diego, v_paola),
+      ('ET-02', 'mantenimiento', '2026-04-20', '2026-10-20', null, 'Mantenimiento interno', 'OT-2026-058', v_paola, null)
+    ) as t(code, type, performed, due, until, provider, ref, rec, ver)
+  loop
+    insert into public.equipment_events (equipment_id, type, performed_on, result, due_on, valid_until, provider, reference,
+      status, recorded_by, verified_by, verified_at, locked_at, created_at, created_by, updated_by)
+    select e.id, v_v.type, v_v.performed, 'conforme', v_v.due, v_v.until, v_v.provider, v_v.ref,
+      case when v_v.ver is null then 'registrado' else 'verificado' end, v_v.rec, v_v.ver,
+      case when v_v.ver is not null then v_v.performed + time '17:00' end, v_v.performed + time '17:00',
+      v_v.performed + time '16:00', v_v.rec, v_v.rec
+    from public.equipment e where e.code = v_v.code
+    returning * into v_ev;
+    insert into public.signatures (user_id, record_table, record_id, meaning, signed_as, record_hash, short_signature,
+      signer_name, reauth_method, signed_at, created_by, updated_by)
+    select s.uid, 'equipment_events', v_ev.id, s.meaning::public.signature_meaning, s.role,
+      public.record_hash(app_private.signable_row('equipment_events', to_jsonb(v_ev))), coalesce(sr.short_signature, p.full_name),
+      p.full_name, 'password', s.at, s.uid, s.uid
+    from (values
+      (v_v.rec, case when v_v.type = 'calificacion' then 'aprobo' else 'ejecuto' end,
+        (select role::text from public.user_roles where user_id = v_v.rec and revoked_at is null limit 1), v_ev.created_at),
+      (v_v.ver, 'verifico', (select role::text from public.user_roles where user_id = v_v.ver and revoked_at is null limit 1),
+        v_ev.verified_at)
+    ) as s(uid, meaning, role, at)
+    join public.profiles p on p.id = s.uid left join public.signature_registry sr on sr.user_id = s.uid;
+  end loop;
+
+  alter table public.equipment_events enable trigger equipment_events_set_metadata;
+  -- Avisos de la campana según la fecha de carga (RF-51); en producción los genera la tarea diaria.
+  perform public.generate_equipment_reminders();
+end $$;

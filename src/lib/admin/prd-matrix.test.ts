@@ -14,10 +14,10 @@ describe("RF-04 · matriz de permisos del PRD", () => {
     expect(m.roles).toContain("gerencia");
   });
 
-  it("tiene los 21 módulos con un código único", () => {
-    expect(m.rows).toHaveLength(21);
+  it("tiene los 22 módulos con un código único", () => {
+    expect(m.rows).toHaveLength(22);
     const codes = m.rows.map((r) => moduleCode(r.module));
-    expect(new Set(codes).size).toBe(21);
+    expect(new Set(codes).size).toBe(22);
   });
 
   it("interpreta las letras fuera de paréntesis", () => {

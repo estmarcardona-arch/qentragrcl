@@ -27,7 +27,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 async function Shell({ children }: { children: ReactNode }) {
   const ctx = await requireSession();
   const supabase = await createClient();
-  const { data: catalog } = await supabase.from("roles").select("code, name").in("code", ctx.roles);
+  const [{ data: catalog }, { data: notifications }] = await Promise.all([
+    supabase.from("roles").select("code, name").in("code", ctx.roles),
+    // Avisos sin leer de la campana (RF-51); RLS deja ver solo los propios.
+    supabase
+      .from("notifications")
+      .select("id, title, body, link, created_at")
+      .is("read_at", null)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
   const roleNames = ctx.roles.map((r) => roleLabel(r, catalog ?? [])).join(" · ");
   return (
     <div className="flex min-h-screen">
@@ -38,6 +47,7 @@ async function Shell({ children }: { children: ReactNode }) {
           roleLabel={ctx.jobTitle ?? roleNames}
           initials={initials(ctx.fullName)}
           shortSignature={ctx.shortSignature}
+          notifications={notifications ?? []}
         />
         <div className="flex-1">{children}</div>
       </div>

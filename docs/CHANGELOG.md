@@ -2,6 +2,22 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E6] Equipos y hoja de vida (PRD 1.10, F5) — 31/10/2026
+
+### Agregado
+
+- PRD 1.10: fila «Equipos y hoja de vida» en la matriz 2.2, diccionario de `equipment`, `equipment_events`, `equipment_attachments`, `notifications` y `email_outbox`, RF-50 ampliado, RF-51 (avisos), rutas de S-25 y AC-44…AC-47.
+- Migración 0027: inventario de equipos con tipo del catálogo, área, documento que lo rige y controles que exige; hoja de vida firmada e inmutable (instalación, calibración, verificación, mantenimiento, calificación, limpieza, uso y cambio de estado); la calibración exige certificado con huella SHA-256 (AC-44); la calificación y sacar de servicio los aprueba Aseguramiento de la calidad; la limpieza la verifica otra persona (AC-47); estados disponible, en uso, en limpieza, en mantenimiento, fuera de servicio y «calibración vencida» derivada; `equipment_validity`, `is_equipment_valid` y `assert_equipment_valid` (`EQUIPMENT_NOT_VALID`, AC-45; Producción la usará en F6, AC-05); `v_equipment_status` con el estado general (apto, apto con alerta, no apto); avisos a 30/15/7 días configurables, uno por umbral y persona, con correo en cola (`generate_equipment_reminders`, AC-46) y tarea diaria con `pg_cron`; bucket privado `evidencias` con políticas de Storage.
+- Pantallas S-25: `/equipos` (resumen, filtro «Con alertas», vencimientos por equipo), `/equipos/nuevo` y `/equipos/[code]` (por qué está o no apto, cuatro vencimientos, línea de tiempo firmada con certificados y huella, registrar calibración con certificado, limpieza y otros eventos, verificar limpieza, cambiar estado con motivo, editar la ficha con motivo; «Abrir desviación» deshabilitado hasta F8). Menú «Equipos» habilitado para los roles de la matriz.
+- Campana de avisos en la barra superior (avisos sin leer, marcar como leídos). S-04 edita la lista de días de alerta.
+- Semilla del Prompt 0B: TQ-101, HM-02, BAL-014 (calibración vencida desde el 02/10/2026), LL-03 y ET-02 con su hoja de vida firmada.
+- CI: Supabase local arranca con Storage (bucket `evidencias` declarado en `config.toml`).
+- Pruebas: pgTAP 0027 (33); E2E `e2e/equipos.spec.ts`. Matriz: 76 requisitos con prueba hasta F5. Decisiones D-58…D-62.
+
+### Corregido
+
+- E2E del listado maestro (RF-92): la vigencia esperada y el indicador de vencidos por proceso se calculan con el día en que corre la prueba; con fechas fijas falló el 31/10/2026 porque la revisión de IDI-EP-007 venció el 30/10/2026.
+
 ## [E5B] Maestro de materiales y productos (PRD 1.9, F4B) — 25/10/2026
 
 ### Agregado
