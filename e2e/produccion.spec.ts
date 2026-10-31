@@ -236,7 +236,9 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       const line = D.locator(`article[data-code="${code}"]`);
       await ready(line.getByTestId(`dispense-${code}`));
       await line.getByLabel("Balanza").selectOption({ label: "BAL-015" });
+      const before = await line.locator("tr[data-lot]").count();
       await sign(D, line.getByTestId(`dispense-${code}`));
+      await expect(line.locator("tr[data-lot]")).toHaveCount(before + 1, { timeout: 20_000 });
     }
     const gli = D.locator('article[data-code="MP-014"]');
     await expect(gli.getByTestId("sum-indicator")).toContainText("60,00 / 60,00 kg");
