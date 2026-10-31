@@ -45,6 +45,8 @@ async function sign(page: Page, trigger: Locator) {
 
 /** Firma todas las verificaciones pendientes; tras cada una espera que la página quite la verificada. */
 async function signAll(page: Page, buttons: Locator) {
+  // La página llega por partes (streaming): espera el primer botón antes de contar.
+  await expect(buttons.first()).toBeVisible({ timeout: 20_000 });
   for (let n = await buttons.count(); n > 0; n--) {
     await sign(page, buttons.first());
     await expect(buttons).toHaveCount(n - 1, { timeout: 20_000 });
