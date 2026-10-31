@@ -269,6 +269,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     await D.getByLabel("Granel remanente (kg)").fill("4");
     await expect(D.getByTestId("yield-preview")).toContainText("100,2 %");
     await sign(D, D.getByTestId("record-output-fabricacion"));
+    await expect(D.getByTestId("yield-result")).toContainText("100,2 %", { timeout: 20_000 });
     await sign(D, D.getByTestId("complete-stage"));
 
     // S-20 · RF-35: envase por presentación con control de peso (09:30 fuera de rango con acción) y rendimiento.
@@ -288,7 +289,12 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
           );
           await D.getByLabel("Acción tomada * (fuera de rango)").fill("Ajuste de la boquilla 2");
         }
+        const rows = await D.getByTestId("weight-controls").locator("tr[data-in-range]").count();
         await sign(D, D.getByTestId("record-weight"));
+        await expect(D.getByTestId("weight-controls").locator("tr[data-in-range]")).toHaveCount(
+          rows + 1,
+          { timeout: 20_000 },
+        );
       }
       await expect(
         D.getByTestId("weight-controls").locator('tr[data-in-range="false"]'),
@@ -297,6 +303,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       await D.getByLabel("Unidades envasadas").fill(filled);
       await expect(D.getByTestId("yield-preview")).toContainText(pct);
       await sign(D, D.getByTestId("record-output-envase"));
+      await expect(D.getByTestId("yield-result")).toContainText(pct, { timeout: 20_000 });
     }
     await P.goto(`${base}/envase`);
     for (const name of ["200 mL", "400 mL"]) {
@@ -332,6 +339,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       for (const group of await form.getByRole("radiogroup").all())
         await group.getByLabel("Conforme", { exact: true }).check();
       await sign(P, P.getByTestId("sign-inspection"));
+      await expect(P.getByTestId("inspection-done")).toBeVisible({ timeout: 20_000 });
       await D.goto(`${base}/acondicionamiento`);
       await D.getByRole("tab", { name: new RegExp(`^${name}`) }).click();
       await ready(D.getByTestId("record-output-acondicionamiento"));
@@ -340,6 +348,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       await expect(D.getByTestId("yield-preview")).toContainText(pct);
       await expect(D.getByTestId("yield-preview")).toContainText("dentro del límite");
       await sign(D, D.getByTestId("record-output-acondicionamiento"));
+      await expect(D.getByTestId("yield-result")).toContainText(pct, { timeout: 20_000 });
       for (const [mat, [used, dam, back]] of Object.entries(returns)) {
         const r = D.getByTestId(`return-${mat}`);
         await ready(r.getByTestId(`record-return-${mat}`));
@@ -348,6 +357,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
         await r.getByLabel("Devueltas").fill(back);
         await expect(r).toContainText("Cuadra");
         await sign(D, r.getByTestId(`record-return-${mat}`));
+        await expect(D.getByTestId(`return-done-${mat}`)).toBeVisible({ timeout: 20_000 });
       }
     }
     await sign(D, D.getByTestId("complete-stage"));
