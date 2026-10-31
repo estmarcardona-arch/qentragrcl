@@ -175,6 +175,7 @@ export default async function DispensingPage({
                 ) : null}
                 {stage.status === "en_curso" && a.execute && sum < Number(l.required_qty) ? (
                   <AddLotForm
+                    key={`${l.id}-${sum}`}
                     batchId={id}
                     lineId={l.id}
                     material={code}

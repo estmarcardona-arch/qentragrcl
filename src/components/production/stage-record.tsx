@@ -216,6 +216,7 @@ export async function StageRecord({
           <div className="grid content-start gap-3">
             {running && a.execute && current ? (
               <StepCard
+                key={`${current.step_key}-${presId}`}
                 batchId={id}
                 stageOrderId={stage.id}
                 presentationId={presId}
@@ -314,6 +315,7 @@ export async function StageRecord({
 
         {stageCode === "envase" && pres && limits ? (
           <WeightControlPanel
+            key={presId}
             batchId={id}
             stageOrderId={stage.id}
             presentationId={pres.presentation_id}
@@ -364,6 +366,7 @@ export async function StageRecord({
               </>
             ) : running && a.verify ? (
               <InspectionForm
+                key={presId}
                 batchId={id}
                 stageOrderId={stage.id}
                 presentationId={pres.presentation_id}
@@ -400,6 +403,7 @@ export async function StageRecord({
             </p>
           ) : running && a.execute ? (
             <OutputForm
+              key={`${stageCode}-${presId}`}
               batchId={id}
               stageOrderId={stage.id}
               presentationId={presId}
