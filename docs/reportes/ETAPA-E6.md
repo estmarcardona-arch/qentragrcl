@@ -1,7 +1,7 @@
 # Reporte de etapa E6 — Equipos y hoja de vida
 
 **Fase del PRD:** F5 (clave E5 en la matriz, D-44) · **Rama:** `etapa/E6` · **Fecha:** 31/10/2026
-**Estado:** **en verificación.** Migración 0027 aplicada en la nube el 31/10/2026; pgTAP 27 de 27 en la nube; tarea `pg_cron` creada; equipos de ejemplo cargados en la nube (D-63). Pendiente: CI de GitHub con las E2E y la aprobación del responsable.
+**Estado:** **lista para aprobación del responsable.** Migración 0027 aplicada en la nube el 31/10/2026; pgTAP 27 de 27 en la nube; tarea `pg_cron` creada; equipos de ejemplo cargados en la nube (D-63); CI en verde ([ejecución 41210241448](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/41210241448)).
 
 ## Puerta de salida
 
@@ -54,6 +54,11 @@
 - Los tipos de `database.types.ts` regenerados con `npm run db:types` tras aplicar 0027 coinciden con los escritos.
 - **Equipos de ejemplo (D-63):** los cinco del 0B están en la nube solo para demostración (`npm run seed:remote -- --catalogos --confirmar`, con 12 avisos y 12 correos en cola). En la entrega se reemplazan por el inventario real de equipos de la empresa.
 - El envío real de correos y el registro automático del «uso» desde la orden de producción llegan con D-37 y con F6.
+
+## Corregido en la etapa
+
+- Antes de aplicar 0027: concatenación de razones (`text[]`), bloqueo inicial del evento firmado, vigencia de la limpieza con la hora de referencia y límite exacto de 48 h.
+- E2E del listado maestro (E3): la vigencia y el indicador de vencidos por proceso tenían valores fijos y fallaron el 31/10/2026 al vencer la revisión de IDI-EP-007 (30/10/2026); ahora se calculan con la fecha de ejecución.
 
 ## Comandos para reproducir
 
