@@ -33,7 +33,14 @@ async function sign(page: Page, trigger: Locator) {
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Contraseña").fill(DEV_PASSWORD);
   await dialog.getByRole("button", { name: /^Firmar/ }).click();
-  await expect(dialog).toBeHidden({ timeout: 20_000 });
+  try {
+    await expect(dialog).toBeHidden({ timeout: 20_000 });
+  } catch {
+    // Diagnóstico: el texto del diálogo dice la regla que impidió firmar.
+    throw new Error(
+      `La firma no se cerró: ${(await dialog.innerText()).replace(/\s+/g, " ").slice(0, 600)}`,
+    );
+  }
 }
 
 /** Firma todas las verificaciones pendientes; tras cada una espera que la página quite la verificada. */
@@ -141,11 +148,18 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       insert into public.equipment_events (equipment_id, type, performed_on, result, due_on, locked_at)
       select e.id, t, current_date - 10, 'conforme', current_date + 365, now()
       from e, unnest(array['calibracion', 'mantenimiento']) t;
-      with l as (insert into public.material_lots (material_id, internal_code, supplier_lot, expiry_date, qty_received, unit, status)
-                 select id, 'MP-2026-0900', 'GLI-2512-E', current_date + 240, 40, 'kg', 'aprobado' from public.materials where code = 'MP-014'
-                 on conflict (internal_code) do nothing returning id)
+      -- Lotes propios de la prueba (vencen antes: FEFO los elige primero) para no tocar los saldos de la semilla.
+      with v(code, mat, qty, days) as (values ('MP-2026-0901', 'MP-001', 1884, 20), ('MP-2026-0902', 'MP-014', 40, 20),
+             ('MP-2026-0903', 'MP-014', 30, 21), ('MP-2026-0904', 'MP-022', 30, 20), ('MP-2026-0905', 'MP-031', 16, 20),
+             ('MP-2026-0906', 'MP-040', 6, 20), ('MP-2026-0907', 'MP-032', 2, 20), ('MP-2026-0908', 'MP-055', 1, 20),
+             ('MP-2026-0909', 'MP-060', 1, 20)),
+      l as (insert into public.material_lots (material_id, internal_code, supplier_lot, expiry_date, qty_received, unit, status)
+            select m.id, v.code, 'E2E-' || v.code, current_date + v.days, v.qty, 'kg', 'aprobado'
+            from v join public.materials m on m.code = v.mat
+            on conflict (internal_code) do nothing returning id, qty_received)
       insert into public.inventory_movements (lot_id, type, qty, to_location_id, reason)
-      select l.id, 'recepcion', 40, (select id from public.storage_locations where code = 'MP-E03-P1-01'), 'Recepción E2E' from l;`);
+      select l.id, 'recepcion', l.qty_received, (select id from public.storage_locations where code = 'MP-E03-P1-01'), 'Recepción E2E'
+      from l;`);
     await db.end();
 
     const paola = await as(browser, USERS.paola);
