@@ -36,6 +36,14 @@ async function sign(page: Page, trigger: Locator) {
   await expect(dialog).toBeHidden({ timeout: 20_000 });
 }
 
+/** Firma todas las verificaciones pendientes; tras cada una espera que la página quite la verificada. */
+async function signAll(page: Page, buttons: Locator) {
+  for (let n = await buttons.count(); n > 0; n--) {
+    await sign(page, buttons.first());
+    await expect(buttons).toHaveCount(n - 1, { timeout: 20_000 });
+  }
+}
+
 /** Firma y espera el rechazo con su regla (el diálogo sigue abierto); luego lo cierra. */
 async function signRejected(page: Page, trigger: Locator, text: RegExp) {
   await ready(trigger);
@@ -71,8 +79,7 @@ async function prepare(diego: Page, paola: Page, base: string, stage: string, eq
   await paola.goto(`${base}/despeje?etapa=${stage}`);
   await sign(paola, paola.getByTestId("verify-clearance"));
   await paola.goto(`${base}/limpieza?etapa=${stage}`);
-  while (await paola.getByTestId("verify-cleaning").count())
-    await sign(paola, paola.getByTestId("verify-cleaning").first());
+  await signAll(paola, paola.getByTestId("verify-cleaning"));
   await diego.goto(`${base}/${stage}`);
   await ready(diego.getByTestId("start-stage"));
   await diego.getByTestId("start-stage").click();
@@ -234,8 +241,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       /segregación|dispensó/i,
     );
     await P.goto(`${base}/dispensacion`);
-    while (await P.getByRole("button", { name: "Verificar", exact: true }).count())
-      await sign(P, P.getByRole("button", { name: "Verificar", exact: true }).first());
+    await signAll(P, P.getByRole("button", { name: "Verificar", exact: true }));
     await D.goto(`${base}/dispensacion`);
     await sign(D, D.getByTestId("complete-stage"));
 
@@ -247,8 +253,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     );
     await runSteps(D, { Granel: "2004" });
     await P.goto(`${base}/fabricacion`);
-    while (await P.getByRole("button", { name: "Verificar paso" }).count())
-      await sign(P, P.getByRole("button", { name: "Verificar paso" }).first());
+    await signAll(P, P.getByRole("button", { name: "Verificar paso" }));
     await D.goto(`${base}/fabricacion`);
     await ready(D.getByTestId("record-output-fabricacion"));
     await D.getByLabel("Granel obtenido (kg)").fill("2004");
@@ -287,8 +292,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     await P.goto(`${base}/envase`);
     for (const name of ["200 mL", "400 mL"]) {
       await P.getByRole("tab", { name: new RegExp(`^${name}`) }).click();
-      while (await P.getByRole("button", { name: "Verificar paso" }).count())
-        await sign(P, P.getByRole("button", { name: "Verificar paso" }).first());
+      await signAll(P, P.getByRole("button", { name: "Verificar paso" }));
     }
     await D.goto(`${base}/envase`);
     await sign(D, D.getByTestId("complete-stage"));
