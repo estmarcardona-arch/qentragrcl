@@ -51,7 +51,7 @@ jobs:
 
       - name: Levantar Supabase local y aplicar migraciones
         # `supabase start` aplica supabase/migrations y seed.sql sobre una base vacía.
-        run: npx supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,storage-api,postgres-meta
+        run: npx supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
 
       - name: Exportar variables públicas de la base local
         run: |

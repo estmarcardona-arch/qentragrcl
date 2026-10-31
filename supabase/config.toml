@@ -125,6 +125,12 @@ file_size_limit = "50MiB"
 # allowed_mime_types = ["image/png", "image/jpeg"]
 # objects_path = "./images"
 
+# Certificados y evidencias de la hoja de vida de equipos (RF-50, D-61). La migración 0027 lo crea en la nube.
+[storage.buckets.evidencias]
+public = false
+file_size_limit = "10MiB"
+allowed_mime_types = ["application/pdf", "image/png", "image/jpeg"]
+
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
 enabled = true

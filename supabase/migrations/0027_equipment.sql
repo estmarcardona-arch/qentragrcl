@@ -221,9 +221,15 @@ begin
     raise notice 'Storage no está disponible: el bucket «evidencias» se crea cuando lo esté';
     return;
   end if;
-  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-  values ('evidencias', 'evidencias', false, 10485760, array['application/pdf', 'image/png', 'image/jpeg'])
-  on conflict (id) do nothing;
+  -- Límite de tamaño y tipos si el esquema de Storage ya los tiene (local: supabase/config.toml también lo declara).
+  if exists (select 1 from information_schema.columns
+             where table_schema = 'storage' and table_name = 'buckets' and column_name = 'allowed_mime_types') then
+    execute $b$insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+      values ('evidencias', 'evidencias', false, 10485760, array['application/pdf', 'image/png', 'image/jpeg'])
+      on conflict (id) do nothing$b$;
+  else
+    insert into storage.buckets (id, name, public) values ('evidencias', 'evidencias', false) on conflict (id) do nothing;
+  end if;
   execute $p$create policy "evidencias: subir certificados de equipos" on storage.objects for insert to authenticated
     with check (bucket_id = 'evidencias' and (storage.foldername(name))[1] = 'equipos'
                 and public.has_module_permission('equipos_y_hoja_de_vida', 'create'))$p$;
@@ -690,7 +696,7 @@ begin
     -- El umbral más urgente que ya se cruzó (0 = vencido).
     select min(t) into v_t from unnest(v_thresholds) t where (v_row.due - v_today) <= t;
     continue when v_t is null;
-    v_title := case when v_row.due < v_today then v_row.label || ' de ' || v_row.code || ' vencida el ' || to_char(v_row.due, 'DD/MM/YYYY')
+    v_title := case when v_row.due < v_today then v_row.label || ' de ' || v_row.code || case when v_row.kind = 'mantenimiento' then ' vencido el ' else ' vencida el ' end || to_char(v_row.due, 'DD/MM/YYYY')
                     when v_row.due = v_today then v_row.label || ' de ' || v_row.code || ' vence hoy'
                     else v_row.label || ' de ' || v_row.code || ' vence en ' || (v_row.due - v_today) || ' días (' || to_char(v_row.due, 'DD/MM/YYYY') || ')' end;
     for v_user in
