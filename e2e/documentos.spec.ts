@@ -291,14 +291,27 @@ test.describe("RF-92 · listado maestro de la semilla (Prompt 0B)", () => {
     await expect(table.locator('tr[data-code="EXT-001"]')).toContainText(
       "Norma de buenas prácticas de manufactura aplicable",
     );
-    // Indicador «% de documentos vencidos por proceso» (Prompt 0B): PRD 1 de 3 = 33,3 %.
+    // Indicador «% de documentos vencidos por proceso» (Prompt 0B: PRD 1 de 3 = 33,3 % al 05/10/2026). Los vencidos
+    // se cuentan con la fecha de ejecución; IDI suma la fórmula IDI-FM-001 (E4, D-49), que vence en 2030.
     const ind = page.getByTestId("overdue-indicator");
-    await expect(ind.locator('[data-process="PRD"]')).toContainText("33,3 %");
-    await expect(ind.locator('[data-process="PRD"]')).toContainText("1 de 3");
-    await expect(ind.locator('[data-process="GCA"]')).toContainText("0 de 4");
-    await expect(ind.locator('[data-process="CC"]')).toContainText("0 de 2");
-    await expect(ind.locator('[data-process="IDI"]')).toContainText("0 de 3"); // 0B + fórmula IDI-FM-001 (E4, D-49)
-    await expect(ind.locator('[data-process="GLG"]')).toContainText("0 de 1");
+    const totals: [string, number][] = [
+      ["PRD", 3],
+      ["GCA", 4],
+      ["CC", 2],
+      ["IDI", 3],
+      ["GLG", 1],
+    ];
+    for (const [proc, total] of totals) {
+      const overdue = MASTER_0B.filter(
+        ([code, , , review]) =>
+          code.startsWith(`${proc}-`) &&
+          review !== "—" &&
+          validityOn(review) === "Revisión vencida",
+      ).length;
+      await expect(ind.locator(`[data-process="${proc}"]`), proc).toContainText(
+        `${overdue} de ${total}`,
+      );
+    }
   });
 
   test("S-44b · Diego ve los vigentes y la capacitación pendiente de PRD-PR-003-FR-01 v03", async ({
