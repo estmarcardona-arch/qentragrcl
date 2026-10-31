@@ -97,6 +97,7 @@ async function prepare(diego: Page, paola: Page, base: string, stage: string, eq
 
 /** Completa los pasos del registro en orden: el valor de cada parámetro es el centro de su rango. */
 async function runSteps(page: Page, values: Record<string, string> = {}) {
+  await expect(page.getByTestId("current-step")).toBeVisible({ timeout: 20_000 });
   for (let i = 0; i < 20; i++) {
     const card = page.getByTestId("current-step");
     if (!(await card.count())) return;
