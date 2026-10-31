@@ -192,7 +192,9 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       timeout: 20_000,
     });
     const orderUrl = P.url().split("?")[0];
-    await expect(P.getByText("La aprueba el Director técnico")).toBeVisible();
+    await expect(P.getByText("La aprueba el Director técnico (D-12).")).toBeVisible({
+      timeout: 20_000,
+    });
 
     // S-38 · RF-38 · AC-14: el Director técnico aprueba y se generan los documentos.
     const esteban = await as(browser, "esteban.gaviria@grufarcol.test");
