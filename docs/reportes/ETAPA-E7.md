@@ -5,12 +5,12 @@
 
 ## Puerta de salida
 
-| #   | Condición                                                                   | Estado    | Evidencia                                                                                 |
-| --- | --------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------- |
-| 1   | El lote de ejemplo se ejecuta de punta a punta en pantalla                  | Pendiente | `e2e/produccion.spec.ts` (CI de GitHub; necesita la semilla completa)                     |
-| 2   | Los números coinciden con el 0B                                             | Cumplida  | pgTAP 0029: 60,00 kg de glicerina, 100,2 %, 98,2 %, 97,5 %; la E2E repite 98,6 % y 98,0 % |
-| 3   | AC-03, 04, 05, 07, 14, 19, 25, 35 e intentos de violación de SOD con prueba | Cumplida  | pgTAP 0029 (todos); E2E: AC-03, 04, 05, 07, 14, SOD-4 y aviso de capacitación             |
-| 4   | Reporte ETAPA-E7.md                                                         | Cumplida  | Este documento                                                                            |
+| #   | Condición                                                                   | Estado   | Evidencia                                                                                 |
+| --- | --------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------- |
+| 1   | El lote de ejemplo se ejecuta de punta a punta en pantalla                  | Cumplida | `e2e/produccion.spec.ts`: aprobado en la CI de GitHub                                     |
+| 2   | Los números coinciden con el 0B                                             | Cumplida | pgTAP 0029: 60,00 kg de glicerina, 100,2 %, 98,2 %, 97,5 %; la E2E repite 98,6 % y 98,0 % |
+| 3   | AC-03, 04, 05, 07, 14, 19, 25, 35 e intentos de violación de SOD con prueba | Cumplida | pgTAP 0029 (todos); E2E: AC-03, 04, 05, 07, 14, SOD-4 y aviso de capacitación             |
+| 4   | Reporte ETAPA-E7.md                                                         | Cumplida | Este documento                                                                            |
 
 ## Qué se construyó
 
@@ -30,7 +30,7 @@
 | Semilla completa             |                                                                       | Validada en transacción (E3…E7 sin errores) |
 | Vitest (53)                  | RF-02 (menú con Producción)                                           | Aprobado                                    |
 | `npm run ci` (local)         |                                                                       | Aprobado                                    |
-| E2E `e2e/produccion.spec.ts` | Lote completo del 0B                                                  | Pendiente de la CI de GitHub                |
+| E2E `e2e/produccion.spec.ts` | Lote completo del 0B                                                  | Aprobado en la CI de GitHub                 |
 
 ## Supuestos (PREGUNTAS_ABIERTAS.md)
 
