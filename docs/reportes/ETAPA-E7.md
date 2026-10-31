@@ -1,7 +1,7 @@
 # Reporte de etapa E7 — Producción
 
 **Fase del PRD:** F6 (clave E6 en la matriz, D-44) · **Rama:** `etapa/E7` · **Fecha:** 31/10/2026
-**Estado:** **en verificación.** Construida y probada en local: pgTAP 29 de 29 (lote completo en 0029, 55 pruebas) en transacción contra la nube, semilla completa validada en transacción y CI local completa. Pendiente: aplicar 0029 y 0030 en la nube, CI de GitHub con la E2E del lote completo y aprobación del responsable.
+**Estado:** **lista para aprobación del responsable.** Migraciones 0029 y 0030 aplicadas en la nube el 31/10/2026; pgTAP 29 de 29 en la nube; CI en verde con el lote completo en pantalla ([ejecución 41242355267](https://github.com/estmarcardona-arch/qentragrcl/actions/runs/41242355267)).
 
 ## Puerta de salida
 
@@ -23,14 +23,14 @@
 
 ## Resultados de pruebas
 
-| Prueba                       | Requisito                                                             | Resultado                                       |
-| ---------------------------- | --------------------------------------------------------------------- | ----------------------------------------------- |
-| pgTAP `0029_production` (55) | RF-30…39, AC-03, 04, 05, 07, 14, 19, 25, 35, SOD-1, SOD-4, D-12, DI-3 | Aprobado (transacción revertida contra la nube) |
-| pgTAP total (0000–0030)      |                                                                       | 29 de 29 archivos aprobados                     |
-| Semilla completa             |                                                                       | Validada en transacción (E3…E7 sin errores)     |
-| Vitest (53)                  | RF-02 (menú con Producción)                                           | Aprobado                                        |
-| `npm run ci` (local)         |                                                                       | Aprobado                                        |
-| E2E `e2e/produccion.spec.ts` | Lote completo del 0B                                                  | Pendiente de la CI de GitHub                    |
+| Prueba                       | Requisito                                                             | Resultado                                   |
+| ---------------------------- | --------------------------------------------------------------------- | ------------------------------------------- |
+| pgTAP `0029_production` (55) | RF-30…39, AC-03, 04, 05, 07, 14, 19, 25, 35, SOD-1, SOD-4, D-12, DI-3 | Aprobado en la nube                         |
+| pgTAP total (0000–0030)      |                                                                       | 29 de 29 archivos aprobados                 |
+| Semilla completa             |                                                                       | Validada en transacción (E3…E7 sin errores) |
+| Vitest (53)                  | RF-02 (menú con Producción)                                           | Aprobado                                    |
+| `npm run ci` (local)         |                                                                       | Aprobado                                    |
+| E2E `e2e/produccion.spec.ts` | Lote completo del 0B                                                  | Pendiente de la CI de GitHub                |
 
 ## Supuestos (PREGUNTAS_ABIERTAS.md)
 
@@ -42,6 +42,12 @@ D-65 (código de lote), D-66 (rango del peso neto ± 1,5 %), D-67 (tolerancia de
 - El material de envase y de acondicionamiento no se descuenta todavía del inventario (D-68).
 - La regla de capacitación está en «avisar» (D-19): la pantalla muestra el aviso; con «bloquear» el paso se rechaza (AC-25, probado en pgTAP).
 - La nube no tiene los documentos maestros de la semilla (solo catálogos): Producción solo se puede recorrer completo con la semilla de la CI o cargando los documentos reales de la empresa.
+
+## Corregido en la etapa
+
+- Los formularios con estado (agregar lote, paso actual, inspección, rendimiento, control de peso) se reinician al cambiar de pesada, paso o presentación; antes conservaban el lote agotado o los datos de otra presentación.
+- Las acciones firmadas y «Iniciar etapa» marcan `data-ready` al ser interactivas; la E2E espera esa marca, la carga por partes de la página y el resultado de cada firma antes de seguir.
+- La E2E de producción usa sus propios lotes de insumo: no altera los saldos de la semilla que verifica la E2E de bodega.
 
 ## Comandos para reproducir
 
