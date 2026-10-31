@@ -106,7 +106,14 @@ async function runSteps(page: Page, values: Record<string, string> = {}) {
       const m = /Rango ([\d.]+)–([\d.]+)/.exec(hint);
       await input.fill(values[label] ?? (m ? String((Number(m[1]) + Number(m[2])) / 2) : "0"));
     }
+    const title = await card.locator("h3").textContent();
     await sign(page, card.getByTestId("complete-step"));
+    // Espera a que la página muestre el paso siguiente (o ninguno) antes de seguir.
+    await expect
+      .poll(async () => ((await card.count()) ? await card.locator("h3").textContent() : null), {
+        timeout: 20_000,
+      })
+      .not.toBe(title);
   }
 }
 
