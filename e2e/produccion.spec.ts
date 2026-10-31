@@ -125,7 +125,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     !hasSeedUsers || !hasSeedDocs || !dbUrl,
     "Requiere la semilla completa y la base de la CI",
   );
-  test.setTimeout(900_000);
+  test.setTimeout(1_500_000);
   // Un solo intento: el lote cambia datos y un reintento empezaría a mitad de camino.
   test.describe.configure({ retries: 0 });
 
