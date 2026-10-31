@@ -2,6 +2,17 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E7] Producción (PRD F6) — 31/10/2026
+
+### Agregado
+
+- PRD 1.12: `stage_outputs`, `presentation_materials` y `step_drafts` en el diccionario; decisiones D-65…D-71.
+- Migración 0029: orden de producción `OP-AAAA-NNNN` (D-11) con lote `L-AAMM-NNN` (D-65); solo con fórmula, especificación, instructivo y formatos vigentes, congelados en el lote (`NO_APPROVED_VERSION` AC-07, `DOCUMENT_NOT_EFFECTIVE` AC-19; las revisiones vencidas solo avisan); aprobación con firma del Director técnico, nunca de quien creó la orden (D-12), que genera órdenes de etapa, solicitudes SD/SE/SA, orden de codificado CO, rótulos y registros (AC-14: glicerina 3 % × 2.000 kg = 60,00 kg); vencimiento del lote por vida útil.
+- Migración 0030: despeje por etapa (`CLEARANCE_MISSING` AC-04); limpieza de equipos y utensilios que queda en la hoja de vida del equipo; dispensación multi-lote con lote aprobado (`LOT_NOT_APPROVED` AC-03), balanza válida (`EQUIPMENT_NOT_VALID` AC-05), descuento por ubicación y verificación por otra persona (SOD-4); pasos de la versión congelada en orden, con equipos válidos, rangos y uso del equipo en su hoja de vida; capacitación del formato (`TRAINING_REQUIRED` AC-25); control de peso con acción obligatoria fuera de rango; rendimientos (granel, envase y producto terminado ≥ 97 %), granel entre etapas con rótulo; inspección de 9 puntos; devolución que cuadra (D-48); codificado; cierre de etapa con lo que falta listado; aviso al verificador y a Calidad en la sexta corrección (AC-35); borradores por campo.
+- Pantallas S-15 (crear orden con versiones congeladas y bloqueo), S-16 (tablero con lote activo y línea de proceso), S-17 (despeje), S-18 (dispensación multi-lote, FEFO, balanzas no aptas visibles), S-19/S-20/S-21 (registros paso a paso, control de peso con gráfica y próximo control, rendimientos, inspección, devolución), S-38 (documentos de la orden con aprobación y PDF) y S-39 (limpieza). Botones grandes para tablet; cola local de borradores con reintento.
+- Semilla 0B: OP-2026-0042 / L-2610-018 (dispensación completa, fabricación en el paso 6 de 11) y OP-2026-0043 / L-2610-019 en borrador; materiales por presentación; lotes ilustrativos (D-70).
+- Pruebas: pgTAP 0029 (55, lote completo); E2E `e2e/produccion.spec.ts` (lote del 0B de punta a punta). Matriz: 91 requisitos con prueba hasta F6.
+
 ## [E6] Ajustes: diálogos y enlaces del proveedor (PRD 1.11) — 31/10/2026
 
 ### Cambiado
