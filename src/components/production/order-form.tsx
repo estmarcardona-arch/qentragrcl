@@ -40,7 +40,7 @@ const STAGE_FORMAT: Record<string, string> = {
 const fmt1 = (n: number) =>
   n.toLocaleString("es-CO", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmt0 = (n: number) => n.toLocaleString("es-CO", { maximumFractionDigits: 0 });
-const parse = (v: string) => Number(v.replace(/\./g, "").replace(",", "."));
+const parse = (v: string) => Number(v.includes(",") ? v.replace(/\./g, "").replace(",", ".") : v);
 
 // Sugerencia: granel repartido entre las presentaciones; unidades = granel ÷ contenido con densidad 1,00 (Prompt 0B).
 function defaultsFor(

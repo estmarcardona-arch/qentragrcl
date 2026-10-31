@@ -20,7 +20,7 @@ import { PT_POINTS } from "@/lib/production/labels";
 import { StatusBadge } from "@/components/gxp/status-badge";
 import { ResultError, SignedAction } from "./signed-action";
 
-const num = (v: string) => Number(v.replace(",", "."));
+const num = (v: string) => Number(v.includes(",") ? v.replace(/\./g, "").replace(",", ".") : v);
 const fmt = (n: number, d = 1) =>
   n.toLocaleString("es-CO", { minimumFractionDigits: d, maximumFractionDigits: d });
 

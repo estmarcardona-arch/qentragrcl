@@ -21,7 +21,8 @@ export type BalanceOption = { id: string; code: string; valid: boolean; reasons:
 
 const fmt = (n: number) =>
   n.toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const parse = (v: string) => Number(v.replace(",", "."));
+// Número en formato es-CO («1.884,00») o con punto decimal («40.5»).
+const parse = (v: string) => Number(v.includes(",") ? v.replace(/\./g, "").replace(",", ".") : v);
 const selectCls =
   "h-11 w-full min-w-0 rounded-md border border-border-control bg-white px-2.5 font-mono text-sm";
 

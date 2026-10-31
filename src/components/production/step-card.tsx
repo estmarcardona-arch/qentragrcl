@@ -20,7 +20,7 @@ export type StepParam = {
 };
 export type EquipmentState = EquipmentRow;
 
-const num = (v: string) => Number(v.replace(",", "."));
+const num = (v: string) => Number(v.includes(",") ? v.replace(/\./g, "").replace(",", ".") : v);
 const show = (n: number) => n.toLocaleString("es-CO", { maximumFractionDigits: 2 });
 // Paso de los botones − / + según la unidad del parámetro.
 const stepOf = (unit?: string) =>
