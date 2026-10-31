@@ -172,6 +172,100 @@ export type Database = {
         }
         Relationships: []
       }
+      batches: {
+        Row: {
+          batch_code: string
+          batch_size: number
+          batch_unit: string
+          completed_at: string | null
+          conditioning_order_no: string | null
+          created_at: string
+          created_by: string | null
+          expiry_date: string | null
+          frozen_documents: Json
+          frozen_formula_id: string
+          id: string
+          locked_at: string | null
+          manufacture_order_no: string | null
+          order_id: string
+          packaging_order_no: string | null
+          product_id: string
+          regulatory_profile_snapshot: Json
+          started_at: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_code: string
+          batch_size: number
+          batch_unit: string
+          completed_at?: string | null
+          conditioning_order_no?: string | null
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          frozen_documents?: Json
+          frozen_formula_id: string
+          id?: string
+          locked_at?: string | null
+          manufacture_order_no?: string | null
+          order_id: string
+          packaging_order_no?: string | null
+          product_id: string
+          regulatory_profile_snapshot: Json
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_code?: string
+          batch_size?: number
+          batch_unit?: string
+          completed_at?: string | null
+          conditioning_order_no?: string | null
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          frozen_documents?: Json
+          frozen_formula_id?: string
+          id?: string
+          locked_at?: string | null
+          manufacture_order_no?: string | null
+          order_id?: string
+          packaging_order_no?: string | null
+          product_id?: string
+          regulatory_profile_snapshot?: Json
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_frozen_formula_id_fkey"
+            columns: ["frozen_formula_id"]
+            isOneToOne: false
+            referencedRelation: "formulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands: {
         Row: {
           active: boolean
@@ -377,6 +471,56 @@ export type Database = {
           },
         ]
       }
+      bulk_transfers: {
+        Row: {
+          batch_id: string
+          created_at: string
+          created_by: string | null
+          from_stage: string
+          id: string
+          label_code: string
+          qty: number
+          to_stage: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          created_by?: string | null
+          from_stage: string
+          id?: string
+          label_code: string
+          qty: number
+          to_stage: string
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          created_by?: string | null
+          from_stage?: string
+          id?: string
+          label_code?: string
+          qty?: number
+          to_stage?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulk_transfers_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalog_items: {
         Row: {
           active: boolean
@@ -424,6 +568,168 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      cleaning_records: {
+        Row: {
+          cleaned_at: string
+          cleaned_by: string
+          created_at: string
+          created_by: string | null
+          equipment_event_id: string | null
+          equipment_id: string | null
+          id: string
+          label_verified: boolean
+          locked_at: string | null
+          stage_order_id: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+          utensils: Json
+          valid_until: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          cleaned_at?: string
+          cleaned_by: string
+          created_at?: string
+          created_by?: string | null
+          equipment_event_id?: string | null
+          equipment_id?: string | null
+          id?: string
+          label_verified: boolean
+          locked_at?: string | null
+          stage_order_id: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          utensils?: Json
+          valid_until: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          cleaned_at?: string
+          cleaned_by?: string
+          created_at?: string
+          created_by?: string | null
+          equipment_event_id?: string | null
+          equipment_id?: string | null
+          id?: string
+          label_verified?: boolean
+          locked_at?: string | null
+          stage_order_id?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          utensils?: Json
+          valid_until?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaning_records_cleaned_by_fkey"
+            columns: ["cleaned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_records_equipment_event_id_fkey"
+            columns: ["equipment_event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_records_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_records_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_records_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coding_orders: {
+        Row: {
+          batch_code_text: string
+          batch_id: string
+          code: string
+          created_at: string
+          created_by: string | null
+          expiry_text: string
+          extra_fields: Json
+          id: string
+          locked_at: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          batch_code_text: string
+          batch_id: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expiry_text: string
+          extra_fields?: Json
+          id?: string
+          locked_at?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          batch_code_text?: string
+          batch_id?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expiry_text?: string
+          extra_fields?: Json
+          id?: string
+          locked_at?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coding_orders_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coding_orders_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       controlled_documents: {
         Row: {
@@ -758,6 +1064,129 @@ export type Database = {
             columns: ["prototype_id"]
             isOneToOne: false
             referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispensing_line_lots: {
+        Row: {
+          balance_id: string
+          created_at: string
+          created_by: string | null
+          executed_at: string
+          executed_by: string
+          id: string
+          location_id: string
+          locked_at: string | null
+          lot_id: string
+          movement_id: string | null
+          qty: number
+          request_line_id: string
+          stage_order_id: string
+          status: string
+          tare: number | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          balance_id: string
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          executed_by: string
+          id?: string
+          location_id: string
+          locked_at?: string | null
+          lot_id: string
+          movement_id?: string | null
+          qty: number
+          request_line_id: string
+          stage_order_id: string
+          status?: string
+          tare?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          balance_id?: string
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          executed_by?: string
+          id?: string
+          location_id?: string
+          locked_at?: string | null
+          lot_id?: string
+          movement_id?: string | null
+          qty?: number
+          request_line_id?: string
+          stage_order_id?: string
+          status?: string
+          tare?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispensing_line_lots_balance_id_fkey"
+            columns: ["balance_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_executed_by_fkey"
+            columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "storage_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "material_lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_request_line_id_fkey"
+            columns: ["request_line_id"]
+            isOneToOne: false
+            referencedRelation: "material_request_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispensing_line_lots_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2348,6 +2777,86 @@ export type Database = {
           },
         ]
       }
+      line_clearances: {
+        Row: {
+          checklist: Json
+          created_at: string
+          created_by: string | null
+          executed_at: string
+          executed_by: string
+          governing_version_id: string | null
+          id: string
+          locked_at: string | null
+          stage_order_id: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          checklist: Json
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          executed_by: string
+          governing_version_id?: string | null
+          id?: string
+          locked_at?: string | null
+          stage_order_id: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          executed_by?: string
+          governing_version_id?: string | null
+          id?: string
+          locked_at?: string | null
+          stage_order_id?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "line_clearances_executed_by_fkey"
+            columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "line_clearances_governing_version_id_fkey"
+            columns: ["governing_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "line_clearances_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "line_clearances_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       login_attempts: {
         Row: {
           created_at: string
@@ -2641,6 +3150,199 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "external_parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_request_lines: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          label_text: string
+          material_id: string
+          order_no: number
+          pct: number | null
+          presentation_id: string | null
+          request_id: string
+          required_qty: number
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label_text: string
+          material_id: string
+          order_no: number
+          pct?: number | null
+          presentation_id?: string | null
+          request_id: string
+          required_qty: number
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label_text?: string
+          material_id?: string
+          order_no?: number
+          pct?: number | null
+          presentation_id?: string | null
+          request_id?: string
+          required_qty?: number
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_request_lines_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_request_lines_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_request_lines_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "material_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_requests: {
+        Row: {
+          batch_id: string
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          order_id: string
+          status: string
+          type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_id: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          order_id: string
+          status?: string
+          type: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_id?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          order_id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_requests_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_returns: {
+        Row: {
+          balanced: boolean
+          created_at: string
+          created_by: string | null
+          damaged: number
+          delivered: number
+          id: string
+          locked_at: string | null
+          recorded_at: string
+          recorded_by: string
+          request_line_id: string
+          returned: number
+          status: string
+          updated_at: string
+          updated_by: string | null
+          used: number
+        }
+        Insert: {
+          balanced: boolean
+          created_at?: string
+          created_by?: string | null
+          damaged: number
+          delivered: number
+          id?: string
+          locked_at?: string | null
+          recorded_at?: string
+          recorded_by: string
+          request_line_id: string
+          returned: number
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          used: number
+        }
+        Update: {
+          balanced?: boolean
+          created_at?: string
+          created_by?: string | null
+          damaged?: number
+          delivered?: number
+          id?: string
+          locked_at?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          request_line_id?: string
+          returned?: number
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          used?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_returns_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_returns_request_line_id_fkey"
+            columns: ["request_line_id"]
+            isOneToOne: false
+            referencedRelation: "material_request_lines"
             referencedColumns: ["id"]
           },
         ]
@@ -2965,6 +3667,63 @@ export type Database = {
         }
         Relationships: []
       }
+      presentation_materials: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          material_id: string
+          presentation_id: string
+          qty_per_unit: number
+          stage: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          material_id: string
+          presentation_id: string
+          qty_per_unit: number
+          stage: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          material_id?: string
+          presentation_id?: string
+          qty_per_unit?: number
+          stage?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presentation_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presentation_materials_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       process_template_steps: {
         Row: {
           checklist_item: boolean
@@ -3164,6 +3923,100 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "product_presentations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_orders: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          batch_size: number
+          batch_unit: string
+          code: string
+          created_at: string
+          created_by: string | null
+          document_warnings: Json
+          formula_id: string
+          frozen_documents: Json
+          id: string
+          locked_at: string | null
+          notes: string | null
+          planned_date: string
+          presentations: Json
+          product_id: string
+          regulatory_profile: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_size: number
+          batch_unit?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          document_warnings?: Json
+          formula_id: string
+          frozen_documents?: Json
+          id?: string
+          locked_at?: string | null
+          notes?: string | null
+          planned_date: string
+          presentations?: Json
+          product_id: string
+          regulatory_profile: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_size?: number
+          batch_unit?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          document_warnings?: Json
+          formula_id?: string
+          frozen_documents?: Json
+          id?: string
+          locked_at?: string | null
+          notes?: string | null
+          planned_date?: string
+          presentations?: Json
+          product_id?: string
+          regulatory_profile?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_orders_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_formula_id_fkey"
+            columns: ["formula_id"]
+            isOneToOne: false
+            referencedRelation: "formulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -3415,6 +4268,76 @@ export type Database = {
             columns: ["prototype_id"]
             isOneToOne: false
             referencedRelation: "formula_prototypes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pt_inspections: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          inspected_at: string
+          inspector_id: string
+          locked_at: string | null
+          points: Json
+          presentation_id: string
+          result: string
+          stage_order_id: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inspected_at?: string
+          inspector_id: string
+          locked_at?: string | null
+          points: Json
+          presentation_id: string
+          result: string
+          stage_order_id: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inspected_at?: string
+          inspector_id?: string
+          locked_at?: string | null
+          points?: Json
+          presentation_id?: string
+          result?: string
+          stage_order_id?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pt_inspections_inspector_id_fkey"
+            columns: ["inspector_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pt_inspections_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pt_inspections_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -4673,6 +5596,209 @@ export type Database = {
           },
         ]
       }
+      stage_orders: {
+        Row: {
+          batch_id: string
+          code: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          governing_version_id: string | null
+          id: string
+          instruction_id: string | null
+          locked_at: string | null
+          order_no: number
+          stage: string
+          started_at: string | null
+          started_by: string | null
+          status: string
+          template_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_id: string
+          code: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          governing_version_id?: string | null
+          id?: string
+          instruction_id?: string | null
+          locked_at?: string | null
+          order_no: number
+          stage: string
+          started_at?: string | null
+          started_by?: string | null
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_id?: string
+          code?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          governing_version_id?: string | null
+          id?: string
+          instruction_id?: string | null
+          locked_at?: string | null
+          order_no?: number
+          stage?: string
+          started_at?: string | null
+          started_by?: string | null
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_orders_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_orders_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_orders_governing_version_id_fkey"
+            columns: ["governing_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_orders_instruction_id_fkey"
+            columns: ["instruction_id"]
+            isOneToOne: false
+            referencedRelation: "instructions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_orders_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_orders_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "process_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stage_outputs: {
+        Row: {
+          actual: number
+          created_at: string
+          created_by: string | null
+          id: string
+          limit_max: number | null
+          limit_min: number | null
+          locked_at: string | null
+          pct: number
+          presentation_id: string | null
+          received: number | null
+          recorded_at: string
+          recorded_by: string
+          rejected: number
+          remnant: number
+          retained: number
+          stage_order_id: string
+          status: string
+          theoretical: number
+          unit: string
+          updated_at: string
+          updated_by: string | null
+          within_limits: boolean
+        }
+        Insert: {
+          actual: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          limit_max?: number | null
+          limit_min?: number | null
+          locked_at?: string | null
+          pct: number
+          presentation_id?: string | null
+          received?: number | null
+          recorded_at?: string
+          recorded_by: string
+          rejected?: number
+          remnant?: number
+          retained?: number
+          stage_order_id: string
+          status?: string
+          theoretical: number
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+          within_limits: boolean
+        }
+        Update: {
+          actual?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          limit_max?: number | null
+          limit_min?: number | null
+          locked_at?: string | null
+          pct?: number
+          presentation_id?: string | null
+          received?: number | null
+          recorded_at?: string
+          recorded_by?: string
+          rejected?: number
+          remnant?: number
+          retained?: number
+          stage_order_id?: string
+          status?: string
+          theoretical?: number
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          within_limits?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_outputs_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_outputs_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_outputs_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       standardization_checks: {
         Row: {
           checked_at: string
@@ -4734,6 +5860,219 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_master_list"
             referencedColumns: ["version_id"]
+          },
+        ]
+      }
+      step_drafts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          presentation_id: string | null
+          saved_at: string
+          stage_order_id: string
+          step_key: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          values: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          presentation_id?: string | null
+          saved_at?: string
+          stage_order_id: string
+          step_key: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          values?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          presentation_id?: string | null
+          saved_at?: string
+          stage_order_id?: string
+          step_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          values?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_drafts_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_drafts_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_drafts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      step_equipment: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          equipment_id: string
+          id: string
+          step_record_id: string
+          updated_at: string
+          updated_by: string | null
+          validity: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          equipment_id: string
+          id?: string
+          step_record_id: string
+          updated_at?: string
+          updated_by?: string | null
+          validity: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          equipment_id?: string
+          id?: string
+          step_record_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          validity?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_equipment_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_equipment_step_record_id_fkey"
+            columns: ["step_record_id"]
+            isOneToOne: false
+            referencedRelation: "step_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      step_records: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          executed_at: string
+          executed_by: string
+          id: string
+          label: string
+          locked_at: string | null
+          notes: string | null
+          out_of_range: boolean
+          presentation_id: string | null
+          requires_verification: boolean
+          stage_order_id: string
+          status: string
+          step_key: string
+          step_no: number
+          text: string
+          updated_at: string
+          updated_by: string | null
+          values: Json
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          executed_by: string
+          id?: string
+          label: string
+          locked_at?: string | null
+          notes?: string | null
+          out_of_range?: boolean
+          presentation_id?: string | null
+          requires_verification?: boolean
+          stage_order_id: string
+          status?: string
+          step_key: string
+          step_no: number
+          text: string
+          updated_at?: string
+          updated_by?: string | null
+          values?: Json
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          executed_at?: string
+          executed_by?: string
+          id?: string
+          label?: string
+          locked_at?: string | null
+          notes?: string | null
+          out_of_range?: boolean
+          presentation_id?: string | null
+          requires_verification?: boolean
+          stage_order_id?: string
+          status?: string
+          step_key?: string
+          step_no?: number
+          text?: string
+          updated_at?: string
+          updated_by?: string | null
+          values?: Json
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_records_executed_by_fkey"
+            columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_records_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_records_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_records_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -5318,6 +6657,91 @@ export type Database = {
           },
         ]
       }
+      weight_controls: {
+        Row: {
+          action: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          in_range: boolean
+          locked_at: string | null
+          max_value: number
+          min_value: number
+          presentation_id: string
+          recorded_by: string
+          sample_no: number
+          sampled_at: string
+          stage_order_id: string
+          status: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+          value: number
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          in_range: boolean
+          locked_at?: string | null
+          max_value: number
+          min_value: number
+          presentation_id: string
+          recorded_by: string
+          sample_no: number
+          sampled_at?: string
+          stage_order_id: string
+          status?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          value: number
+        }
+        Update: {
+          action?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          in_range?: boolean
+          locked_at?: string | null
+          max_value?: number
+          min_value?: number
+          presentation_id?: string
+          recorded_by?: string
+          sample_no?: number
+          sampled_at?: string
+          stage_order_id?: string
+          status?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weight_controls_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "product_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weight_controls_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weight_controls_stage_order_id_fkey"
+            columns: ["stage_order_id"]
+            isOneToOne: false
+            referencedRelation: "stage_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       v_cost_sheet_totals: {
@@ -5456,6 +6880,28 @@ export type Database = {
           },
         ]
       }
+      v_production_board: {
+        Row: {
+          batch_code: string | null
+          batch_id: string | null
+          batch_size: number | null
+          batch_status: string | null
+          batch_unit: string | null
+          created_at: string | null
+          created_by: string | null
+          current_stage: string | null
+          current_stage_status: string | null
+          expiry_date: string | null
+          order_code: string | null
+          order_id: string | null
+          order_status: string | null
+          planned_date: string | null
+          presentations: Json | null
+          product_code: string | null
+          product_name: string | null
+        }
+        Relationships: []
+      }
       v_record_corrections: {
         Row: {
           corrections_count: number | null
@@ -5571,6 +7017,7 @@ export type Database = {
         Args: { p_password: string; p_reason?: string; p_version: string }
         Returns: Json
       }
+      approve_production_order: { Args: { p_order: string; p_password: string }; Returns: Json }
       approve_prototype: {
         Args: {
           p_as_client: boolean
@@ -5616,6 +7063,7 @@ export type Database = {
         Returns: boolean
       }
       can_read_master: { Args: never; Returns: boolean }
+      can_read_production: { Args: never; Returns: boolean }
       can_read_rd: { Args: never; Returns: boolean }
       can_read_warehouses: {
         Args: never
@@ -5659,6 +7107,19 @@ export type Database = {
         }
         Returns: Json
       }
+      complete_stage: { Args: { p_password: string; p_stage_order: string }; Returns: Json }
+      complete_step: {
+        Args: {
+          p_equipment: string[]
+          p_notes: string
+          p_password: string
+          p_presentation: string
+          p_stage_order: string
+          p_step_key: string
+          p_values: Json
+        }
+        Returns: Json
+      }
       compute_review_due_date: {
         Args: {
           p_issue_date: string
@@ -5667,6 +7128,16 @@ export type Database = {
           p_type_id: string
         }
         Returns: string
+      }
+      create_production_order: {
+        Args: {
+          p_batch_size: number
+          p_notes?: string
+          p_planned_date: string
+          p_presentations: Json
+          p_product: string
+        }
+        Returns: Json
       }
       create_prototype_improvement: {
         Args: { p_parent: string; p_reason: string }
@@ -5727,11 +7198,26 @@ export type Database = {
         Args: { p_id: string; p_password: string }
         Returns: Json
       }
+      dispense_lot: {
+        Args: {
+          p_balance: string
+          p_line: string
+          p_lot: string
+          p_password: string
+          p_qty: number
+          p_tare: number
+        }
+        Returns: Json
+      }
       document_validity: {
         Args: { p_review_date: string; p_status: string }
         Returns: string
       }
       equipment_validity: { Args: { p_at?: string; p_equipment: string }; Returns: Json }
+      execute_line_clearance: {
+        Args: { p_checklist: Json; p_password: string; p_stage_order: string }
+        Returns: Json
+      }
       format_sequence_code: {
         Args: { p_format: string; p_value: number; p_year: number }
         Returns: string
@@ -5827,6 +7313,23 @@ export type Database = {
         Returns: boolean
       }
       practice_reauth: { Args: { p_password: string }; Returns: Json }
+      production_fill_limits: {
+        Args: { p_presentation: string; p_stage_order: string }
+        Returns: Json
+      }
+      production_stage_steps: {
+        Args: { p_stage_order: string }
+        Returns: {
+          label: string
+          order_no: number
+          params: Json
+          requires_equipment: string
+          requires_verification: boolean
+          step_key: string
+          text: string
+        }[]
+      }
+      preview_production_order: { Args: { p_product: string }; Returns: Json }
       publish_document: {
         Args: { p_distribution?: string[]; p_version: string }
         Returns: Json
@@ -5877,9 +7380,22 @@ export type Database = {
         Args: { p_lot: string; p_results: Json }
         Returns: Json
       }
+      record_material_return: {
+        Args: { p_data: Json; p_line: string; p_password: string }
+        Returns: Json
+      }
       record_password_change: {
         Args: { p_password: string }
         Returns: undefined
+      }
+      record_pt_inspection: {
+        Args: {
+          p_password: string
+          p_points: Json
+          p_presentation: string
+          p_stage_order: string
+        }
+        Returns: Json
       }
       record_stability_reading: {
         Args: {
@@ -5892,6 +7408,34 @@ export type Database = {
       }
       record_stability_readings: {
         Args: { p_readings: Json; p_test: string; p_time_point: string }
+        Returns: Json
+      }
+      record_stage_cleaning: {
+        Args: {
+          p_data: Json
+          p_equipment: string
+          p_password: string
+          p_stage_order: string
+        }
+        Returns: Json
+      }
+      record_stage_output: {
+        Args: {
+          p_data: Json
+          p_password: string
+          p_presentation: string
+          p_stage_order: string
+        }
+        Returns: Json
+      }
+      record_weight_control: {
+        Args: {
+          p_action: string
+          p_password: string
+          p_presentation: string
+          p_stage_order: string
+          p_value: number
+        }
         Returns: Json
       }
       reference_now: { Args: never; Returns: string }
@@ -6052,6 +7596,15 @@ export type Database = {
         }
         Returns: Json
       }
+      save_step_draft: {
+        Args: {
+          p_presentation: string
+          p_stage_order: string
+          p_step_key: string
+          p_values: Json
+        }
+        Returns: Json
+      }
       save_template_draft: {
         Args: {
           p_reason: string
@@ -6108,6 +7661,7 @@ export type Database = {
         Args: { p_density_required: boolean; p_prototype: string }
         Returns: Json
       }
+      start_stage: { Args: { p_stage_order: string }; Returns: Json }
       style_observations: {
         Args: { p_content: Json; p_type_id: string }
         Returns: Json
@@ -6135,10 +7689,15 @@ export type Database = {
       }
       user_active_roles: { Args: { p_user: string }; Returns: string[] }
       verify_cleaning: { Args: { p_event: string; p_password: string }; Returns: Json }
+      verify_coding: { Args: { p_batch: string; p_password: string }; Returns: Json }
+      verify_dispensing: { Args: { p_dispensing: string; p_password: string }; Returns: Json }
+      verify_line_clearance: { Args: { p_clearance: string; p_password: string }; Returns: Json }
       verify_signature_integrity: {
         Args: { p_signature_id: string }
         Returns: boolean
       }
+      verify_stage_cleaning: { Args: { p_cleaning: string; p_password: string }; Returns: Json }
+      verify_step: { Args: { p_password: string; p_record: string }; Returns: Json }
     }
     Enums: {
       regulatory_profile_kind: "cosmetico" | "medicamento"

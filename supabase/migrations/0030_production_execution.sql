@@ -1413,6 +1413,33 @@ join public.production_orders o on o.id = b.order_id
 join public.products p on p.id = b.product_id;
 revoke all on public.v_production_board from anon;
 
+-- Pasos congelados de una etapa para la interfaz (lectura).
+create or replace function public.production_stage_steps(p_stage_order uuid)
+returns table (step_key text, order_no int, label text, text text, params jsonb, requires_equipment text,
+               requires_verification boolean)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select * from app_private.stage_steps(p_stage_order) where public.can_read_production();
+$$;
+revoke execute on function public.production_stage_steps(uuid) from public, anon;
+grant execute on function public.production_stage_steps(uuid) to authenticated;
+
+-- Límites del peso neto de una presentación en envase (para la interfaz).
+create or replace function public.production_fill_limits(p_stage_order uuid, p_presentation uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select app_private.fill_limits(p_stage_order, p_presentation) where public.can_read_production();
+$$;
+revoke execute on function public.production_fill_limits(uuid, uuid) from public, anon;
+grant execute on function public.production_fill_limits(uuid, uuid) to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- 12. Permisos de ejecución
 -- ---------------------------------------------------------------------------
