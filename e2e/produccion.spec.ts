@@ -98,6 +98,8 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     "Requiere la semilla completa y la base de la CI",
   );
   test.setTimeout(900_000);
+  // Un solo intento: el lote cambia datos y un reintento empezaría a mitad de camino.
+  test.describe.configure({ retries: 0 });
 
   test("RF-30…RF-39 · de la orden al cierre del acondicionamiento con los números del 0B", async ({
     browser,
@@ -175,7 +177,8 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
 
     await P.goto(orderUrl);
     await P.getByRole("link", { name: /^Ir al lote L-/ }).click();
-    const base = P.url().split("?")[0];
+    await expect(P).toHaveURL(/\/produccion\/lotes\/[0-9a-f-]{36}$/, { timeout: 20_000 });
+    const base = new URL(P.url()).pathname;
 
     // S-17 · AC-04: sin despeje la etapa no inicia.
     await D.goto(`${base}/dispensacion`);
