@@ -3,9 +3,9 @@
 begin;
 select plan(8);
 
-select is((select count(*)::int from public.permission_modules), 21, 'los 21 módulos del PRD 2.2 (1.9: Maestro de materiales y productos)');
-select is((select count(*)::int from public.module_permissions mp join public.roles r on r.code = mp.role and r.is_system), 21 * 15,
-  'una celda por módulo y rol del sistema (21 × 15)');
+select is((select count(*)::int from public.permission_modules), 22, 'los 22 módulos del PRD 2.2 (1.10: Equipos y hoja de vida)');
+select is((select count(*)::int from public.module_permissions mp join public.roles r on r.code = mp.role and r.is_system), 22 * 15,
+  'una celda por módulo y rol del sistema (22 × 15)');
 select is(
   (select cell_text from public.module_permissions where module_code = 'liberacion_final_del_lote' and role = 'dt'),
   'F A (libera)', 'el director técnico libera el lote');

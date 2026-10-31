@@ -42,9 +42,9 @@ select is((select count(*)::int from public.roles where code = 'consulta_trazabi
 select pg_temp.login_as('a0000000-0000-4000-8000-000000000004');
 select is(pg_temp.qa_approves('consulta_trazabilidad'), 'aprobada', 'D-39: Aseguramiento de calidad aprueba y el rol se crea');
 reset role;
-select is((select count(*)::int from public.module_permissions where role = 'consulta_trazabilidad'), 21,
+select is((select count(*)::int from public.module_permissions where role = 'consulta_trazabilidad'), 22,
   'el rol nace con una celda por módulo');
-select is((select count(*)::int from public.module_permissions where role = 'consulta_trazabilidad' and cell_text = '—'), 21,
+select is((select count(*)::int from public.module_permissions where role = 'consulta_trazabilidad' and cell_text = '—'), 22,
   'el rol nace sin permisos');
 
 -- Configurar permisos.
