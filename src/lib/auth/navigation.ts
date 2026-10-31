@@ -36,7 +36,7 @@ export const NAV_ITEMS: Record<NavKey, NavItem> = {
   bodega: { key: "bodega", label: "Bodega", href: "/bodega", stage: null },
   produccion: { key: "produccion", label: "Producción", href: "/produccion/lotes", stage: "E6" },
   calidad: { key: "calidad", label: "Calidad", href: "/calidad/insumos", stage: null },
-  equipos: { key: "equipos", label: "Equipos", href: "/equipos", stage: "E5" },
+  equipos: { key: "equipos", label: "Equipos", href: "/equipos", stage: null },
   desviaciones: {
     key: "desviaciones",
     label: "Desviaciones y CAPA",
@@ -85,7 +85,7 @@ const ORDER: NavKey[] = [
 /** Secciones por rol según la matriz de permisos (PRD 2.2) y los menús del diseño S-02. */
 export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
   comercial: ["inicio", "documentos", "idi", "desviaciones"],
-  idi: ["inicio", "documentos", "idi", "desviaciones", "trazabilidad"],
+  idi: ["inicio", "documentos", "idi", "equipos", "desviaciones", "trazabilidad"],
   bodega_aux: ["inicio", "documentos", "bodega", "equipos", "desviaciones", "trazabilidad"],
   bodega_jefe: ["inicio", "documentos", "bodega", "equipos", "desviaciones", "trazabilidad"],
   prod_aux: ["inicio", "documentos", "produccion", "equipos", "desviaciones", "trazabilidad"],
@@ -128,6 +128,7 @@ export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
     "idi",
     "produccion",
     "calidad",
+    "equipos",
     "desviaciones",
     "trazabilidad",
     "liberacion",
@@ -135,9 +136,9 @@ export const NAV_BY_ROLE: Record<SystemRole, NavKey[]> = {
     "cambios_roles",
   ],
   admin: ["inicio", "bodega", "auditoria", "cambios_roles", "administracion"],
-  master: ["inicio", "documentos", "idi", "desviaciones", "trazabilidad"],
-  aq_doc: ["inicio", "documentos", "desviaciones", "trazabilidad"],
-  gerencia: ["inicio", "aprobaciones", "documentos", "idi", "trazabilidad"],
+  master: ["inicio", "documentos", "idi", "equipos", "desviaciones", "trazabilidad"],
+  aq_doc: ["inicio", "documentos", "equipos", "desviaciones", "trazabilidad"],
+  gerencia: ["inicio", "aprobaciones", "documentos", "idi", "equipos", "trazabilidad"],
   auditor: [
     "inicio",
     "documentos",
@@ -174,6 +175,7 @@ export const MODULE_TO_NAV: Record<string, NavKey[]> = {
   plantillas_de_proceso: ["documentos"],
   bodegas_estantes_y_ubicaciones: ["bodega"],
   maestro_de_materiales_y_productos: ["bodega"],
+  equipos_y_hoja_de_vida: ["equipos"],
   traslados_y_envios_a_bodegas_externas: ["bodega"],
   sistema_de_gestion_documental: ["documentos"],
   lectura_y_capacitacion: ["documentos"],

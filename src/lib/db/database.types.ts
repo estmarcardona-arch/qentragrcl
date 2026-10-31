@@ -1501,6 +1501,328 @@ export type Database = {
           },
         ]
       }
+      email_outbox: {
+        Row: {
+          attempts: number
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          last_error: string | null
+          notification_id: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          to_email: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_error?: string | null
+          notification_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          to_email: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_error?: string | null
+          notification_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          to_email?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_outbox_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_outbox_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment: {
+        Row: {
+          active: boolean
+          capacity: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          critical: boolean
+          equipment_type: string
+          governing_document_id: string | null
+          id: string
+          installed_on: string | null
+          manufacturer: string | null
+          model: string | null
+          name: string
+          plant_area: string
+          requires_calibration: boolean
+          requires_cleaning: boolean
+          requires_qualification: boolean
+          serial_number: string | null
+          status: string
+          status_reason: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          capacity?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          critical?: boolean
+          equipment_type: string
+          governing_document_id?: string | null
+          id?: string
+          installed_on?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          name: string
+          plant_area: string
+          requires_calibration?: boolean
+          requires_cleaning?: boolean
+          requires_qualification?: boolean
+          serial_number?: string | null
+          status?: string
+          status_reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          capacity?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          critical?: boolean
+          equipment_type?: string
+          governing_document_id?: string | null
+          id?: string
+          installed_on?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          name?: string
+          plant_area?: string
+          requires_calibration?: boolean
+          requires_cleaning?: boolean
+          requires_qualification?: boolean
+          serial_number?: string | null
+          status?: string
+          status_reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_governing_document_id_fkey"
+            columns: ["governing_document_id"]
+            isOneToOne: false
+            referencedRelation: "controlled_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_attachments: {
+        Row: {
+          bucket: string
+          created_at: string
+          created_by: string | null
+          equipment_id: string
+          event_id: string | null
+          file_name: string
+          id: string
+          mime_type: string
+          path: string
+          sha256: string
+          size_bytes: number
+          updated_at: string
+          updated_by: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          bucket?: string
+          created_at?: string
+          created_by?: string | null
+          equipment_id: string
+          event_id?: string | null
+          file_name: string
+          id?: string
+          mime_type: string
+          path: string
+          sha256: string
+          size_bytes: number
+          updated_at?: string
+          updated_by?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          created_by?: string | null
+          equipment_id?: string
+          event_id?: string | null
+          file_name?: string
+          id?: string
+          mime_type?: string
+          path?: string
+          sha256?: string
+          size_bytes?: number
+          updated_at?: string
+          updated_by?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_attachments_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_attachments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment_events: {
+        Row: {
+          batch_ref: string | null
+          created_at: string
+          created_by: string | null
+          due_on: string | null
+          equipment_id: string
+          id: string
+          locked_at: string | null
+          notes: string | null
+          performed_on: string
+          provider: string | null
+          recorded_by: string | null
+          reference: string | null
+          result: string | null
+          status: string
+          status_from: string | null
+          status_to: string | null
+          type: string
+          updated_at: string
+          updated_by: string | null
+          valid_until: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          batch_ref?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          equipment_id: string
+          id?: string
+          locked_at?: string | null
+          notes?: string | null
+          performed_on: string
+          provider?: string | null
+          recorded_by?: string | null
+          reference?: string | null
+          result?: string | null
+          status?: string
+          status_from?: string | null
+          status_to?: string | null
+          type: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_until?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          batch_ref?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          equipment_id?: string
+          id?: string
+          locked_at?: string | null
+          notes?: string | null
+          performed_on?: string
+          provider?: string | null
+          recorded_by?: string | null
+          reference?: string | null
+          result?: string | null
+          status?: string
+          status_from?: string | null
+          status_to?: string | null
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_until?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_events_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_events_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_events_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       external_parties: {
         Row: {
           active: boolean
@@ -2446,6 +2768,68 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "roles"
             referencedColumns: ["code"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          created_by: string | null
+          due_on: string | null
+          entity_id: string | null
+          entity_table: string | null
+          id: string
+          kind: string
+          link: string | null
+          read_at: string | null
+          threshold_days: number | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          entity_id?: string | null
+          entity_table?: string | null
+          id?: string
+          kind: string
+          link?: string | null
+          read_at?: string | null
+          threshold_days?: number | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_on?: string | null
+          entity_id?: string | null
+          entity_table?: string | null
+          id?: string
+          kind?: string
+          link?: string | null
+          read_at?: string | null
+          threshold_days?: number | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -4953,6 +5337,33 @@ export type Database = {
         }
         Relationships: []
       }
+      v_equipment_status: {
+        Row: {
+          active: boolean | null
+          calibration_due: string | null
+          calibration_result: string | null
+          cleaning_until: string | null
+          code: string | null
+          critical: boolean | null
+          effective_status: string | null
+          equipment_type: string | null
+          fitness: string | null
+          governing_document_id: string | null
+          id: string | null
+          maintenance_due: string | null
+          name: string | null
+          plant_area: string | null
+          qualification_due: string | null
+          reasons: Json | null
+          requires_calibration: boolean | null
+          requires_cleaning: boolean | null
+          requires_qualification: boolean | null
+          status: string | null
+          status_reason: string | null
+          valid: boolean | null
+        }
+        Relationships: []
+      }
       v_location_status: {
         Row: {
           active: boolean | null
@@ -5172,6 +5583,7 @@ export type Database = {
         Args: { p_version_ids: string[] }
         Returns: Json
       }
+      assert_equipment_valid: { Args: { p_at?: string; p_equipment: string }; Returns: undefined }
       assert_lot_available: {
         Args: { p_lot: string; p_qty: number }
         Returns: undefined
@@ -5316,6 +5728,7 @@ export type Database = {
         Args: { p_review_date: string; p_status: string }
         Returns: string
       }
+      equipment_validity: { Args: { p_at?: string; p_equipment: string }; Returns: Json }
       format_sequence_code: {
         Args: { p_format: string; p_value: number; p_year: number }
         Returns: string
@@ -5331,6 +5744,7 @@ export type Database = {
           unit: string
         }[]
       }
+      generate_equipment_reminders: { Args: { p_at?: string }; Returns: number }
       generate_locations: {
         Args: {
           p_levels: number
@@ -5377,6 +5791,7 @@ export type Database = {
         Args: { p_rows: Json }
         Returns: Json
       }
+      is_equipment_valid: { Args: { p_at?: string; p_equipment: string }; Returns: boolean }
       issue_copy: {
         Args: {
           p_area_id: string
@@ -5395,6 +5810,7 @@ export type Database = {
         Returns: Json
       }
       log_session_event: { Args: { p_action: string }; Returns: undefined }
+      mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
       my_pending_versions: {
         Args: never
         Returns: {
@@ -5447,6 +5863,10 @@ export type Database = {
           p_record_id: string
           p_table: string
         }
+        Returns: Json
+      }
+      record_equipment_event: {
+        Args: { p_data: Json; p_equipment: string; p_password: string; p_type: string }
         Returns: Json
       }
       record_hash: { Args: { p_row: Json }; Returns: string }
@@ -5570,6 +5990,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      save_equipment: {
+        Args: { p_data: Json; p_id: string; p_reason?: string }
+        Returns: string
+      }
       save_external_party: {
         Args: { p_data: Json; p_id: string; p_reason?: string }
         Returns: string
@@ -5645,6 +6069,10 @@ export type Database = {
         Returns: Json
       }
       server_now: { Args: never; Returns: string }
+      set_equipment_status: {
+        Args: { p_equipment: string; p_reason: string; p_status: string }
+        Returns: Json
+      }
       set_location_blocked: {
         Args: { p_blocked: boolean; p_location: string; p_reason: string }
         Returns: undefined
@@ -5703,6 +6131,7 @@ export type Database = {
         }[]
       }
       user_active_roles: { Args: { p_user: string }; Returns: string[] }
+      verify_cleaning: { Args: { p_event: string; p_password: string }; Returns: Json }
       verify_signature_integrity: {
         Args: { p_signature_id: string }
         Returns: boolean
