@@ -12,6 +12,7 @@ export type Setting = { key: string; value: unknown; description: string; update
 
 function display(v: unknown) {
   if (typeof v === "boolean") return v ? "Sí" : "No";
+  if (Array.isArray(v)) return v.join(", ");
   return String(v);
 }
 
@@ -84,6 +85,20 @@ export function SettingsEditor({ settings }: { settings: Setting[] }) {
                           <option value="password">Contraseña</option>
                           <option value="password_mfa">Contraseña + segundo factor</option>
                         </select>
+                      ) : Array.isArray(s.value) ? (
+                        // Lista de días (p. ej. avisos de vencimiento de equipos a 30, 15 y 7 días).
+                        <Input
+                          id={`set-${s.key}`}
+                          defaultValue={s.value.join(", ")}
+                          onChange={(e) =>
+                            setDraft(
+                              e.target.value
+                                .split(/[,;\s]+/)
+                                .filter(Boolean)
+                                .map(Number),
+                            )
+                          }
+                        />
                       ) : (
                         <Input
                           id={`set-${s.key}`}

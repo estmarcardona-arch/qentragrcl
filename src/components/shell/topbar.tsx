@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/auth/navigation";
+import { NotificationBell, type BellNotification } from "./notification-bell";
 import { UserMenu } from "./user-menu";
 
 type TopbarProps = {
@@ -10,10 +11,11 @@ type TopbarProps = {
   roleLabel: string;
   initials: string;
   shortSignature: string | null;
+  notifications: BellNotification[];
 };
 
 /** Barra superior: sección actual, buscador, avisos y menú de usuario (Prompt 0). */
-export function Topbar(props: TopbarProps) {
+export function Topbar({ notifications, ...props }: TopbarProps) {
   const pathname = usePathname();
   const section = pathname.startsWith("/admin")
     ? NAV_ITEMS.administracion.label
@@ -33,13 +35,7 @@ export function Topbar(props: TopbarProps) {
         <Search aria-hidden className="size-4" />
         <span className="flex-1 max-[1279px]:sr-only">Buscar lote, orden o equipo…</span>
       </div>
-      <span
-        className="flex size-9 items-center justify-center text-text-strong"
-        title="Sin avisos pendientes"
-      >
-        <Bell aria-hidden className="size-[22px]" />
-        <span className="sr-only">Sin avisos pendientes</span>
-      </span>
+      <NotificationBell items={notifications} />
       <UserMenu {...props} />
     </header>
   );
