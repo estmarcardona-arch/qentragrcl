@@ -84,7 +84,7 @@ select throws_like($$ select public.record_equipment_event(pg_temp.v('eq'), 'cal
 reset role;
 select pg_temp.login_as('ba000000-0000-4000-8000-000000000004');
 select is((public.record_equipment_event(pg_temp.v('eq'), 'calificacion',
-    '{"performed_on": "2026-06-30", "result": "conforme", "due_on": "2027-06-30"}', 'Clave-Prueba-2026') ->> 'ok'), 'true',
+    '{"performed_on": "2026-06-30", "result": "conforme", "due_on": "2027-06-30", "links": [{"url": "https://proveedor.test/oq/BAL-914"}]}', 'Clave-Prueba-2026') ->> 'ok'), 'true',
   'Aseguramiento de la calidad registra la calificación');
 reset role;
 select pg_temp.login_as('ba000000-0000-4000-8000-000000000002');
