@@ -16,50 +16,101 @@ import {
   verifyStep,
   type PrResult,
 } from "@/lib/production/actions";
+import { StatusBadge } from "@/components/gxp/status-badge";
 import { ResultError, SignedAction, type Summary } from "./signed-action";
+import { EquipmentTable, GmpBlock, type EquipmentRow } from "./ui";
 import { useHydrated } from "./use-hydrated";
 
-/** S-17 · Lista de despeje: todos los puntos conformes para firmar («Ejecuté»). */
+/**
+ * S-17 · Lista de despeje (diseño «Producción S-15 a S-17»): cada punto con su estado; el punto de equipos muestra la
+ * vigencia de calibración, mantenimiento y limpieza. Un equipo no apto bloquea la firma («Ejecuté»).
+ */
 export function ClearanceForm({
   batchId,
   stageOrderId,
   stageLabel,
   items,
+  equipment,
+  now,
   signer,
 }: {
   batchId: string;
   stageOrderId: string;
   stageLabel: string;
   items: string[];
+  equipment: EquipmentRow[];
+  now: string;
   signer: string;
 }) {
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const all = items.every((i) => checks[i]);
+  // Bloquean el despeje los problemas que la limpieza no resuelve (calibración, mantenimiento, calificación, estado);
+  // la limpieza vencida se resuelve en S-39 antes de iniciar la etapa.
+  const invalid = equipment.filter((e) => !e.valid && e.reasons.some((r) => !/limpieza/i.test(r)));
+  const cleaningDue = equipment.filter(
+    (e) => !e.valid && e.reasons.every((r) => /limpieza/i.test(r)),
+  );
+  const isEquipmentItem = (i: string) => /equipo/i.test(i);
   return (
-    <div className="grid gap-3">
-      <ul className="grid gap-2" data-testid="clearance-items">
-        {items.map((i) => (
-          <li key={i}>
-            <label className="flex min-h-12 items-center gap-3 rounded-md border border-border bg-white px-3 text-[15px]">
-              <input
-                type="checkbox"
-                className="size-6"
-                checked={Boolean(checks[i])}
-                onChange={(e) => setChecks((c) => ({ ...c, [i]: e.target.checked }))}
-              />
-              {i}
-            </label>
-          </li>
-        ))}
+    <div className="grid gap-4">
+      <ul
+        className="grid divide-y divide-divider rounded-[10px] border border-border"
+        data-testid="clearance-items"
+      >
+        {items.map((i) => {
+          const blocking = isEquipmentItem(i) && invalid.length > 0;
+          return (
+            <li key={i} className="grid gap-3 px-4 py-3">
+              <label className="flex min-h-11 items-center gap-3 text-[15px]">
+                <input
+                  type="checkbox"
+                  className="size-6 accent-primary"
+                  checked={Boolean(checks[i])}
+                  disabled={blocking}
+                  onChange={(e) => setChecks((c) => ({ ...c, [i]: e.target.checked }))}
+                />
+                <span className="flex-1">{i}</span>
+                <StatusBadge
+                  status={blocking ? "bloqueada" : checks[i] ? "completada" : "pendiente"}
+                  label={blocking ? "Bloqueante" : checks[i] ? "Completada" : "Sin marcar"}
+                />
+              </label>
+              {isEquipmentItem(i) && equipment.length ? (
+                <EquipmentTable rows={equipment} now={now} />
+              ) : null}
+            </li>
+          );
+        })}
       </ul>
-      <div>
+      {cleaningDue.length ? (
+        <p
+          role="status"
+          className="rounded-md border border-q-warn-bd bg-q-warn-bg px-3 py-2 text-sm text-q-warn-fg"
+        >
+          {cleaningDue.map((e) => e.code).join(", ")}: limpieza vencida. Regístrela y verifíquela en
+          «Limpieza de equipos y utensilios» antes de iniciar la etapa.
+        </p>
+      ) : null}
+      {invalid.length ? (
+        <GmpBlock
+          rule={`${invalid.map((e) => `${e.code}: ${e.reasons.join("; ")}`).join(" · ")}.`}
+          action="Registre la limpieza o la calibración en la hoja de vida, abra una desviación (F8) o use otro equipo."
+          testId="clearance-blocked"
+        />
+      ) : null}
+      <div className="grid gap-1.5">
         <SignedAction
-          label="Firmar despeje"
+          label="Firmar ejecución"
           title={`Despeje de línea · ${stageLabel}`}
           meaning="Ejecuté"
-          summary={[{ label: "Puntos", value: `${items.length} de ${items.length} conformes` }]}
+          summary={[
+            { label: "Ítems cumplidos", value: `${items.length} de ${items.length}` },
+            ...(equipment.length
+              ? [{ label: "Equipos", value: equipment.map((e) => e.code).join(", "), mono: true }]
+              : []),
+          ]}
           signer={signer}
-          disabled={!all}
+          disabled={!all || invalid.length > 0}
           run={(pw) =>
             executeClearance(
               batchId,
@@ -70,12 +121,12 @@ export function ClearanceForm({
           }
           testId="sign-clearance"
         />
+        {!all ? (
+          <p className="text-sm text-text-secondary">
+            Marque todos los puntos; uno no conforme se corrige antes de firmar.
+          </p>
+        ) : null}
       </div>
-      {!all ? (
-        <p className="text-sm text-text-secondary">
-          Marque todos los puntos; uno no conforme se corrige antes de firmar.
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -293,6 +344,43 @@ export function CompleteStageButton({
       confirmLabel="Firmar cierre de etapa"
       run={(pw) => completeStage(batchId, stageOrderId, pw)}
       testId="complete-stage"
+    />
+  );
+}
+
+/** S-39 · Verifica de una vez las limpiezas pendientes con una sola firma «Verifiqué» (cada registro queda firmado). */
+export function VerifyCleaningsButton({
+  batchId,
+  ids,
+  stageLabel,
+  executedBy,
+  signer,
+}: {
+  batchId: string;
+  ids: string[];
+  stageLabel: string;
+  executedBy: string;
+  signer: string;
+}) {
+  return (
+    <SignedAction
+      label="Verificar limpieza y firmar"
+      title={`Verificar limpieza · ${stageLabel}`}
+      meaning="Verifiqué"
+      summary={[
+        { label: "Registros", value: String(ids.length) },
+        { label: "Limpió", value: executedBy },
+      ]}
+      signer={signer}
+      confirmLabel="Firmar verificación"
+      run={async (pw) => {
+        for (const id of ids) {
+          const res = await verifyCleaningRecord(batchId, id, pw);
+          if (!res.ok) return res;
+        }
+        return { ok: true, data: {} };
+      }}
+      testId="verify-cleaning"
     />
   );
 }

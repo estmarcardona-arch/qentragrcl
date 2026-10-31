@@ -37,7 +37,7 @@ export default async function NewOrderPage() {
     <main className="grid content-start gap-4 px-8 pt-6 pb-10 max-[1279px]:px-4">
       <PageHeader
         title="Crear orden de producción"
-        description="La orden toma solo documentos vigentes y congela sus versiones en el lote."
+        description="Producto, cantidad y versiones aprobadas que se congelarán"
         breadcrumbs={[
           { label: "Inicio", href: "/inicio" },
           { label: "Producción", href: "/produccion/lotes" },

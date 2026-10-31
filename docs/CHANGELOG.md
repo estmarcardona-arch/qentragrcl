@@ -2,6 +2,13 @@
 
 Formato: una entrada por etapa y por tarea terminada (AGENTS.md, DoD). Fechas en DD/MM/AAAA.
 
+## [E7] Pantallas de Producción según los diseños — 31/10/2026
+
+### Cambiado
+
+- Producción reproduce los diseños de `docs/diseno` (Producción S-15 a S-17, Orden y limpieza S-38 y S-39, Dispensación S-18 y Registros S-19 a S-21): tablero con la tarjeta del lote activo, línea de proceso por forma (completada, actual, bloqueada con su motivo) y acciones siguientes; crear orden en tres tarjetas numeradas con granel por presentación (− / +), versiones con su fecha de aprobación, resumen y pantalla de éxito «Lo que sigue»; orden con encabezado (creó / aprobó), pestañas, flujo «Aprobar → 8 documentos», estado y PDF de cada documento y «Quién puede qué»; despeje por área con la vigencia de los equipos y sellos de firma; limpieza en tabla con verificación de una sola firma; dispensación por líneas desplegables con sublíneas (balanza, peso, tara, neto, hora), FEFO y lotes que nunca se pueden elegir; registros con pasos a la izquierda y paso actual (equipos, parámetros con − / +, estado), conciliación con barra de límites y rótulo de granel, indicadores de envase, tabla y gráfica del control de peso, inspección Conforme / No conforme, unidades y rótulo de producto terminado.
+- Bloqueos con «Qué regla / Qué hacer» y avisos de segregación de funciones en todas las pantallas de Producción. El despeje solo se bloquea por problemas que la limpieza no resuelve; la limpieza vencida se avisa y se corrige en S-39.
+
 ## [E7] Demostración de Producción en la nube — 31/10/2026
 
 ### Agregado

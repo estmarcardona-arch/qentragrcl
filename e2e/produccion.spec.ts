@@ -102,15 +102,13 @@ async function runSteps(page: Page, values: Record<string, string> = {}) {
     const card = page.getByTestId("current-step");
     if (!(await card.count())) return;
     await ready(card.getByTestId("complete-step"));
-    for (const input of await card.locator('input[inputmode="decimal"]').all()) {
-      const field = input.locator("xpath=..");
-      const label = ((await field.locator("label").textContent()) ?? "")
-        .replace(/\s*\(.*$|\s*\*$/g, "")
-        .trim();
-      const spans = field.locator("> span");
-      const hint = (await spans.count()) ? ((await spans.last().textContent()) ?? "") : "";
-      const m = /Rango ([\d.]+)–([\d.]+)/.exec(hint);
-      await input.fill(values[label] ?? (m ? String((Number(m[1]) + Number(m[2])) / 2) : "0"));
+    for (const row of await card.locator("tr[data-param]").all()) {
+      const name = (await row.getAttribute("data-param")) ?? "";
+      const min = await row.getAttribute("data-min");
+      const max = await row.getAttribute("data-max");
+      await row
+        .locator("input")
+        .fill(values[name] ?? (min && max ? String((Number(min) + Number(max)) / 2) : "0"));
     }
     const title = await card.locator("h3").textContent();
     await sign(page, card.getByTestId("complete-step"));
@@ -176,15 +174,23 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     await expect(P.getByRole("button", { name: "Crear orden y lote" })).toBeDisabled();
     await P.getByLabel("Producto *").selectOption({ label: "PRD-001 · Loción micelar ClariPlus" });
     await expect(P.getByTestId("frozen-docs")).toContainText("IDI-FM-001");
-    await expect(P.getByTestId("frozen-docs")).toContainText("PRD-PR-003-FR-01 v03");
-    await expect(P.getByLabel("Tamaño del lote (kg) *")).toHaveValue("2000");
-    await expect(P.getByLabel("Unidades teóricas · 200 mL")).toHaveValue("5000");
-    await expect(P.getByLabel("Unidades teóricas · 400 mL")).toHaveValue("2500");
+    await expect(P.getByTestId("frozen-docs")).toContainText("PRD-PR-003-FR-01");
+    await expect(P.getByLabel("Tamaño del lote (kg) *")).toHaveValue("2.000,0");
+    await expect(P.getByTestId("units-200 mL")).toHaveText("5.000");
+    await expect(P.getByTestId("units-400 mL")).toHaveText("2.500");
+    await expect(P.getByRole("button", { name: "Crear orden y lote" })).toHaveAttribute(
+      "data-ready",
+      "true",
+    );
     await P.getByRole("button", { name: "Crear orden y lote" }).click();
+    // S-15b · orden creada: consecutivos de la orden y del lote, y «Lo que sigue».
+    await expect(P.getByTestId("order-created")).toContainText("Se creó OP-2026-", {
+      timeout: 20_000,
+    });
+    await P.getByRole("link", { name: /^Ver orden OP-2026-/ }).click();
     await expect(P).toHaveURL(/\/produccion\/ordenes\/[0-9a-f-]{36}\/documentos/, {
       timeout: 20_000,
     });
-    await expect(P.getByRole("status").filter({ hasText: "Se creó OP-2026-" })).toBeVisible();
     const orderUrl = P.url().split("?")[0];
     await expect(P.getByText("La aprueba el Director técnico")).toBeVisible();
 
@@ -204,17 +210,28 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       "OA-2026-",
     ])
       await expect(docs).toContainText(t);
+    await esteban.page.getByRole("link", { name: "Solicitud de dispensación" }).click();
     await expect(
       esteban.page.getByTestId("dispensing-request").locator('tr[data-code="MP-014"]'),
     ).toContainText("60,00 kg");
+    await esteban.page.goto(orderUrl);
     const pdf = await esteban.page.request.get(
-      String(await docs.getByRole("link", { name: "Descargar PDF" }).first().getAttribute("href")),
+      String(
+        await esteban.page
+          .getByTestId("generated-docs")
+          .getByRole("link", { name: "Descargar PDF" })
+          .first()
+          .getAttribute("href"),
+      ),
     );
     expect(pdf.headers()["content-type"]).toBe("application/pdf");
     await esteban.close();
 
     await P.goto(orderUrl);
-    await P.getByRole("link", { name: /^Ir al lote L-/ }).click();
+    await P.locator('a[href^="/produccion/lotes/"]')
+      .filter({ hasText: /^L-\d{4}-\d{3}$/ })
+      .first()
+      .click();
     await expect(P).toHaveURL(/\/produccion\/lotes\/[0-9a-f-]{36}$/, { timeout: 20_000 });
     const base = new URL(P.url()).pathname;
 
@@ -222,12 +239,12 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
     await D.goto(`${base}/dispensacion`);
     await ready(D.getByTestId("start-stage"));
     await D.getByTestId("start-stage").click();
-    await expect(D.getByRole("alert").filter({ hasText: "despeje" })).toBeVisible();
+    await expect(D.getByRole("alert").filter({ hasText: "despeje" }).first()).toBeVisible();
     await prepare(D, P, base, "dispensacion", []);
 
     // S-18 · RF-33 · AC-03 · AC-05: solo lotes aprobados; BAL-014 no apta; glicerina en dos lotes.
     await expect(D.getByTestId("training-notice")).toBeHidden();
-    const fen = D.locator('article[data-code="MP-031"]');
+    const fen = D.locator('details[data-code="MP-031"]');
     await expect(
       fen.getByLabel("Lote").locator("option", { hasText: "MP-2026-0198" }),
     ).toBeDisabled();
@@ -246,14 +263,14 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       "MP-055",
       "MP-060",
     ]) {
-      const line = D.locator(`article[data-code="${code}"]`);
+      const line = D.locator(`details[data-code="${code}"]`);
       await ready(line.getByTestId(`dispense-${code}`));
       await line.getByLabel("Balanza").selectOption({ label: "BAL-015" });
       const before = await line.locator("tr[data-lot]").count();
       await sign(D, line.getByTestId(`dispense-${code}`));
       await expect(line.locator("tr[data-lot]")).toHaveCount(before + 1, { timeout: 20_000 });
     }
-    const gli = D.locator('article[data-code="MP-014"]');
+    const gli = D.locator('details[data-code="MP-014"]');
     await expect(gli.getByTestId("sum-indicator")).toContainText("60,00 / 60,00 kg");
     await expect(gli.locator("tr[data-lot]")).toHaveCount(2);
     // SOD-4: Diego no verifica su propia pesada.
@@ -350,7 +367,7 @@ test.describe.serial("E7 · lote completo de producción (0B)", () => {
       await ready(P.getByTestId("sign-inspection"));
       const form = P.getByTestId("inspection-form");
       for (const group of await form.getByRole("radiogroup").all())
-        await group.getByLabel("Conforme", { exact: true }).check();
+        await group.getByLabel("Conforme", { exact: true }).check({ force: true });
       await sign(P, P.getByTestId("sign-inspection"));
       await expect(P.getByTestId("inspection-done")).toBeVisible({ timeout: 20_000 });
       await D.goto(`${base}/acondicionamiento`);

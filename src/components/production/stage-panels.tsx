@@ -17,6 +17,7 @@ import {
 } from "@/lib/production/actions";
 import { formatTime } from "@/lib/format";
 import { PT_POINTS } from "@/lib/production/labels";
+import { StatusBadge } from "@/components/gxp/status-badge";
 import { ResultError, SignedAction } from "./signed-action";
 
 const num = (v: string) => Number(v.replace(",", "."));
@@ -34,7 +35,8 @@ export type WeightRow = {
   action: string | null;
 };
 
-/** S-20 · Control de peso cada N minutos (RF-35, D-08): tabla, gráfica con límites y próximo control. */
+/** S-20 · Control de peso cada N minutos (RF-35, D-08; diseño «Registros S-19 a S-21»): tabla con estado, gráfica de
+ * tendencia con límites y el próximo control; fuera de rango con ícono y texto exige la acción tomada. */
 export function WeightControlPanel({
   batchId,
   stageOrderId,
@@ -70,186 +72,274 @@ export function WeightControlPanel({
     return () => window.clearInterval(t);
   }, []);
   const left = due ? Math.round((due - clock) / 60_000) : null;
-  // Gráfica de tendencia con límites (SVG accesible: la tabla tiene los mismos datos).
-  const W = 520;
-  const H = 150;
-  const lo = Math.min(limits.min, ...rows.map((r) => r.value)) - 1;
-  const hi = Math.max(limits.max, ...rows.map((r) => r.value)) + 1;
-  const y = (v: number) => H - ((v - lo) / (hi - lo)) * H;
-  const x = (i: number) => (rows.length < 2 ? W / 2 : 20 + (i * (W - 40)) / (rows.length - 1));
+  const target = (limits.min + limits.max) / 2;
+  // Gráfica (SVG; la tabla tiene los mismos datos para lectores de pantalla).
+  const W = 560;
+  const H = 200;
+  const PAD = 44;
+  const lo = Math.floor(Math.min(limits.min, ...rows.map((r) => Number(r.value))) - 2);
+  const hi = Math.ceil(Math.max(limits.max, ...rows.map((r) => Number(r.value))) + 2);
+  const y = (v: number) => 12 + (H - 40) * (1 - (v - lo) / (hi - lo));
+  const slots = Math.max(rows.length + 1, 2);
+  const x = (i: number) => PAD + (i * (W - PAD - 16)) / (slots - 1);
+  const ticks = [lo, (lo + hi) / 2, hi];
   return (
-    <section
-      className="grid gap-3 rounded-[10px] border border-border bg-surface p-5"
-      aria-labelledby={`wc-${presentationId}`}
+    <div
+      className="grid grid-cols-[1fr_1fr] items-start gap-5 max-[1279px]:grid-cols-1"
       data-testid="weight-controls"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 id={`wc-${presentationId}`} className="text-card-title">
-          Control de peso · {presentation} · rango {fmt(limits.min)}–{fmt(limits.max)} g
-        </h3>
-        {due ? (
-          <span
-            className={`flex items-center gap-1.5 text-sm font-semibold ${left !== null && left <= 0 ? "text-q-bad-fg" : "text-text-strong"}`}
-            role="status"
-          >
-            <Timer aria-hidden className="size-4" />
-            {left !== null && left <= 0
-              ? `Control vencido: corresponde desde ${formatTime(new Date(due).toISOString())}`
-              : `Próximo control ${formatTime(new Date(due).toISOString())} (en ${left} min)`}
+      <section
+        className="overflow-hidden rounded-[10px] border border-border bg-surface"
+        aria-labelledby={`wc-${presentationId}`}
+      >
+        <header className="flex flex-wrap items-start justify-between gap-3 p-5">
+          <h3 id={`wc-${presentationId}`} className="text-[18px] font-semibold">
+            Controles de peso cada {intervalMin} min · {presentation}
+          </h3>
+          <span className="font-mono text-xs text-text-secondary">
+            Objetivo {fmt(target)} g · rango {fmt(limits.min)} – {fmt(limits.max)} g
           </span>
-        ) : (
-          <span className="text-sm text-text-secondary">
-            Registre el primer control; luego cada {intervalMin} minutos.
-          </span>
-        )}
-      </div>
-      {rows.length ? (
-        <>
-          <svg
-            viewBox={`0 0 ${W} ${H}`}
-            className="h-40 w-full max-w-[560px]"
-            role="img"
-            aria-label={`Tendencia del peso neto de ${presentation}`}
-          >
-            <line
-              x1="0"
-              x2={W}
-              y1={y(limits.max)}
-              y2={y(limits.max)}
-              stroke="currentColor"
-              className="text-q-bad-ic"
-              strokeDasharray="4 4"
-            />
-            <line
-              x1="0"
-              x2={W}
-              y1={y(limits.min)}
-              y2={y(limits.min)}
-              stroke="currentColor"
-              className="text-q-bad-ic"
-              strokeDasharray="4 4"
-            />
+        </header>
+        <table className="w-full text-left text-sm">
+          <thead className="bg-surface-sunken">
+            <tr>
+              {["Hora", "Peso neto", "Estado", "Observación"].map((h) => (
+                <th key={h} scope="col" className="px-4 py-2.5 text-label uppercase">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr
+                key={r.id}
+                className={`border-t border-divider ${r.in_range ? "" : "border-l-4 border-l-q-bad-ic bg-q-bad-bg/60"}`}
+                data-in-range={r.in_range}
+              >
+                <td className="px-4 py-3 font-mono">{formatTime(r.sampled_at)}</td>
+                <td
+                  className={`px-4 py-3 text-right font-mono font-semibold ${r.in_range ? "" : "text-q-bad-fg"}`}
+                >
+                  {fmt(Number(r.value))} g
+                </td>
+                <td className="px-4 py-3">
+                  <StatusBadge
+                    status={r.in_range ? "vigente" : "vencido"}
+                    label={r.in_range ? "Conforme" : "Fuera de rango"}
+                  />
+                </td>
+                <td className="px-4 py-3 text-xs">
+                  {r.action ?? "Registrado"}
+                  <CorrectionButton
+                    batchId={batchId}
+                    table="weight_controls"
+                    recordId={r.id}
+                    field="action"
+                    current={r.action ?? ""}
+                  />
+                </td>
+              </tr>
+            ))}
+            <tr className="border-t border-divider text-text-secondary">
+              <td className="px-4 py-3 font-mono">
+                {due ? formatTime(new Date(due).toISOString()) : "—"}
+              </td>
+              <td className="px-4 py-3 text-right font-mono">—</td>
+              <td className="px-4 py-3">
+                <StatusBadge status="pendiente" label="Pendiente" />
+              </td>
+              <td className="px-4 py-3 text-xs">
+                <span className="flex items-center gap-1">
+                  <Timer aria-hidden className="size-3.5" />
+                  {due
+                    ? left !== null && left <= 0
+                      ? "Control vencido: regístrelo ya"
+                      : `Próximo control (en ${left} min)`
+                    : "Primer control"}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {canRecord ? (
+          <div className="grid gap-3 border-t border-divider p-4">
+            <div className="grid grid-cols-[200px_1fr] gap-3 max-[1023px]:grid-cols-1">
+              <Field id={`wv-${presentationId}`} label="Peso neto (g) *">
+                <Input
+                  id={`wv-${presentationId}`}
+                  inputMode="decimal"
+                  className="h-12 font-mono text-[16px]"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              </Field>
+              {outOfRange ? (
+                <Field id={`wa-${presentationId}`} label="Acción tomada * (fuera de rango)">
+                  <Input
+                    id={`wa-${presentationId}`}
+                    className="h-12"
+                    value={action}
+                    onChange={(e) => setAction(e.target.value)}
+                  />
+                </Field>
+              ) : null}
+            </div>
+            {outOfRange ? (
+              <p role="alert" className="flex items-center gap-1.5 text-sm text-q-bad-fg">
+                <CircleX aria-hidden className="size-4" /> {value} g está fuera del rango{" "}
+                {fmt(limits.min)}–{fmt(limits.max)} g: registre la acción tomada y abra una
+                desviación (F8).
+              </p>
+            ) : null}
+            <div>
+              <SignedAction
+                label="Registrar control"
+                title={`Control de peso · ${presentation}`}
+                meaning="Ejecuté"
+                summary={[{ label: "Peso neto", value: `${value} g`, mono: true }]}
+                signer={signer}
+                validate={() =>
+                  !n
+                    ? "Registre el peso neto."
+                    : outOfRange && !action.trim()
+                      ? "Registre la acción tomada."
+                      : null
+                }
+                run={async (pw) => {
+                  const res = await recordWeight(
+                    batchId,
+                    { stageOrderId, presentationId, value: n, action },
+                    pw,
+                  );
+                  if (res.ok) {
+                    setValue("");
+                    setAction("");
+                  }
+                  return res;
+                }}
+                testId="record-weight"
+              />
+            </div>
+          </div>
+        ) : null}
+      </section>
+      <section
+        className="grid gap-2 rounded-[10px] border border-border bg-surface p-5"
+        aria-label={`Tendencia del peso neto de ${presentation}`}
+      >
+        <h3 className="text-[18px] font-semibold">Tendencia del peso neto</h3>
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full"
+          role="img"
+          aria-label={`Tendencia del peso neto de ${presentation}: ${rows.length} controles`}
+        >
+          <rect
+            x={PAD}
+            y={y(limits.max)}
+            width={W - PAD - 16}
+            height={y(limits.min) - y(limits.max)}
+            className="fill-primary-soft/50"
+          />
+          {ticks.map((t) => (
+            <text
+              key={t}
+              x={PAD - 6}
+              y={y(t) + 4}
+              textAnchor="end"
+              className="fill-text-secondary font-mono text-[11px]"
+            >
+              {fmt(t)}
+            </text>
+          ))}
+          {[limits.max, limits.min].map((l, k) => (
+            <g key={l}>
+              <line
+                x1={PAD}
+                x2={W - 16}
+                y1={y(l)}
+                y2={y(l)}
+                stroke="currentColor"
+                className="text-text-strong"
+                strokeDasharray="5 4"
+              />
+              <text
+                x={W - 16}
+                y={y(l) + (k ? 14 : -4)}
+                textAnchor="end"
+                className="fill-text-strong text-[11px] font-semibold"
+              >
+                {k ? "Mín." : "Máx."} {fmt(l)} g
+              </text>
+            </g>
+          ))}
+          {rows.length > 1 ? (
             <polyline
               fill="none"
               stroke="currentColor"
               className="text-primary"
               strokeWidth="2"
-              points={rows.map((r, i) => `${x(i)},${y(r.value)}`).join(" ")}
+              points={rows.map((r, i) => `${x(i)},${y(Number(r.value))}`).join(" ")}
             />
-            {rows.map((r, i) => (
+          ) : null}
+          {rows.map((r, i) =>
+            r.in_range ? (
               <circle
                 key={r.id}
                 cx={x(i)}
-                cy={y(r.value)}
-                r="4"
-                className={r.in_range ? "fill-primary" : "fill-q-bad-ic"}
+                cy={y(Number(r.value))}
+                r="4.5"
+                className="fill-surface stroke-primary"
+                strokeWidth="2"
               />
-            ))}
-          </svg>
-          <table className="w-full max-w-[720px] text-left text-sm">
-            <thead className="bg-surface-sunken">
-              <tr>
-                {["#", "Hora", "Peso neto (g)", "Resultado", "Acción"].map((h) => (
-                  <th key={h} scope="col" className="px-3 py-2 text-label uppercase">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} className="border-t border-divider" data-in-range={r.in_range}>
-                  <td className="px-3 py-2 font-mono text-xs">{r.sample_no}</td>
-                  <td className="px-3 py-2 font-mono text-xs">{formatTime(r.sampled_at)}</td>
-                  <td className="px-3 py-2 font-mono text-xs font-semibold">
-                    {fmt(Number(r.value))}
-                  </td>
-                  <td className="px-3 py-2 text-xs">
-                    {r.in_range ? (
-                      "En rango"
-                    ) : (
-                      <span className="inline-flex items-center gap-1 font-semibold text-q-bad-fg">
-                        <CircleX aria-hidden className="size-3.5" /> Fuera de rango
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-xs">
-                    {r.action ?? "—"}
-                    <CorrectionButton
-                      batchId={batchId}
-                      table="weight_controls"
-                      recordId={r.id}
-                      field="action"
-                      current={r.action ?? ""}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      ) : null}
-      {canRecord ? (
-        <div className="grid gap-3">
-          <div className="grid grid-cols-[200px_1fr] gap-3 max-[1023px]:grid-cols-1">
-            <Field id={`wv-${presentationId}`} label="Peso neto (g) *">
-              <Input
-                id={`wv-${presentationId}`}
-                inputMode="decimal"
-                className="h-12 font-mono text-[16px]"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            </Field>
-            {outOfRange ? (
-              <Field id={`wa-${presentationId}`} label="Acción tomada * (fuera de rango)">
-                <Input
-                  id={`wa-${presentationId}`}
-                  className="h-12"
-                  value={action}
-                  onChange={(e) => setAction(e.target.value)}
+            ) : (
+              <g key={r.id}>
+                <rect
+                  x={x(i) - 6}
+                  y={y(Number(r.value)) - 6}
+                  width="12"
+                  height="12"
+                  transform={`rotate(45 ${x(i)} ${y(Number(r.value))})`}
+                  className="fill-q-bad-ic"
                 />
-              </Field>
-            ) : null}
-          </div>
-          {outOfRange ? (
-            <p role="alert" className="flex items-center gap-1.5 text-sm text-q-bad-fg">
-              <CircleX aria-hidden className="size-4" /> {value} g está fuera del rango{" "}
-              {fmt(limits.min)}–{fmt(limits.max)} g: registre la acción tomada.
-            </p>
-          ) : null}
-          <div>
-            <SignedAction
-              label="Registrar control"
-              title={`Control de peso · ${presentation}`}
-              meaning="Ejecuté"
-              summary={[{ label: "Peso neto", value: `${value} g`, mono: true }]}
-              signer={signer}
-              validate={() =>
-                !n
-                  ? "Registre el peso neto."
-                  : outOfRange && !action.trim()
-                    ? "Registre la acción tomada."
-                    : null
-              }
-              run={async (pw) => {
-                const res = await recordWeight(
-                  batchId,
-                  { stageOrderId, presentationId, value: n, action },
-                  pw,
-                );
-                if (res.ok) {
-                  setValue("");
-                  setAction("");
-                }
-                return res;
-              }}
-              testId="record-weight"
-            />
-          </div>
-        </div>
-      ) : null}
-    </section>
+                <text
+                  x={x(i)}
+                  y={y(Number(r.value)) - 12}
+                  textAnchor="middle"
+                  className="fill-q-bad-fg text-[11px] font-semibold"
+                >
+                  {formatTime(r.sampled_at)} · {fmt(Number(r.value))} g · FUERA DE RANGO
+                </text>
+              </g>
+            ),
+          )}
+          {rows.map((r, i) => (
+            <text
+              key={`t-${r.id}`}
+              x={x(i)}
+              y={H - 8}
+              textAnchor="middle"
+              className="fill-text-secondary font-mono text-[11px]"
+            >
+              {formatTime(r.sampled_at)}
+            </text>
+          ))}
+        </svg>
+        <p className="flex flex-wrap gap-4 text-xs text-text-secondary">
+          <span className="flex items-center gap-1.5">
+            <span className="h-0.5 w-5 bg-primary" /> Peso neto (g)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-5 border-t-2 border-dashed border-text-strong" /> Límites{" "}
+            {fmt(limits.min)} – {fmt(limits.max)} g
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-2.5 rotate-45 bg-q-bad-ic" /> Fuera de rango
+          </span>
+        </p>
+      </section>
+    </div>
   );
 }
 
@@ -388,7 +478,8 @@ export function OutputForm({
   );
 }
 
-/** S-21 · Inspección de producto terminado de 9 puntos (RF-36, D-47): la firma coordinación o supervisión. */
+/** S-21 · Inspección de producto terminado de 9 puntos (RF-36, D-47): Conforme / No conforme por punto; la firma la
+ * coordinación o el supervisor. No se completa hasta marcar los 9. */
 export function InspectionForm({
   batchId,
   stageOrderId,
@@ -404,59 +495,81 @@ export function InspectionForm({
 }) {
   const [res, setRes] = useState<Record<number, string>>({});
   const [notes, setNotes] = useState<Record<number, string>>({});
-  const done = PT_POINTS.every((_, i) => res[i + 1]);
+  const marked = PT_POINTS.filter((_, i) => res[i + 1]).length;
+  const done = marked === PT_POINTS.length;
   return (
-    <div className="grid gap-2" data-testid="inspection-form">
-      <ol className="grid gap-2">
-        {PT_POINTS.map((p, i) => (
-          <li
-            key={p}
-            className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 max-[1023px]:grid-cols-1"
-          >
-            <span className="text-[15px]">
-              {i + 1}. {p}
-            </span>
-            <span className="flex gap-2" role="radiogroup" aria-label={`${p}: resultado`}>
-              {["conforme", "no_conforme"].map((r) => (
-                <label
-                  key={r}
-                  className={`flex min-h-11 items-center gap-2 rounded-md border px-3 text-sm ${res[i + 1] === r ? "border-primary bg-primary-soft font-semibold" : "border-border-control"}`}
-                >
-                  <input
-                    type="radio"
-                    name={`pt-${presentationId}-${i}`}
-                    className="size-5"
-                    checked={res[i + 1] === r}
-                    onChange={() => setRes((x) => ({ ...x, [i + 1]: r }))}
-                  />
-                  {r === "conforme" ? "Conforme" : "No conforme"}
-                </label>
-              ))}
-            </span>
-            <Input
-              aria-label={`Observación del punto ${i + 1}`}
-              className="h-11"
-              value={notes[i + 1] ?? ""}
-              onChange={(e) => setNotes((x) => ({ ...x, [i + 1]: e.target.value }))}
-              placeholder="Observación"
-            />
-          </li>
-        ))}
+    <div className="grid gap-3" data-testid="inspection-form">
+      <ol className="grid">
+        {PT_POINTS.map((p, i) => {
+          const r = res[i + 1];
+          return (
+            <li
+              key={p}
+              className="grid grid-cols-[28px_1fr_auto_auto] items-center gap-3 border-t border-divider py-2.5 first:border-0 max-[1023px]:grid-cols-[28px_1fr]"
+            >
+              <span className="flex size-7 items-center justify-center rounded-full bg-surface-sunken text-xs font-semibold">
+                {i + 1}
+              </span>
+              <span className="grid gap-1">
+                <span className="text-[15px]">{p}</span>
+                <Input
+                  aria-label={`Observación del punto ${i + 1}`}
+                  className="h-9 text-sm"
+                  value={notes[i + 1] ?? ""}
+                  onChange={(e) => setNotes((x) => ({ ...x, [i + 1]: e.target.value }))}
+                  placeholder="Sin observaciones"
+                />
+              </span>
+              <span
+                className="flex overflow-hidden rounded-md border border-border-control"
+                role="radiogroup"
+                aria-label={`${p}: resultado`}
+              >
+                {["conforme", "no_conforme"].map((v) => (
+                  <label
+                    key={v}
+                    className={`flex min-h-11 cursor-pointer items-center gap-1.5 px-3 text-sm font-semibold ${
+                      r === v
+                        ? v === "conforme"
+                          ? "bg-primary text-white"
+                          : "bg-q-bad-fg text-white"
+                        : "bg-surface text-text-strong"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`pt-${presentationId}-${i}`}
+                      className="sr-only"
+                      aria-label={v === "conforme" ? "Conforme" : "No conforme"}
+                      checked={r === v}
+                      onChange={() => setRes((x) => ({ ...x, [i + 1]: v }))}
+                    />
+                    <span aria-hidden>{v === "conforme" ? "✓ Conforme" : "✕ No conforme"}</span>
+                  </label>
+                ))}
+              </span>
+              <StatusBadge
+                status={!r ? "sin_dato" : r === "conforme" ? "vigente" : "vencido"}
+                label={!r ? "Pendiente" : r === "conforme" ? "Conforme" : "No conforme"}
+              />
+            </li>
+          );
+        })}
       </ol>
-      {!done ? (
-        <p className="text-sm text-text-secondary">
-          Marque los 9 puntos para firmar la inspección.
-        </p>
-      ) : null}
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-divider pt-3">
+        <span className="text-sm text-text-secondary">
+          {done
+            ? `${marked} de 9 puntos marcados.`
+            : `No disponible: falta marcar ${PT_POINTS.length - marked} puntos.`}
+        </span>
         <SignedAction
-          label="Firmar inspección"
+          label="Completar inspección"
           title={`Inspección de producto terminado · ${presentation}`}
           meaning="Verifiqué"
           summary={[
             {
               label: "Puntos",
-              value: `${Object.values(res).filter((r) => r === "conforme").length} conformes de 9`,
+              value: `${Object.values(res).filter((x) => x === "conforme").length} conformes de 9`,
             },
           ]}
           signer={signer}

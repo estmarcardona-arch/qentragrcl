@@ -12,7 +12,9 @@ export async function loadBatch(a: ProductionAccess, batchId: string) {
   const sb = a.supabase;
   const { data: batch } = await sb
     .from("batches")
-    .select("*, production_orders!batches_order_id_fkey(*), products(code, name)")
+    .select(
+      "*, production_orders!batches_order_id_fkey(*), products(code, name, titular, sanitary_registration)",
+    )
     .eq("id", batchId)
     .maybeSingle();
   if (!batch) return null;
@@ -113,7 +115,12 @@ export async function loadBatch(a: ProductionAccess, batchId: string) {
   return {
     batch,
     order,
-    product: batch.products as unknown as { code: string; name: string },
+    product: batch.products as unknown as {
+      code: string;
+      name: string;
+      titular: string | null;
+      sanitary_registration: string | null;
+    },
     stages: stages ?? [],
     stageSteps,
     clearances: (clearances ?? []).map((c) => ({
@@ -180,7 +187,9 @@ export type StageStep = {
 export async function loadEquipment(a: ProductionAccess) {
   const { data } = await a.supabase
     .from("v_equipment_status")
-    .select("id, code, name, equipment_type, valid, fitness, reasons")
+    .select(
+      "id, code, name, equipment_type, valid, fitness, reasons, calibration_due, maintenance_due, cleaning_until, requires_calibration, requires_cleaning",
+    )
     .eq("active", true)
     .order("code");
   return (data ?? []).map((e) => ({
@@ -190,6 +199,9 @@ export async function loadEquipment(a: ProductionAccess) {
     type: String(e.equipment_type),
     valid: Boolean(e.valid),
     reasons: (e.reasons as string[] | null) ?? [],
+    calibrationDue: e.requires_calibration ? (e.calibration_due ?? null) : "N.A.",
+    maintenanceDue: e.maintenance_due ?? null,
+    cleaningUntil: e.requires_cleaning ? (e.cleaning_until ?? null) : "N.A.",
   }));
 }
 
