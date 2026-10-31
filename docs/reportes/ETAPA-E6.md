@@ -1,7 +1,7 @@
 # Reporte de etapa E6 — Equipos y hoja de vida
 
 **Fase del PRD:** F5 (clave E5 en la matriz, D-44) · **Rama:** `etapa/E6` · **Fecha:** 31/10/2026
-**Estado:** **en verificación.** Construida y probada en local (pgTAP en transacción contra la nube, CI local completa). Pendiente: aplicar la migración 0027 en la nube (`db:push`, requiere su confirmación), ejecutar la CI de GitHub con las E2E y la aprobación del responsable.
+**Estado:** **en verificación.** Migración 0027 aplicada en la nube el 31/10/2026; pgTAP 27 de 27 en la nube; tarea `pg_cron` creada; equipos de ejemplo cargados en la nube (D-63). Pendiente: CI de GitHub con las E2E y la aprobación del responsable.
 
 ## Puerta de salida
 
@@ -32,8 +32,8 @@
 
 | Prueba                      | Requisito                                | Resultado                                                 |
 | --------------------------- | ---------------------------------------- | --------------------------------------------------------- |
-| pgTAP `0027_equipment` (33) | RF-50, RF-51, AC-44, AC-45, AC-46, AC-47 | Aprobado (transacción revertida contra la nube)           |
-| pgTAP total (0000–0027)     |                                          | 27 de 27 archivos aprobados (con 0027 pendiente)          |
+| pgTAP `0027_equipment` (33) | RF-50, RF-51, AC-44, AC-45, AC-46, AC-47 | Aprobado en la nube                                       |
+| pgTAP total (0000–0027)     |                                          | 27 de 27 archivos aprobados en la nube                    |
 | Bloque E6 de la semilla     |                                          | Cargado en transacción revertida: 5 equipos, 21 firmas    |
 | Vitest (53)                 | RF-02 (menú con Equipos), matriz 22 × 15 | Aprobado                                                  |
 | `npm run ci` (local)        |                                          | Aprobado: formato, lint, tipos, matriz, versiones y build |
@@ -51,7 +51,8 @@
 
 - Con la fecha real (31/10/2026) los cinco equipos del 0B salen **no aptos**: las limpiezas del 0B vencieron entre el 07 y el 12/10/2026 y ET-02 tiene el mantenimiento vencido. Es el comportamiento correcto; para verlos aptos se registra una limpieza nueva y otra persona la verifica.
 - Los certificados de la semilla no se cargan (el almacenamiento empieza vacío); las calibraciones nuevas sí exigen el archivo.
-- Los tipos de `database.types.ts` de las tablas nuevas se escribieron a mano; se regeneran con `npm run db:types` tras aplicar 0027 en la nube.
+- Los tipos de `database.types.ts` regenerados con `npm run db:types` tras aplicar 0027 coinciden con los escritos.
+- **Equipos de ejemplo (D-63):** los cinco del 0B están en la nube solo para demostración (`npm run seed:remote -- --catalogos --confirmar`, con 12 avisos y 12 correos en cola). En la entrega se reemplazan por el inventario real de equipos de la empresa.
 - El envío real de correos y el registro automático del «uso» desde la orden de producción llegan con D-37 y con F6.
 
 ## Comandos para reproducir
