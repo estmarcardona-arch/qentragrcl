@@ -385,9 +385,21 @@ export async function previewOrder(productId: string): Promise<
     const res = (await callRpc(supabase, "preview_production_order", {
       p_product: uuid.parse(productId),
     })) as Record<string, unknown>;
+    const docs = (res.documents as { version_id: string }[]) ?? [];
+    // Fecha en que quedó vigente cada versión (S-15: «Aprobada dd/mm/aaaa»).
+    const { data: versions } = await supabase
+      .from("document_versions")
+      .select("id, effective_at")
+      .in(
+        "id",
+        docs.map((d) => d.version_id),
+      );
     return {
       ok: true,
-      documents: (res.documents as unknown[]) ?? [],
+      documents: docs.map((d) => ({
+        ...d,
+        effective_at: versions?.find((v) => v.id === d.version_id)?.effective_at ?? null,
+      })),
       warnings: (res.warnings as { code: string; message: string }[]) ?? [],
       batchSize: Number(res.formula_batch_size ?? 0),
     };

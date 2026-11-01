@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { CircleX } from "lucide-react";
 import Link from "next/link";
+import { cn } from "cn";
 import { NoPermissionState } from "@/components/common/state-card";
+import { SodNotice } from "@/components/gxp/sod-notice";
 import { StatusBadge } from "@/components/gxp/status-badge";
 import { BatchHeader } from "@/components/production/batch-header";
-import { CleaningForm, VerifyButton } from "@/components/production/prep-forms";
-import { Stamps } from "@/components/production/stamps";
+import { CleaningForm, VerifyCleaningsButton } from "@/components/production/prep-forms";
+import { Card, GmpBlock } from "@/components/production/ui";
 import { formatDateTime } from "@/lib/format";
 import { loadEquipment } from "@/lib/production/batch";
-import { STAGE_LABELS } from "@/lib/production/labels";
+import { STAGE_LABELS, STAGE_STATUS } from "@/lib/production/labels";
 import { batchPage } from "@/lib/production/page";
 import { callRpc } from "@/lib/rpc";
 
 export const metadata: Metadata = { title: "Limpieza de equipos y utensilios · GRUFARCOL eBR" };
 
-// S-39 · Limpieza de equipos y utensilios antes de cada etapa (RF-39): rótulo verificado, vigencia y sellos. La
-// limpieza de un equipo queda también en su hoja de vida; sin limpieza vigente el equipo no se usa (EQUIPMENT_NOT_VALID).
+// S-39 · Limpieza de equipos y utensilios antes de cada etapa (RF-39; diseño «Orden y limpieza S-38 y S-39»): rótulo,
+// vigencia, quién ejecutó y quién verificó. La limpieza del equipo queda en su hoja de vida; sin limpieza vigente el
+// equipo no se usa (EQUIPMENT_NOT_VALID).
 export default async function CleaningPage({
   params,
   searchParams,
@@ -51,97 +53,209 @@ export default async function CleaningPage({
   ];
   const blocked = equipment.filter((e) => required.includes(e.code) && !e.valid);
   const records = data.cleanings.filter((c) => c.stage_order_id === stage.id);
+  const pending = records.filter((c) => c.status !== "verificado");
+  const mine = pending.filter((c) => c.cleaned_by === a.ctx.userId);
+  const verifiable = pending.filter((c) => c.cleaned_by !== a.ctx.userId);
+  const rows = records.flatMap((c) => [
+    ...(c.equipmentCode
+      ? [
+          {
+            key: `${c.id}-eq`,
+            c,
+            name: c.equipmentCode,
+            sub: equipment.find((e) => e.code === c.equipmentCode)?.name ?? "Equipo",
+            mono: true,
+          },
+        ]
+      : []),
+    ...(c.utensils as string[]).map((u, i) => ({
+      key: `${c.id}-u${i}`,
+      c,
+      name: u,
+      sub: "Utensilio",
+      mono: false,
+    })),
+  ]);
+  const vig = (until: string) => {
+    const ms = Date.parse(until);
+    return ms < nowMs
+      ? {
+          status: "vencido" as const,
+          label: "Vencida",
+          text: `Vencida desde ${formatDateTime(until)}`,
+        }
+      : ms - nowMs <= 48 * 3_600_000
+        ? {
+            status: "por_vencer" as const,
+            label: "Por vencer",
+            text: `Vigente hasta ${formatDateTime(until)}`,
+          }
+        : {
+            status: "vigente" as const,
+            label: "Vigente",
+            text: `Vigente hasta ${formatDateTime(until)}`,
+          };
+  };
+  const th = "px-4 py-3 text-label uppercase";
   return (
-    <main className="grid content-start gap-4 px-8 pt-6 pb-10 max-[1279px]:px-4">
-      <BatchHeader data={data} title={`Limpieza · ${label}`} current="despeje" />
-      <nav aria-label="Área" className="flex flex-wrap gap-1.5">
-        {data.stages.map((s) => (
-          <Link
-            key={s.id}
-            href={`/produccion/lotes/${id}/limpieza?etapa=${s.stage}`}
-            aria-current={s.id === stage.id ? "page" : undefined}
-            className={`inline-flex min-h-11 items-center rounded-full border px-4 text-[14px] no-underline ${s.id === stage.id ? "border-primary bg-primary font-semibold text-white" : "border-border-control bg-white"}`}
-          >
-            {STAGE_LABELS[s.stage]}
-          </Link>
-        ))}
+    <main className="grid content-start gap-5 px-8 pt-6 pb-10 max-[1279px]:px-4">
+      <BatchHeader
+        data={data}
+        title={`Limpieza · ${label}`}
+        current="despeje"
+        subtitle={`Lote ${data.batch.batch_code} · ${data.order.code}`}
+      />
+      <nav
+        aria-label="Área"
+        className="flex flex-wrap gap-1 rounded-[10px] border border-border bg-surface px-3 pt-2"
+      >
+        {data.stages.map((s) => {
+          const st = STAGE_STATUS[s.status] ?? STAGE_STATUS.pendiente;
+          return (
+            <Link
+              key={s.id}
+              href={`/produccion/lotes/${id}/limpieza?etapa=${s.stage}`}
+              aria-current={s.id === stage.id ? "page" : undefined}
+              className={cn(
+                "-mb-px inline-flex min-h-12 items-center gap-2 border-b-2 px-4 text-[15px] no-underline",
+                s.id === stage.id
+                  ? "border-primary font-semibold text-primary"
+                  : "border-transparent text-text-strong",
+              )}
+            >
+              {STAGE_LABELS[s.stage]} <StatusBadge status={st.status} label={st.label} />
+            </Link>
+          );
+        })}
       </nav>
       {blocked.map((e) => (
-        <p
+        <GmpBlock
           key={e.id}
-          role="alert"
-          className="flex flex-wrap items-start gap-2 rounded-lg border border-q-bad-bd bg-q-bad-bg px-3.5 py-2.5 text-sm text-q-bad-fg"
-          data-testid="equipment-blocked"
-        >
-          <CircleX aria-hidden className="mt-0.5 size-4" />
-          <span>
-            <b>{e.code}</b> no está apto ({e.reasons.join("; ")}): no puede usarse en el registro de{" "}
-            {label.toLowerCase()}. Registre la limpieza o use otro equipo.
-          </span>
-        </p>
+          testId="equipment-blocked"
+          rule={`${e.code} sin ${e.reasons.some((r) => r.includes("limpieza")) ? "limpieza vigente" : "estado vigente"} (${e.reasons.join("; ")}): no puede usarse en el registro de ${label.toLowerCase()}.`}
+          action="Registre la limpieza o use otro equipo."
+        />
       ))}
       <section
-        className="grid gap-3 rounded-[10px] border border-border bg-surface p-5"
+        className="overflow-hidden rounded-[10px] border border-border bg-surface"
         aria-labelledby="rec"
       >
-        <h2 id="rec" className="text-card-title">
-          Limpiezas de {label.toLowerCase()} ({stage.code})
-        </h2>
-        {records.length === 0 ? (
-          <p className="text-sm text-text-secondary">
+        <header className="flex flex-wrap items-start justify-between gap-3 p-5">
+          <div>
+            <h2 id="rec" className="text-[18px] font-semibold">
+              Limpieza de equipos y utensilios · {label}
+            </h2>
+            <p className="text-sm text-text-secondary">
+              Lote {data.batch.batch_code} · ejecuta el auxiliar de producción, verifica la
+              coordinación
+            </p>
+          </div>
+          {blocked.length ? (
+            <StatusBadge
+              status="bloqueada"
+              label={`Bloqueada · ${blocked.map((e) => e.code).join(", ")} sin limpieza vigente`}
+            />
+          ) : pending.length ? (
+            <StatusBadge status="en_revision" label="Pendiente de verificación" />
+          ) : records.length ? (
+            <StatusBadge status="completada" label="Verificada" />
+          ) : null}
+        </header>
+        {rows.length ? (
+          <table className="w-full text-left text-sm" data-testid="cleanings">
+            <thead className="bg-surface-sunken">
+              <tr>
+                {[
+                  "Rótulo",
+                  "Equipo o utensilio",
+                  "Limpieza",
+                  "Vigencia",
+                  "Ejecutó",
+                  "Verificó",
+                ].map((h) => (
+                  <th key={h} scope="col" className={th}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ key, c, name, sub, mono }) => {
+                const v = vig(c.valid_until);
+                return (
+                  <tr
+                    key={key}
+                    className={cn(
+                      "border-t border-divider",
+                      v.status === "vencido" && "bg-q-bad-bg/60",
+                      c.status !== "verificado" && v.status !== "vencido" && "bg-primary-soft/30",
+                    )}
+                  >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        readOnly
+                        checked={c.status === "verificado"}
+                        aria-label={`Rótulo de limpieza de ${name} verificado`}
+                        className="size-6 accent-primary"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <b className={cn("font-semibold", mono && "font-mono")}>{name}</b>
+                      <span className="block text-xs text-text-secondary">{sub}</span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs">{formatDateTime(c.cleaned_at)}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={v.status} label={v.label} />
+                      <span className="block text-xs text-text-secondary">{v.text}</span>
+                    </td>
+                    <td className="px-4 py-3">{c.cleanedBy}</td>
+                    <td className="px-4 py-3">
+                      {c.verifiedBy ? (
+                        `${c.verifiedBy} · ${formatDateTime(String(c.verified_at)).slice(11)}`
+                      ) : (
+                        <span className="text-text-secondary">pendiente</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p className="px-5 pb-5 text-sm text-text-secondary">
             Aún no hay limpiezas registradas para esta etapa.
           </p>
-        ) : (
-          <ul className="grid gap-3" data-testid="cleanings">
-            {records.map((c) => (
-              <li key={c.id} className="grid gap-1.5 border-b border-divider pb-3 last:border-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-sm font-semibold">
-                    {c.equipmentCode ?? "Utensilios"}
-                  </span>
-                  <span className="text-sm">{(c.utensils as string[]).join(", ")}</span>
-                  <StatusBadge
-                    status={Date.parse(c.valid_until) > nowMs ? "vigente" : "vencido"}
-                    label={`Vigente hasta ${formatDateTime(c.valid_until)}`}
-                  />
-                  <span className="text-xs">Rótulo de limpieza colocado y verificado</span>
-                </div>
-                <Stamps
-                  executedBy={c.cleanedBy}
-                  executedAt={c.cleaned_at}
-                  verifiedBy={c.verifiedBy}
-                  verifiedAt={c.verified_at}
-                />
-                {c.status !== "verificado" && a.sign && c.cleaned_by !== a.ctx.userId ? (
-                  <div>
-                    <VerifyButton
-                      kind="cleaning"
-                      batchId={id}
-                      recordId={c.id}
-                      label="Verificar limpieza"
-                      title={`Verificar limpieza · ${c.equipmentCode ?? "utensilios"}`}
-                      summary={[
-                        { label: "Limpió", value: c.cleanedBy },
-                        { label: "Vigente hasta", value: formatDateTime(c.valid_until) },
-                      ]}
-                      signer={a.signer}
-                      testId="verify-cleaning"
-                    />
-                  </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
         )}
+        {pending.length ? (
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-divider p-4">
+            <p className="text-sm text-text-secondary">
+              «Rótulo de limpieza colocado y verificado»: lo marca quien verifica, no quien ejecutó
+              la limpieza.
+            </p>
+            {verifiable.length && a.sign ? (
+              <VerifyCleaningsButton
+                batchId={id}
+                ids={verifiable.map((c) => c.id)}
+                stageLabel={label}
+                executedBy={verifiable[0].cleanedBy}
+                signer={a.signer}
+              />
+            ) : mine.length ? (
+              <SodNotice
+                title="No puede verificar su propia limpieza"
+                reason="La verificación la hace otra persona (segregación de funciones)."
+                who="Puede verificar: coordinación de producción o un supervisor."
+              />
+            ) : null}
+          </footer>
+        ) : null}
       </section>
       {a.execute && stage.status !== "completada" ? (
-        <section
-          className="grid gap-3 rounded-[10px] border border-border bg-surface p-5"
-          aria-labelledby="new"
+        <Card
+          title="Registrar limpieza"
+          subtitle="La limpieza de un equipo queda también en su hoja de vida."
         >
-          <h2 id="new" className="text-card-title">
-            Registrar limpieza
-          </h2>
           <CleaningForm
             batchId={id}
             stageOrderId={stage.id}
@@ -151,7 +265,7 @@ export default async function CleaningPage({
               .map((e) => ({ id: e.id, code: e.code, name: e.name }))}
             signer={a.signer}
           />
-        </section>
+        </Card>
       ) : null}
       <p className="text-sm">
         Siguiente:{" "}
